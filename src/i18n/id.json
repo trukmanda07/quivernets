@@ -52,5 +52,12 @@
     "current": "Bahasa Indonesia",
     "availableIn": "Tersedia juga dalam",
     "notAvailable": "Artikel ini tidak tersedia dalam"
+  },
+  "presentation": {
+    "readBlog": "Baca Blog",
+    "share": "Bagikan",
+    "shareThisSlide": "Bagikan slide ini",
+    "copyLink": "Salin Tautan",
+    "shareOn": "Bagikan di"
   }
 }
