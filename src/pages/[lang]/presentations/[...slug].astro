@@ -1,0 +1,57 @@
+---
+import PresentationLayout from '../../../layouts/PresentationLayout.astro';
+import PresentationBase from '../../../components/PresentationBase.astro';
+
+export async function getStaticPaths() {
+  // Load all presentation JSON files
+  const enPresentations = import.meta.glob('/src/content/presentations-en/*.json', { eager: true });
+  const idPresentations = import.meta.glob('/src/content/presentations-id/*.json', { eager: true });
+
+  const paths = [];
+
+  // Process English presentations
+  for (const [path, module] of Object.entries(enPresentations)) {
+    const slug = path.split('/').pop()?.replace('.json', '');
+    if (slug) {
+      paths.push({
+        params: { lang: 'en', slug },
+        props: { data: module as any, lang: 'en' }
+      });
+    }
+  }
+
+  // Process Indonesian presentations
+  for (const [path, module] of Object.entries(idPresentations)) {
+    const slug = path.split('/').pop()?.replace('.json', '');
+    if (slug) {
+      paths.push({
+        params: { lang: 'id', slug },
+        props: { data: module as any, lang: 'id' }
+      });
+    }
+  }
+
+  return paths;
+}
+
+interface Props {
+  data: any;
+  lang: string;
+}
+
+const { data, lang } = Astro.props;
+---
+
+<PresentationLayout
+  title={data.title}
+  description={data.description}
+  language={lang}
+>
+  <PresentationBase
+    slides={data.slides}
+    title={data.title}
+    totalSlides={data.totalSlides}
+    relatedBlogPost={data.relatedBlogPost}
+    language={lang}
+  />
+</PresentationLayout>

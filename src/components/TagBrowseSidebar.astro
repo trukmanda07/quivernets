@@ -1,0 +1,571 @@
+---
+/**
+ * Tag Browse Sidebar Component
+ * Enhanced sidebar for browsing tags with search, skill levels, and tag cloud
+ * Designed for right-side placement in blog layout
+ */
+
+import Tag from './Tag.astro';
+import { useTranslations } from '../utils/i18n';
+
+interface TagInfo {
+	name: string;
+	slug: string;
+	count: number;
+}
+
+interface Props {
+	lang: string;
+	tags: TagInfo[];
+	currentTag?: string;
+	sticky?: boolean;
+	showSkillLevels?: boolean;
+	maxTags?: number;
+}
+
+const {
+	lang,
+	tags = [],
+	currentTag,
+	sticky = true,
+	showSkillLevels = true,
+	maxTags = 30
+} = Astro.props;
+
+const t = useTranslations(lang);
+
+// Sort tags by count (most popular first)
+const sortedTags = [...tags]
+	.sort((a, b) => b.count - a.count)
+	.slice(0, maxTags);
+
+// Calculate if we should show "View All" link
+const hasMoreTags = tags.length > maxTags;
+---
+
+<aside class={`tag-browse-sidebar ${sticky ? 'sidebar-sticky' : ''}`}>
+	<!-- Guided Learning Paths Section -->
+	{showSkillLevels && (
+		<div class="sidebar-section skill-levels-section">
+			<h3 class="sidebar-title">
+				<span class="title-icon">🎓</span>
+				{t.filters.difficulty || 'Guided Learning Paths'}
+			</h3>
+			<div class="skill-levels">
+				<a href={`/${lang}/blog?difficulty=beginner`} class="skill-level skill-beginner">
+					<span class="skill-icon">⭐</span>
+					<span class="skill-label">{t.difficulty?.beginner || 'Basics'}</span>
+				</a>
+				<a href={`/${lang}/blog?difficulty=intermediate`} class="skill-level skill-intermediate">
+					<span class="skill-icon">⭐⭐</span>
+					<span class="skill-label">{t.difficulty?.intermediate || 'Intermediate'}</span>
+				</a>
+				<a href={`/${lang}/blog?difficulty=advanced`} class="skill-level skill-advanced">
+					<span class="skill-icon">⭐⭐⭐</span>
+					<span class="skill-label">{t.difficulty?.advanced || 'Advanced'}</span>
+				</a>
+			</div>
+		</div>
+	)}
+
+	<!-- Tag Search Section -->
+	<div class="sidebar-section tag-search-section">
+		<h3 class="sidebar-title">
+			<span class="title-icon">🔍</span>
+			{lang === 'en' ? 'Find Topics' : 'Cari Topik'}
+		</h3>
+		<div class="search-wrapper">
+			<input
+				type="text"
+				id="tag-search-input"
+				class="tag-search-input"
+				placeholder={lang === 'en' ? 'Filter tags...' : 'Filter label...'}
+				aria-label="Search tags"
+			/>
+			<svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+				<circle cx="11" cy="11" r="8"></circle>
+				<path d="m21 21-4.3-4.3"></path>
+			</svg>
+		</div>
+	</div>
+
+	<!-- Browse Topics Section -->
+	<div class="sidebar-section tags-section">
+		<div class="section-header">
+			<h3 class="sidebar-title">
+				<span class="title-icon">📑</span>
+				{t.tags?.title || 'Browse Topics'}
+			</h3>
+			<span class="tag-count-badge">{tags.length}</span>
+		</div>
+
+		<!-- Multi-select instructions -->
+		<div class="multi-select-hint">
+			<small>{lang === 'en' ? 'Click tags to filter posts' : 'Klik label untuk filter'}</small>
+		</div>
+
+		<div class="tag-cloud" id="tag-cloud">
+			{sortedTags.length > 0 ? (
+				sortedTags.map((tagInfo) => (
+					<button
+						class="tag-button"
+						data-tag-slug={tagInfo.slug}
+						data-tag-name={tagInfo.name}
+						aria-label={`Filter by ${tagInfo.name}`}
+					>
+						<Tag
+							tag={tagInfo.name}
+							lang={lang}
+							size="sm"
+							variant="minimal"
+							density="compact"
+							showCount={true}
+							count={tagInfo.count}
+						/>
+					</button>
+				))
+			) : (
+				<p class="no-tags">{lang === 'en' ? 'No tags available' : 'Tidak ada label'}</p>
+			)}
+		</div>
+
+		{hasMoreTags && (
+			<a href={`/${lang}/tags/`} class="view-all-link">
+				{t.tags?.allTags || 'View All Tags'} →
+			</a>
+		)}
+	</div>
+</aside>
+
+<script>
+	// Client-side tag search/filter functionality
+	function initTagSearch() {
+		const searchInput = document.getElementById('tag-search-input') as HTMLInputElement;
+		const tagCloud = document.getElementById('tag-cloud');
+
+		if (!searchInput || !tagCloud) return;
+
+		const tagButtons = Array.from(tagCloud.querySelectorAll('.tag-button'));
+
+		searchInput.addEventListener('input', (e) => {
+			const query = (e.target as HTMLInputElement).value.toLowerCase().trim();
+
+			let visibleCount = 0;
+
+			tagButtons.forEach((button) => {
+				const tagText = button.textContent?.toLowerCase() || '';
+				const matches = tagText.includes(query);
+
+				if (matches || query === '') {
+					(button as HTMLElement).style.display = 'inline-flex';
+					visibleCount++;
+				} else {
+					(button as HTMLElement).style.display = 'none';
+				}
+			});
+
+			// Show/hide empty state
+			const noTags = tagCloud.querySelector('.no-tags');
+			if (visibleCount === 0 && !noTags) {
+				const emptyMessage = document.createElement('p');
+				emptyMessage.className = 'no-tags no-results';
+				emptyMessage.textContent = document.documentElement.lang === 'en'
+					? 'No matching tags found'
+					: 'Tidak ada label yang cocok';
+				tagCloud.appendChild(emptyMessage);
+			} else if (visibleCount > 0 && noTags) {
+				noTags.remove();
+			}
+		});
+
+		// Clear search on escape
+		searchInput.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape') {
+				searchInput.value = '';
+				searchInput.dispatchEvent(new Event('input'));
+				searchInput.blur();
+			}
+		});
+	}
+
+	// Multi-select tag filtering functionality
+	function initTagFiltering() {
+		const tagCloud = document.getElementById('tag-cloud');
+		if (!tagCloud) return;
+
+		const tagButtons = Array.from(tagCloud.querySelectorAll('.tag-button')) as HTMLButtonElement[];
+
+		// Get current selected tags from URL
+		function getSelectedTags(): string[] {
+			const params = new URLSearchParams(window.location.search);
+			const tagsParam = params.get('tags');
+			return tagsParam ? tagsParam.split(',') : [];
+		}
+
+		// Mark currently selected tags
+		function updateSelectedStates() {
+			const selectedTags = getSelectedTags();
+			tagButtons.forEach((button) => {
+				const tagSlug = button.getAttribute('data-tag-slug');
+				if (tagSlug && selectedTags.includes(tagSlug)) {
+					button.classList.add('selected');
+				} else {
+					button.classList.remove('selected');
+				}
+			});
+		}
+
+		// Handle tag click
+		tagButtons.forEach((button) => {
+			button.addEventListener('click', (e) => {
+				e.preventDefault();
+				const tagSlug = button.getAttribute('data-tag-slug');
+				if (!tagSlug) return;
+
+				// Get current URL params
+				const url = new URL(window.location.href);
+				const params = new URLSearchParams(url.search);
+				let currentTags = getSelectedTags();
+
+				// Toggle tag selection
+				if (currentTags.includes(tagSlug)) {
+					// Remove tag
+					currentTags = currentTags.filter(t => t !== tagSlug);
+				} else {
+					// Add tag
+					currentTags.push(tagSlug);
+				}
+
+				// Update URL
+				if (currentTags.length > 0) {
+					params.set('tags', currentTags.join(','));
+				} else {
+					params.delete('tags');
+				}
+
+				// Navigate to new URL
+				const lang = document.documentElement.lang || 'en';
+				const newURL = `/${lang}/blog${params.toString() ? '?' + params.toString() : ''}`;
+				window.location.href = newURL;
+			});
+		});
+
+		// Initialize selected states
+		updateSelectedStates();
+	}
+
+	// Initialize on page load
+	function init() {
+		initTagSearch();
+		initTagFiltering();
+	}
+
+	init();
+
+	// Re-initialize on Astro page transitions
+	document.addEventListener('astro:page-load', init);
+</script>
+
+<style>
+	.tag-browse-sidebar {
+		width: 100%;
+		max-width: 280px;
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+	}
+
+	.sidebar-sticky {
+		position: sticky;
+		top: 2rem;
+		align-self: flex-start;
+		max-height: calc(100vh - 4rem);
+		overflow-y: auto;
+		overflow-x: hidden;
+	}
+
+	/* Custom scrollbar */
+	.sidebar-sticky::-webkit-scrollbar {
+		width: 4px;
+	}
+
+	.sidebar-sticky::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	.sidebar-sticky::-webkit-scrollbar-thumb {
+		background: rgba(0, 0, 0, 0.2);
+		border-radius: 2px;
+	}
+
+	.sidebar-sticky::-webkit-scrollbar-thumb:hover {
+		background: rgba(0, 0, 0, 0.3);
+	}
+
+	/* Section styling */
+	.sidebar-section {
+		background: rgb(var(--gray-light));
+		padding: 1.25rem;
+		border-radius: 8px;
+		border: 1px solid rgba(0, 0, 0, 0.05);
+	}
+
+	.sidebar-title {
+		margin: 0 0 1rem 0;
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: rgb(var(--black));
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.title-icon {
+		font-size: 1rem;
+	}
+
+	.section-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 1rem;
+	}
+
+	.section-header .sidebar-title {
+		margin-bottom: 0;
+	}
+
+	.tag-count-badge {
+		background: rgb(var(--accent));
+		color: white;
+		font-size: 0.75rem;
+		font-weight: 600;
+		padding: 0.25rem 0.5rem;
+		border-radius: 12px;
+		line-height: 1;
+	}
+
+	/* Skill Levels Section */
+	.skill-levels {
+		display: flex;
+		flex-direction: column;
+		gap: 0.625rem;
+	}
+
+	.skill-level {
+		display: flex;
+		align-items: center;
+		gap: 0.625rem;
+		padding: 0.75rem 1rem;
+		background: white;
+		border: 2px solid transparent;
+		border-radius: 8px;
+		text-decoration: none;
+		transition: all 0.2s ease;
+		font-size: 0.875rem;
+		font-weight: 500;
+	}
+
+	.skill-icon {
+		font-size: 1rem;
+	}
+
+	.skill-label {
+		color: rgb(var(--gray-dark));
+		flex: 1;
+	}
+
+	.skill-level:hover {
+		transform: translateX(4px);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	}
+
+	.skill-beginner:hover {
+		border-color: rgb(34, 197, 94);
+		background: rgba(34, 197, 94, 0.05);
+	}
+
+	.skill-beginner:hover .skill-label {
+		color: rgb(34, 197, 94);
+	}
+
+	.skill-intermediate:hover {
+		border-color: rgb(249, 115, 22);
+		background: rgba(249, 115, 22, 0.05);
+	}
+
+	.skill-intermediate:hover .skill-label {
+		color: rgb(249, 115, 22);
+	}
+
+	.skill-advanced:hover {
+		border-color: rgb(239, 68, 68);
+		background: rgba(239, 68, 68, 0.05);
+	}
+
+	.skill-advanced:hover .skill-label {
+		color: rgb(239, 68, 68);
+	}
+
+	/* Tag Search Section */
+	.search-wrapper {
+		position: relative;
+	}
+
+	.tag-search-input {
+		width: 100%;
+		padding: 0.625rem 0.875rem;
+		padding-left: 2.5rem;
+		border: 1px solid rgb(203, 213, 225);
+		border-radius: 6px;
+		font-size: 0.875rem;
+		color: rgb(var(--black));
+		background: white;
+		transition: all 0.2s ease;
+	}
+
+	.tag-search-input:focus {
+		outline: none;
+		border-color: rgb(var(--accent));
+		box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.1);
+	}
+
+	.tag-search-input::placeholder {
+		color: rgb(148, 163, 184);
+	}
+
+	.search-icon {
+		position: absolute;
+		left: 0.75rem;
+		top: 50%;
+		transform: translateY(-50%);
+		color: rgb(148, 163, 184);
+		pointer-events: none;
+	}
+
+	/* Multi-select hint */
+	.multi-select-hint {
+		margin-bottom: 0.75rem;
+		padding: 0.5rem;
+		background: rgba(59, 130, 246, 0.05);
+		border-left: 3px solid rgb(59, 130, 246);
+		border-radius: 4px;
+	}
+
+	.multi-select-hint small {
+		color: rgb(30, 64, 175);
+		font-size: 0.75rem;
+		font-weight: 500;
+	}
+
+	/* Tag Cloud Section */
+	.tag-cloud {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		min-height: 3rem;
+		position: relative;
+	}
+
+	.no-tags {
+		width: 100%;
+		text-align: center;
+		color: rgb(var(--gray));
+		font-size: 0.875rem;
+		padding: 1rem 0;
+		margin: 0;
+	}
+
+	.no-results {
+		color: rgb(var(--gray-dark));
+		font-style: italic;
+	}
+
+	/* Tag button wrapper for multi-select */
+	.tag-button {
+		all: unset;
+		display: inline-flex;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		border-radius: 6px;
+		position: relative;
+	}
+
+	.tag-button:focus {
+		outline: 2px solid rgb(var(--accent));
+		outline-offset: 2px;
+	}
+
+	.tag-button:hover {
+		transform: translateY(-1px);
+	}
+
+	.tag-button.selected {
+		outline: 2px solid rgb(139, 92, 246);
+		outline-offset: 1px;
+		background: rgba(139, 92, 246, 0.1);
+		border-radius: 6px;
+	}
+
+	.tag-button.selected::after {
+		content: '✓';
+		position: absolute;
+		top: -4px;
+		right: -4px;
+		background: rgb(139, 92, 246);
+		color: white;
+		width: 16px;
+		height: 16px;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 10px;
+		font-weight: bold;
+		border: 2px solid white;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+	}
+
+	.view-all-link {
+		display: inline-block;
+		margin-top: 1rem;
+		color: rgb(var(--accent));
+		text-decoration: none;
+		font-size: 0.875rem;
+		font-weight: 500;
+		transition: all 0.2s ease;
+	}
+
+	.view-all-link:hover {
+		text-decoration: underline;
+		transform: translateX(2px);
+	}
+
+	/* Responsive behavior */
+	@media (max-width: 1200px) {
+		.tag-browse-sidebar {
+			max-width: 100%;
+		}
+
+		.sidebar-sticky {
+			position: static;
+			max-height: none;
+		}
+	}
+
+	@media (max-width: 768px) {
+		.sidebar-section {
+			padding: 1rem;
+		}
+
+		.skill-level {
+			padding: 0.625rem 0.875rem;
+		}
+
+		.tag-cloud {
+			gap: 0.375rem;
+		}
+	}
+</style>

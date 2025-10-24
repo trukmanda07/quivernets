@@ -1,0 +1,249 @@
+---
+/**
+ * Sidebar Navigation Component
+ * Displays navigation elements like categories, tags, difficulty filters
+ *
+ * Usage:
+ * <Sidebar
+ *   lang="en"
+ *   categories={[{name: 'Math', count: 5, slug: 'math'}]}
+ *   tags={['calculus', 'algebra']}
+ *   showDifficulty={true}
+ * />
+ */
+
+import Tag from './Tag.astro';
+import { useTranslations } from '../utils/i18n';
+
+export interface Category {
+	name: string;
+	slug: string;
+	count: number;
+}
+
+interface Props {
+	lang: string;
+	categories?: Category[];
+	tags?: string[];
+	showDifficulty?: boolean;
+	currentCategory?: string;
+	currentTag?: string;
+	currentDifficulty?: string;
+	sticky?: boolean;
+}
+
+const {
+	lang,
+	categories = [],
+	tags = [],
+	showDifficulty = true,
+	currentCategory,
+	currentTag,
+	currentDifficulty,
+	sticky = false
+} = Astro.props;
+
+const t = useTranslations(lang);
+const difficulties = ['beginner', 'intermediate', 'advanced'] as const;
+---
+
+<aside class={`sidebar ${sticky ? 'sidebar-sticky' : ''}`}>
+	<!-- Categories Section -->
+	{categories.length > 0 && (
+		<div class="sidebar-section">
+			<h3 class="sidebar-title">{t.filters.category}</h3>
+			<ul class="sidebar-list">
+				{categories.map(category => (
+					<li class={currentCategory === category.slug ? 'active' : ''}>
+						<a href={`/${lang}/categories/${category.slug}`}>
+							<span class="category-name">{category.name}</span>
+							<span class="category-count">{category.count}</span>
+						</a>
+					</li>
+				))}
+			</ul>
+		</div>
+	)}
+
+	<!-- Difficulty Section -->
+	{showDifficulty && (
+		<div class="sidebar-section">
+			<h3 class="sidebar-title">{t.filters.difficulty}</h3>
+			<ul class="sidebar-list difficulty-list">
+				{difficulties.map(difficulty => (
+					<li class={currentDifficulty === difficulty ? 'active' : ''}>
+						<a href={`/${lang}/blog?difficulty=${difficulty}`}>
+							<span class="difficulty-badge" data-difficulty={difficulty}>
+								{t.difficulty[difficulty]}
+							</span>
+						</a>
+					</li>
+				))}
+			</ul>
+		</div>
+	)}
+
+	<!-- Tags Section -->
+	{tags.length > 0 && (
+		<div class="sidebar-section">
+			<h3 class="sidebar-title">{t.tags.title}</h3>
+			<div class="sidebar-tags">
+				{tags.slice(0, 15).map(tag => (
+					<Tag tag={tag} lang={lang} size="sm" />
+				))}
+			</div>
+			{tags.length > 15 && (
+				<a href={`/${lang}/tags/`} class="view-all-link">
+					{t.tags.allTags} →
+				</a>
+			)}
+		</div>
+	)}
+</aside>
+
+<style>
+	.sidebar {
+		width: 100%;
+		max-width: 300px;
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+	}
+
+	.sidebar-sticky {
+		position: sticky;
+		top: 2rem;
+		align-self: flex-start;
+	}
+
+	.sidebar-section {
+		background: rgb(var(--gray-light));
+		padding: 1.5rem;
+		border-radius: 8px;
+	}
+
+	.sidebar-title {
+		margin: 0 0 1rem 0;
+		font-size: 1rem;
+		font-weight: 600;
+		color: rgb(var(--black));
+	}
+
+	.sidebar-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.sidebar-list li a {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 0.5rem 0.75rem;
+		color: rgb(var(--gray-dark));
+		text-decoration: none;
+		border-radius: 4px;
+		transition: all 0.2s ease;
+		font-size: 0.875rem;
+	}
+
+	.sidebar-list li a:hover {
+		background: white;
+		color: rgb(var(--accent));
+	}
+
+	.sidebar-list li.active a {
+		background: rgb(var(--accent));
+		color: white;
+		font-weight: 600;
+	}
+
+	.category-name {
+		flex: 1;
+	}
+
+	.category-count {
+		background: rgba(0, 0, 0, 0.1);
+		padding: 0.125rem 0.5rem;
+		border-radius: 12px;
+		font-size: 0.75rem;
+		font-weight: 600;
+	}
+
+	.sidebar-list li.active .category-count {
+		background: rgba(255, 255, 255, 0.3);
+	}
+
+	.difficulty-list li a {
+		justify-content: center;
+	}
+
+	.difficulty-badge {
+		padding: 0.5rem 1rem;
+		border-radius: 20px;
+		background: white;
+		border: 2px solid rgb(var(--gray));
+		color: rgb(var(--gray-dark));
+		font-weight: 500;
+		text-align: center;
+		width: 100%;
+		transition: all 0.2s ease;
+	}
+
+	.difficulty-badge[data-difficulty="beginner"] {
+		border-color: #22c55e;
+	}
+
+	.difficulty-badge[data-difficulty="intermediate"] {
+		border-color: #f59e0b;
+	}
+
+	.difficulty-badge[data-difficulty="advanced"] {
+		border-color: #ef4444;
+	}
+
+	.sidebar-list li a:hover .difficulty-badge {
+		background: rgb(var(--accent));
+		border-color: rgb(var(--accent));
+		color: white;
+	}
+
+	.sidebar-list li.active .difficulty-badge {
+		background: rgb(var(--accent));
+		border-color: rgb(var(--accent));
+		color: white;
+	}
+
+	.sidebar-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+
+	.view-all-link {
+		display: inline-block;
+		margin-top: 1rem;
+		color: rgb(var(--accent));
+		text-decoration: none;
+		font-size: 0.875rem;
+		font-weight: 500;
+	}
+
+	.view-all-link:hover {
+		text-decoration: underline;
+	}
+
+	@media (max-width: 960px) {
+		.sidebar {
+			max-width: 100%;
+			margin-bottom: 2rem;
+		}
+
+		.sidebar-sticky {
+			position: static;
+		}
+	}
+</style>

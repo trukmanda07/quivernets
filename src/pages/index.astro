@@ -1,0 +1,14 @@
+---
+import { detectBrowserLanguage } from '../utils/i18n';
+import { defaultLanguage } from '../i18n';
+
+// Detect browser language from request headers
+const acceptLanguage = Astro.request.headers.get('accept-language') || '';
+const detectedLang = detectBrowserLanguage(acceptLanguage);
+
+// Check for stored preference (client-side will handle this too)
+const preferredLang = Astro.cookies.get('preferredLanguage')?.value || detectedLang || defaultLanguage;
+
+// Redirect to language-specific homepage
+return Astro.redirect(`/${preferredLang}/`);
+---

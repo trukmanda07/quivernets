@@ -1,0 +1,105 @@
+---
+import '../../styles/global.css';
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Header from '../../components/Header.astro';
+import LanguageSwitcher from '../../components/LanguageSwitcher.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import { getLangFromUrl, useTranslations, addLanguagePrefix, supportedLanguages } from '../../utils/i18n';
+
+export function getStaticPaths() {
+	return supportedLanguages.map((lang) => ({
+		params: { lang },
+	}));
+}
+
+const { lang } = Astro.params;
+const currentLang = lang || 'en';
+const t = useTranslations(currentLang);
+---
+
+<!doctype html>
+<html lang={currentLang}>
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+	</head>
+	<body>
+		<Header />
+		<main class="max-w-4xl mx-auto px-4 py-8">
+			<div class="text-center mb-12">
+				<h1 class="text-4xl md:text-5xl font-bold mb-4 text-gray-900">
+					{currentLang === 'en' ? 'Welcome to QuiverLearn' : 'Selamat Datang di QuiverLearn'}
+				</h1>
+				<p class="text-xl text-gray-600 mb-8">
+					{currentLang === 'en'
+						? 'Master mathematics, computer science, and problem-solving through clear explanations and interactive examples.'
+						: 'Kuasai matematika, ilmu komputer, dan pemecahan masalah melalui penjelasan yang jelas dan contoh interaktif.'}
+				</p>
+			</div>
+
+			<div class="grid md:grid-cols-3 gap-6 mb-12">
+				<div class="bg-white border-2 border-gray-200 rounded-lg p-6 hover:border-blue-500 transition">
+					<h3 class="text-xl font-semibold mb-3 text-gray-900">
+						{currentLang === 'en' ? '📐 Mathematics' : '📐 Matematika'}
+					</h3>
+					<p class="text-gray-600">
+						{currentLang === 'en'
+							? 'From calculus to linear algebra, learn mathematical concepts with clear visualizations and step-by-step explanations.'
+							: 'Dari kalkulus hingga aljabar linear, pelajari konsep matematika dengan visualisasi yang jelas dan penjelasan langkah demi langkah.'}
+					</p>
+				</div>
+
+				<div class="bg-white border-2 border-gray-200 rounded-lg p-6 hover:border-blue-500 transition">
+					<h3 class="text-xl font-semibold mb-3 text-gray-900">
+						{currentLang === 'en' ? '💻 Computer Science' : '💻 Ilmu Komputer'}
+					</h3>
+					<p class="text-gray-600">
+						{currentLang === 'en'
+							? 'Explore algorithms, data structures, and programming concepts with practical examples and code snippets.'
+							: 'Jelajahi algoritma, struktur data, dan konsep pemrograman dengan contoh praktis dan cuplikan kode.'}
+					</p>
+				</div>
+
+				<div class="bg-white border-2 border-gray-200 rounded-lg p-6 hover:border-blue-500 transition">
+					<h3 class="text-xl font-semibold mb-3 text-gray-900">
+						{currentLang === 'en' ? '🧩 Problem Solving' : '🧩 Pemecahan Masalah'}
+					</h3>
+					<p class="text-gray-600">
+						{currentLang === 'en'
+							? 'Develop your analytical thinking with challenging problems and detailed solution walkthroughs.'
+							: 'Kembangkan pemikiran analitis Anda dengan masalah menantang dan panduan solusi terperinci.'}
+					</p>
+				</div>
+			</div>
+
+			<div class="text-center mb-12">
+				<h2 class="text-2xl font-bold mb-4 text-gray-900">
+					{currentLang === 'en' ? 'Start Learning' : 'Mulai Belajar'}
+				</h2>
+				<p class="text-gray-600 mb-6">
+					{currentLang === 'en'
+						? 'Check out our latest articles and tutorials'
+						: 'Lihat artikel dan tutorial terbaru kami'}
+				</p>
+				<a
+					href={addLanguagePrefix('/blog', currentLang)}
+					class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+				>
+					{currentLang === 'en' ? 'View All Posts' : 'Lihat Semua Artikel'}
+				</a>
+			</div>
+
+			<div class="bg-gray-50 rounded-lg p-8 text-center">
+				<h2 class="text-2xl font-bold mb-4 text-gray-900">
+					{currentLang === 'en' ? 'Our Mission' : 'Misi Kami'}
+				</h2>
+				<p class="text-gray-700 leading-relaxed max-w-2xl mx-auto">
+					{currentLang === 'en'
+						? 'We believe that everyone can learn complex topics when they\'re explained clearly and intuitively. QuiverLearn makes advanced mathematics and computer science accessible through visual explanations, interactive examples, and practical applications.'
+						: 'Kami percaya bahwa setiap orang dapat mempelajari topik kompleks ketika dijelaskan dengan jelas dan intuitif. QuiverLearn membuat matematika dan ilmu komputer tingkat lanjut dapat diakses melalui penjelasan visual, contoh interaktif, dan aplikasi praktis.'}
+				</p>
+			</div>
+		</main>
+		<Footer />
+	</body>
+</html>

@@ -1,0 +1,29 @@
+---
+interface Props {
+  title?: string;
+}
+
+const { title } = Astro.props;
+---
+
+<div class="example-box">
+  {title && <h4 class="example-title">{title}</h4>}
+  <slot />
+</div>
+
+<style>
+  .example-box {
+    background: white;
+    border: 2px solid #667eea;
+    padding: 25px;
+    margin: 30px 0;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+  }
+
+  .example-title {
+    color: #667eea;
+    margin-top: 0;
+    font-size: 1.3em;
+  }
+</style>

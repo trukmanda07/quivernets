@@ -1,0 +1,32 @@
+---
+interface Props {
+  title?: string;
+}
+
+const { title } = Astro.props;
+---
+
+<div class="custom-code-block">
+  {title && <div class="code-title">{title}</div>}
+  <slot />
+</div>
+
+<style>
+  .custom-code-block {
+    background: #282c34;
+    color: #abb2bf;
+    padding: 20px;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    overflow-x: auto;
+    margin: 25px 0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+
+  .code-title {
+    color: #61afef;
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-size: 0.9em;
+  }
+</style>

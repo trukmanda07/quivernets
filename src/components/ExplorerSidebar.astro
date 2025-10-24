@@ -1,0 +1,298 @@
+---
+/**
+ * Explorer Sidebar Component
+ * Hierarchical navigation for blog posts organized by category and type
+ */
+
+import TreeNode from './TreeNode.astro';
+import type { TreeNode as TreeNodeType } from '../utils/explorerTree';
+
+interface Props {
+	tree: TreeNodeType[];
+	title?: string;
+	sticky?: boolean;
+	currentSlug?: string;
+}
+
+const {
+	tree,
+	title = 'Explorer',
+	sticky = true,
+	currentSlug
+} = Astro.props;
+---
+
+<aside class={`explorer-sidebar ${sticky ? 'explorer-sticky' : ''}`}>
+	<div class="explorer-header">
+		<h3 class="explorer-title">{title}</h3>
+		<div class="explorer-actions">
+			<button
+				class="explorer-action-btn"
+				id="expand-all"
+				aria-label="Expand all"
+				title="Expand all"
+			>
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<polyline points="7 13 12 18 17 13"></polyline>
+					<polyline points="7 6 12 11 17 6"></polyline>
+				</svg>
+			</button>
+			<button
+				class="explorer-action-btn"
+				id="collapse-all"
+				aria-label="Collapse all"
+				title="Collapse all"
+			>
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<polyline points="17 11 12 6 7 11"></polyline>
+					<polyline points="17 18 12 13 7 18"></polyline>
+				</svg>
+			</button>
+		</div>
+	</div>
+
+	<div class="explorer-tree" data-current-slug={currentSlug}>
+		{tree.map(node => (
+			<TreeNode node={node} level={0} />
+		))}
+	</div>
+
+	{tree.length === 0 && (
+		<div class="explorer-empty">
+			<p>No posts found</p>
+		</div>
+	)}
+</aside>
+
+<script>
+	// Client-side script for interactive functionality
+	function initExplorer() {
+		const explorer = document.querySelector('.explorer-tree');
+		if (!explorer) return;
+
+		const currentSlug = explorer.getAttribute('data-current-slug');
+
+		// Handle toggle buttons
+		const toggleButtons = explorer.querySelectorAll('.tree-node-toggle');
+		toggleButtons.forEach(button => {
+			button.addEventListener('click', (e) => {
+				e.preventDefault();
+				const nodeId = button.getAttribute('data-node-id');
+				const children = explorer.querySelector(`[data-parent-id="${nodeId}"]`) as HTMLElement;
+				const isExpanded = button.getAttribute('aria-expanded') === 'true';
+
+				if (children) {
+					if (isExpanded) {
+						children.hidden = true;
+						button.setAttribute('aria-expanded', 'false');
+					} else {
+						children.hidden = false;
+						button.setAttribute('aria-expanded', 'true');
+					}
+				}
+			});
+		});
+
+		// Expand all button
+		const expandAllBtn = document.getElementById('expand-all');
+		expandAllBtn?.addEventListener('click', () => {
+			toggleButtons.forEach(button => {
+				const nodeId = button.getAttribute('data-node-id');
+				const children = explorer.querySelector(`[data-parent-id="${nodeId}"]`) as HTMLElement;
+				if (children) {
+					children.hidden = false;
+					button.setAttribute('aria-expanded', 'true');
+				}
+			});
+		});
+
+		// Collapse all button
+		const collapseAllBtn = document.getElementById('collapse-all');
+		collapseAllBtn?.addEventListener('click', () => {
+			toggleButtons.forEach(button => {
+				const nodeId = button.getAttribute('data-node-id');
+				const children = explorer.querySelector(`[data-parent-id="${nodeId}"]`) as HTMLElement;
+				if (children) {
+					children.hidden = true;
+					button.setAttribute('aria-expanded', 'false');
+				}
+			});
+		});
+
+		// Highlight current page and expand its parents
+		if (currentSlug) {
+			const currentFile = explorer.querySelector(`[data-slug="${currentSlug}"]`);
+			if (currentFile) {
+				currentFile.classList.add('active');
+
+				// Expand all parent folders
+				let parent = currentFile.closest('.tree-node-children') as HTMLElement;
+				while (parent) {
+					parent.hidden = false;
+					const parentId = parent.getAttribute('data-parent-id');
+					if (parentId) {
+						const toggleBtn = explorer.querySelector(`[data-node-id="${parentId}"]`);
+						toggleBtn?.setAttribute('aria-expanded', 'true');
+					}
+					parent = parent.parentElement?.closest('.tree-node-children') as HTMLElement;
+				}
+			}
+		}
+
+		// Save/restore expanded state in localStorage
+		const STORAGE_KEY = 'explorer-expanded-nodes';
+
+		// Load saved state
+		try {
+			const saved = localStorage.getItem(STORAGE_KEY);
+			if (saved) {
+				const expandedNodes = JSON.parse(saved) as string[];
+				expandedNodes.forEach(nodeId => {
+					const button = explorer.querySelector(`[data-node-id="${nodeId}"]`);
+					const children = explorer.querySelector(`[data-parent-id="${nodeId}"]`) as HTMLElement;
+					if (button && children) {
+						children.hidden = false;
+						button.setAttribute('aria-expanded', 'true');
+					}
+				});
+			}
+		} catch (e) {
+			console.error('Failed to load explorer state:', e);
+		}
+
+		// Save state on change
+		const saveState = () => {
+			const expanded: string[] = [];
+			toggleButtons.forEach(button => {
+				if (button.getAttribute('aria-expanded') === 'true') {
+					const nodeId = button.getAttribute('data-node-id');
+					if (nodeId) expanded.push(nodeId);
+				}
+			});
+			try {
+				localStorage.setItem(STORAGE_KEY, JSON.stringify(expanded));
+			} catch (e) {
+				console.error('Failed to save explorer state:', e);
+			}
+		};
+
+		toggleButtons.forEach(button => {
+			button.addEventListener('click', saveState);
+		});
+	}
+
+	// Initialize on page load
+	initExplorer();
+
+	// Re-initialize on view transitions (Astro's SPA mode)
+	document.addEventListener('astro:page-load', initExplorer);
+</script>
+
+<style>
+	.explorer-sidebar {
+		width: 100%;
+		max-width: 280px;
+		display: flex;
+		flex-direction: column;
+		background: rgb(var(--gray-light));
+		border-radius: 8px;
+		overflow: hidden;
+	}
+
+	.explorer-sticky {
+		position: sticky;
+		top: 2rem;
+		align-self: flex-start;
+		max-height: calc(100vh - 4rem);
+	}
+
+	.explorer-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 1rem 1.25rem;
+		background: rgba(0, 0, 0, 0.02);
+		border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+	}
+
+	.explorer-title {
+		margin: 0;
+		font-size: 1rem;
+		font-weight: 600;
+		color: rgb(var(--black));
+	}
+
+	.explorer-actions {
+		display: flex;
+		gap: 0.25rem;
+	}
+
+	.explorer-action-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 28px;
+		height: 28px;
+		padding: 0;
+		background: none;
+		border: none;
+		border-radius: 4px;
+		cursor: pointer;
+		color: rgb(var(--gray-dark));
+		transition: all 0.2s ease;
+	}
+
+	.explorer-action-btn:hover {
+		background: rgba(0, 0, 0, 0.1);
+		color: rgb(var(--accent));
+	}
+
+	.explorer-tree {
+		flex: 1;
+		overflow-y: auto;
+		overflow-x: hidden;
+		padding: 0.5rem;
+	}
+
+	.explorer-tree::-webkit-scrollbar {
+		width: 6px;
+	}
+
+	.explorer-tree::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	.explorer-tree::-webkit-scrollbar-thumb {
+		background: rgba(0, 0, 0, 0.2);
+		border-radius: 3px;
+	}
+
+	.explorer-tree::-webkit-scrollbar-thumb:hover {
+		background: rgba(0, 0, 0, 0.3);
+	}
+
+	.explorer-empty {
+		padding: 2rem 1.25rem;
+		text-align: center;
+		color: rgb(var(--gray-dark));
+		font-size: 0.875rem;
+	}
+
+	@media (max-width: 960px) {
+		.explorer-sidebar {
+			max-width: 100%;
+			margin-bottom: 2rem;
+			max-height: 500px;
+		}
+
+		.explorer-sticky {
+			position: static;
+		}
+	}
+
+	@media (max-width: 640px) {
+		.explorer-sidebar {
+			max-height: 400px;
+		}
+	}
+</style>

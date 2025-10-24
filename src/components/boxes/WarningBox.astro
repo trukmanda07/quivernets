@@ -1,0 +1,29 @@
+---
+interface Props {
+  title?: string;
+}
+
+const { title } = Astro.props;
+---
+
+<div class="warning-box">
+  {title && <strong class="box-title">{title}</strong>}
+  <slot />
+</div>
+
+<style>
+  .warning-box {
+    background: linear-gradient(to right, #ffebee, #ffcdd2);
+    border-left: 5px solid #f44336;
+    padding: 20px;
+    margin: 25px 0;
+    border-radius: 5px;
+  }
+
+  .box-title {
+    color: #c62828;
+    font-size: 1.1em;
+    display: block;
+    margin-bottom: 10px;
+  }
+</style>

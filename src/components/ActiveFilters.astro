@@ -1,0 +1,305 @@
+---
+/**
+ * ActiveFilters Component
+ *
+ * Displays currently active filters as removable chips with a "Clear all" button.
+ * Shows tags, categories, difficulty filters in a visual way.
+ */
+
+import { getTagDisplayName, getTagIcon } from '../utils/tagHelpers';
+
+export interface Props {
+  tags?: string[];
+  category?: string;
+  difficulty?: string;
+  lang?: string;
+}
+
+const { tags = [], category, difficulty, lang = 'en' } = Astro.props;
+
+// Count total active filters
+const totalFilters = tags.length + (category ? 1 : 0) + (difficulty ? 1 : 0);
+
+// Translation helper
+const translations = {
+  en: {
+    activeFilters: 'Active Filters',
+    clearAll: 'Clear All',
+    category: 'Category',
+    difficulty: 'Difficulty',
+    noFilters: 'No filters applied',
+  },
+  id: {
+    activeFilters: 'Filter Aktif',
+    clearAll: 'Hapus Semua',
+    category: 'Kategori',
+    difficulty: 'Kesulitan',
+    noFilters: 'Tidak ada filter',
+  },
+};
+
+const t = translations[lang as keyof typeof translations] || translations.en;
+---
+
+{totalFilters > 0 && (
+<div class="active-filters">
+  <div class="filters-header">
+    <span class="filters-label">
+      {t.activeFilters} <span class="count">({totalFilters})</span>
+    </span>
+    <button class="clear-all-btn" id="clear-all-filters">
+      {t.clearAll}
+    </button>
+  </div>
+
+  <div class="filter-chips">
+    {/* Category filter chip */}
+    {category && category !== 'all' && (
+      <button
+        class="filter-chip category-chip"
+        data-filter-type="category"
+        data-filter-value={category}
+      >
+        <span class="chip-icon">📂</span>
+        <span class="chip-label">{t.category}: {category}</span>
+        <span class="chip-remove" aria-label="Remove filter">×</span>
+      </button>
+    )}
+
+    {/* Difficulty filter chip */}
+    {difficulty && difficulty !== 'all' && (
+      <button
+        class="filter-chip difficulty-chip"
+        data-filter-type="difficulty"
+        data-filter-value={difficulty}
+      >
+        <span class="chip-icon">
+          {difficulty === 'beginner' && '⭐'}
+          {difficulty === 'intermediate' && '⭐⭐'}
+          {difficulty === 'advanced' && '⭐⭐⭐'}
+        </span>
+        <span class="chip-label">{t.difficulty}: {difficulty}</span>
+        <span class="chip-remove" aria-label="Remove filter">×</span>
+      </button>
+    )}
+
+    {/* Tag filter chips */}
+    {tags.map((tag) => {
+      const icon = getTagIcon(tag);
+      const displayName = getTagDisplayName(tag);
+
+      return (
+        <button
+          class="filter-chip tag-chip"
+          data-filter-type="tag"
+          data-filter-value={tag}
+        >
+          {icon && <span class="chip-icon">{icon}</span>}
+          <span class="chip-label">{displayName}</span>
+          <span class="chip-remove" aria-label="Remove filter">×</span>
+        </button>
+      );
+    })}
+  </div>
+</div>
+
+<style>
+  .active-filters {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: rgb(249, 250, 251);
+    border-radius: 8px;
+    border: 1px solid rgb(229, 231, 235);
+  }
+
+  .filters-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .filters-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: rgb(55, 65, 81);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .count {
+    font-weight: 400;
+    color: rgb(107, 114, 128);
+  }
+
+  .clear-all-btn {
+    padding: 0.375rem 0.75rem;
+    background: white;
+    border: 1px solid rgb(209, 213, 219);
+    border-radius: 6px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: rgb(239, 68, 68);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .clear-all-btn:hover {
+    background: rgb(254, 242, 242);
+    border-color: rgb(239, 68, 68);
+    color: rgb(220, 38, 38);
+  }
+
+  .clear-all-btn:active {
+    transform: scale(0.98);
+  }
+
+  .filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    background: white;
+    border: 1px solid rgb(209, 213, 219);
+    border-radius: 6px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: rgb(55, 65, 81);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .filter-chip:hover {
+    background: rgb(249, 250, 251);
+    border-color: rgb(156, 163, 175);
+  }
+
+  .chip-icon {
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  .chip-label {
+    line-height: 1;
+  }
+
+  .chip-remove {
+    font-size: 1.25rem;
+    line-height: 1;
+    color: rgb(156, 163, 175);
+    margin-left: 0.25rem;
+    font-weight: 400;
+    transition: color 0.2s ease;
+  }
+
+  .filter-chip:hover .chip-remove {
+    color: rgb(239, 68, 68);
+  }
+
+  /* Specific chip styles */
+  .category-chip {
+    border-color: rgb(59, 130, 246);
+    background: rgb(239, 246, 255);
+    color: rgb(30, 64, 175);
+  }
+
+  .category-chip:hover {
+    background: rgb(219, 234, 254);
+  }
+
+  .difficulty-chip {
+    border-color: rgb(249, 115, 22);
+    background: rgb(255, 247, 237);
+    color: rgb(154, 52, 18);
+  }
+
+  .difficulty-chip:hover {
+    background: rgb(254, 243, 199);
+  }
+
+  .tag-chip {
+    border-color: rgb(139, 92, 246);
+    background: rgb(245, 243, 255);
+    color: rgb(91, 33, 182);
+  }
+
+  .tag-chip:hover {
+    background: rgb(237, 233, 254);
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .active-filters {
+      padding: 0.75rem;
+    }
+
+    .filters-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .clear-all-btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .filter-chips {
+      gap: 0.375rem;
+    }
+
+    .filter-chip {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+    }
+  }
+</style>
+
+<script>
+  // Handle individual filter chip removal
+  document.querySelectorAll('.filter-chip').forEach((chip) => {
+    chip.addEventListener('click', () => {
+      const filterType = chip.getAttribute('data-filter-type');
+      const filterValue = chip.getAttribute('data-filter-value');
+
+      // Get current URL params
+      const url = new URL(window.location.href);
+      const params = new URLSearchParams(url.search);
+
+      if (filterType === 'tag') {
+        // Remove from tags parameter
+        const currentTags = params.get('tags')?.split(',') || [];
+        const updatedTags = currentTags.filter(t => t !== filterValue);
+
+        if (updatedTags.length > 0) {
+          params.set('tags', updatedTags.join(','));
+        } else {
+          params.delete('tags');
+        }
+      } else if (filterType === 'category') {
+        params.delete('category');
+      } else if (filterType === 'difficulty') {
+        params.delete('difficulty');
+      }
+
+      // Reload with updated params
+      const lang = document.documentElement.lang || 'en';
+      const newURL = `/${lang}/blog${params.toString() ? '?' + params.toString() : ''}`;
+      window.location.href = newURL;
+    });
+  });
+
+  // Handle clear all button
+  document.getElementById('clear-all-filters')?.addEventListener('click', () => {
+    const lang = document.documentElement.lang || 'en';
+    window.location.href = `/${lang}/blog`;
+  });
+</script>
+)}

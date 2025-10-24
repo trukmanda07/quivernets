@@ -1,0 +1,56 @@
+{
+  "nav": {
+    "home": "Beranda",
+    "blog": "Blog",
+    "presentations": "Presentasi",
+    "about": "Tentang",
+    "categories": "Kategori"
+  },
+  "search": {
+    "placeholder": "Cari...",
+    "results": "Hasil Pencarian",
+    "noResults": "Tidak ada hasil ditemukan",
+    "searching": "Mencari...",
+    "foundResults": "Ditemukan {count} hasil untuk \"{query}\"",
+    "pressToSearch": "Tekan / untuk mencari",
+    "closeSearch": "Tekan ESC untuk menutup",
+    "searchPosts": "Cari artikel, topik, dan lainnya"
+  },
+  "tags": {
+    "title": "Label",
+    "allTags": "Semua Label",
+    "postsWithTag": "Artikel dengan label"
+  },
+  "post": {
+    "readTime": "menit baca",
+    "publishedOn": "Diterbitkan pada",
+    "updatedOn": "Diperbarui pada",
+    "readMore": "Baca Selengkapnya",
+    "relatedPosts": "Anda mungkin juga suka"
+  },
+  "filters": {
+    "sortBy": "Urutkan berdasarkan",
+    "latest": "Terbaru",
+    "oldest": "Terlama",
+    "difficulty": "Tingkat Kesulitan",
+    "category": "Kategori",
+    "all": "Semua",
+    "showAll": "Tampilkan Semua",
+    "clearFilters": "Hapus Filter",
+    "filterBy": "Filter berdasarkan",
+    "showing": "Menampilkan",
+    "of": "dari",
+    "posts": "artikel"
+  },
+  "difficulty": {
+    "beginner": "Pemula",
+    "intermediate": "Menengah",
+    "advanced": "Lanjutan"
+  },
+  "language": {
+    "switchTo": "Ganti ke Bahasa Inggris",
+    "current": "Bahasa Indonesia",
+    "availableIn": "Tersedia juga dalam",
+    "notAvailable": "Artikel ini tidak tersedia dalam"
+  }
+}

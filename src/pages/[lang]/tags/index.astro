@@ -1,0 +1,667 @@
+---
+/**
+ * Tags Index Page
+ * Shows all available tags with post counts
+ * URL: /[lang]/tags/
+ */
+
+import '../../../styles/global.css';
+import { getCollection } from 'astro:content';
+import BaseHead from '../../../components/BaseHead.astro';
+import Footer from '../../../components/Footer.astro';
+import Header from '../../../components/Header.astro';
+import Tag from '../../../components/Tag.astro';
+import { SITE_TITLE } from '../../../consts';
+import { supportedLanguages, getCollectionName, useTranslations } from '../../../utils/i18n';
+
+export async function getStaticPaths() {
+	return supportedLanguages.map((lang) => ({
+		params: { lang },
+	}));
+}
+
+const { lang } = Astro.params;
+const currentLang = lang || 'en';
+const t = useTranslations(currentLang);
+
+// Get all posts for the current language
+const collectionName = getCollectionName(currentLang);
+let posts = [];
+
+try {
+	posts = await getCollection(collectionName);
+} catch (error) {
+	console.log(`Collection ${collectionName} not found or empty`);
+}
+
+// Count posts per tag
+type TagInfo = {
+	tag: string;
+	count: number;
+	slug: string;
+};
+
+const tagCounts = new Map<string, number>();
+
+posts.forEach((post) => {
+	post.data.tags?.forEach((tag) => {
+		tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+	});
+});
+
+// Convert to array and sort by count (descending) then alphabetically
+const tags: TagInfo[] = Array.from(tagCounts.entries())
+	.map(([tag, count]) => ({
+		tag,
+		count,
+		slug: tag.toLowerCase().replace(/\s+/g, '-'),
+	}))
+	.sort((a, b) => {
+		// First sort by count (descending)
+		if (b.count !== a.count) return b.count - a.count;
+		// Then alphabetically
+		return a.tag.localeCompare(b.tag);
+	});
+
+const pageTitle = t.tags.allTags;
+const pageDescription = `${currentLang === 'en' ? 'Browse all tags' : 'Jelajahi semua label'} - ${tags.length} ${currentLang === 'en' ? 'tags available' : 'label tersedia'}`;
+---
+
+<!doctype html>
+<html lang={currentLang}>
+	<head>
+		<BaseHead title={`${pageTitle} | ${SITE_TITLE}`} description={pageDescription} />
+		<style>
+			main {
+				width: 960px;
+			}
+			.page-header {
+				margin-bottom: 3rem;
+				text-align: center;
+			}
+			.page-header h1 {
+				color: rgb(var(--black));
+				margin-bottom: 0.5rem;
+				font-size: 2.5rem;
+			}
+			.page-header .subtitle {
+				color: rgb(var(--gray));
+				font-size: 1.1rem;
+			}
+			.breadcrumb {
+				margin-bottom: 2rem;
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+				color: rgb(var(--gray));
+			}
+			.breadcrumb a {
+				color: rgb(var(--accent));
+				text-decoration: none;
+			}
+			.breadcrumb a:hover {
+				text-decoration: underline;
+			}
+			.breadcrumb span {
+				opacity: 0.5;
+			}
+			.tags-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+				gap: 1.5rem;
+				margin-top: 2rem;
+			}
+			.tag-card {
+				background: rgb(var(--gray-light));
+				border-radius: 12px;
+				padding: 1.5rem;
+				transition: all 0.3s ease;
+				text-decoration: none;
+				display: flex;
+				flex-direction: column;
+				gap: 0.75rem;
+				border: 2px solid transparent;
+			}
+			.tag-card:hover {
+				transform: translateY(-4px);
+				box-shadow: var(--box-shadow);
+				border-color: rgb(var(--accent));
+			}
+			.tag-card .tag-name {
+				font-size: 1.25rem;
+				font-weight: 600;
+				color: rgb(var(--black));
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+			}
+			.tag-card .tag-name .hash {
+				color: rgb(var(--accent));
+			}
+			.tag-card .tag-count {
+				color: rgb(var(--gray));
+				font-size: 0.9rem;
+			}
+			.tag-card .tag-preview {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+				margin-top: 0.5rem;
+			}
+			.empty-state {
+				text-align: center;
+				padding: 4rem 2rem;
+			}
+			.empty-state h2 {
+				color: rgb(var(--gray));
+				margin-bottom: 1rem;
+			}
+			.back-link {
+				display: inline-block;
+				margin-top: 2rem;
+				color: rgb(var(--accent));
+				text-decoration: none;
+			}
+			.back-link:hover {
+				text-decoration: underline;
+			}
+			.tag-cloud {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 1rem;
+				justify-content: center;
+				margin: 3rem 0;
+				padding: 2rem;
+				background: rgb(var(--gray-light));
+				border-radius: 12px;
+			}
+			/* Controls Section */
+			.controls-section {
+				display: flex;
+				gap: 1rem;
+				margin-bottom: 2rem;
+				flex-wrap: wrap;
+			}
+
+			.search-wrapper {
+				position: relative;
+				flex: 1;
+				min-width: 250px;
+			}
+
+			.search-icon {
+				position: absolute;
+				left: 1rem;
+				top: 50%;
+				transform: translateY(-50%);
+				color: rgb(148, 163, 184);
+				pointer-events: none;
+			}
+
+			.tag-search-input {
+				width: 100%;
+				padding: 0.75rem 3rem 0.75rem 3rem;
+				border: 2px solid rgb(226, 232, 240);
+				border-radius: 8px;
+				font-size: 1rem;
+				transition: all 0.2s ease;
+			}
+
+			.tag-search-input:focus {
+				outline: none;
+				border-color: rgb(var(--accent));
+				box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.1);
+			}
+
+			.clear-search {
+				position: absolute;
+				right: 0.75rem;
+				top: 50%;
+				transform: translateY(-50%);
+				padding: 0.375rem;
+				background: rgb(241, 245, 249);
+				border: none;
+				border-radius: 4px;
+				color: rgb(100, 116, 139);
+				cursor: pointer;
+				transition: all 0.2s ease;
+			}
+
+			.clear-search:hover {
+				background: rgb(226, 232, 240);
+			}
+
+			.sort-view-controls {
+				display: flex;
+				gap: 0.75rem;
+				align-items: center;
+			}
+
+			.sort-select {
+				padding: 0.75rem 1rem;
+				border: 2px solid rgb(226, 232, 240);
+				border-radius: 8px;
+				background: white;
+				font-size: 0.875rem;
+				cursor: pointer;
+				transition: all 0.2s ease;
+			}
+
+			.sort-select:hover {
+				border-color: rgb(var(--accent));
+			}
+
+			.sort-select:focus {
+				outline: none;
+				border-color: rgb(var(--accent));
+				box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.1);
+			}
+
+			.view-toggle {
+				display: flex;
+				gap: 0.5rem;
+			}
+
+			.view-btn {
+				padding: 0.75rem;
+				border: 2px solid rgb(226, 232, 240);
+				background: white;
+				color: rgb(100, 116, 139);
+				border-radius: 8px;
+				cursor: pointer;
+				transition: all 0.2s ease;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.view-btn:hover {
+				border-color: rgb(var(--accent));
+				color: rgb(var(--accent));
+			}
+
+			.view-btn.active {
+				background: rgb(var(--accent));
+				border-color: rgb(var(--accent));
+				color: white;
+			}
+
+			/* Alphabet Filter */
+			.alphabet-filter {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.5rem;
+				margin-bottom: 2rem;
+				padding: 1.5rem;
+				background: rgb(var(--gray-light));
+				border-radius: 8px;
+			}
+
+			.alphabet-btn {
+				min-width: 2.5rem;
+				height: 2.5rem;
+				padding: 0.5rem;
+				border: 2px solid rgb(226, 232, 240);
+				background: white;
+				color: rgb(71, 85, 105);
+				border-radius: 6px;
+				cursor: pointer;
+				font-size: 0.875rem;
+				font-weight: 600;
+				transition: all 0.2s ease;
+			}
+
+			.alphabet-btn:hover {
+				border-color: rgb(var(--accent));
+				color: rgb(var(--accent));
+				transform: translateY(-2px);
+			}
+
+			.alphabet-btn.active {
+				background: rgb(var(--accent));
+				border-color: rgb(var(--accent));
+				color: white;
+			}
+
+			.alphabet-btn.disabled {
+				opacity: 0.3;
+				cursor: not-allowed;
+				pointer-events: none;
+			}
+			.tag-cloud-view {
+				display: none;
+			}
+			.tag-cloud-view.active {
+				display: block;
+			}
+			.tags-grid-view {
+				display: block;
+			}
+			.tags-grid-view.active {
+				display: block;
+			}
+			@media (max-width: 720px) {
+				.tags-grid {
+					grid-template-columns: 1fr;
+					gap: 1rem;
+				}
+				.page-header h1 {
+					font-size: 2rem;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<!-- Breadcrumb Navigation -->
+			<nav class="breadcrumb">
+				<a href={`/${currentLang}/`}>{t.nav.home}</a>
+				<span>/</span>
+				<a href={`/${currentLang}/blog/`}>{t.nav.blog}</a>
+				<span>/</span>
+				<span>{t.tags.title}</span>
+			</nav>
+
+			<!-- Page Header -->
+			<div class="page-header">
+				<h1>{pageTitle}</h1>
+				<p class="subtitle">
+					<span id="visible-count">{tags.length}</span> {currentLang === 'en' ? 'tags' : 'label'} · {posts.length} {currentLang === 'en' ? 'posts' : 'artikel'}
+				</p>
+			</div>
+
+			<!-- Search and Filter Controls -->
+			<div class="controls-section">
+				<!-- Search Input -->
+				<div class="search-wrapper">
+					<svg
+						class="search-icon"
+						xmlns="http://www.w3.org/2000/svg"
+						width="18"
+						height="18"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+					>
+						<circle cx="11" cy="11" r="8"></circle>
+						<path d="m21 21-4.3-4.3"></path>
+					</svg>
+					<input
+						type="search"
+						id="tag-search"
+						class="tag-search-input"
+						placeholder={currentLang === 'en' ? 'Search tags...' : 'Cari label...'}
+						aria-label="Search tags"
+					/>
+					<button id="clear-search" class="clear-search" style="display: none;" aria-label="Clear search">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<line x1="18" y1="6" x2="6" y2="18"></line>
+							<line x1="6" y1="6" x2="18" y2="18"></line>
+						</svg>
+					</button>
+				</div>
+
+				<!-- Sort and View Controls -->
+				<div class="sort-view-controls">
+					<select id="sort-select" class="sort-select" aria-label="Sort tags">
+						<option value="popular">{currentLang === 'en' ? 'Most Popular' : 'Terpopuler'}</option>
+						<option value="alphabetical">{currentLang === 'en' ? 'A-Z' : 'A-Z'}</option>
+						<option value="count-asc">{currentLang === 'en' ? 'Least Popular' : 'Paling Sedikit'}</option>
+					</select>
+
+					<div class="view-toggle">
+						<button id="grid-view-btn" class="view-btn active" aria-label="Grid view">
+							<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<rect x="3" y="3" width="7" height="7"></rect>
+								<rect x="14" y="3" width="7" height="7"></rect>
+								<rect x="14" y="14" width="7" height="7"></rect>
+								<rect x="3" y="14" width="7" height="7"></rect>
+							</svg>
+						</button>
+						<button id="cloud-view-btn" class="view-btn" aria-label="Cloud view">
+							<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path>
+							</svg>
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- Alphabet Filter -->
+			<div class="alphabet-filter">
+				<button class="alphabet-btn active" data-letter="all">
+					{currentLang === 'en' ? 'All' : 'Semua'}
+				</button>
+				{'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map((letter) => (
+					<button class="alphabet-btn" data-letter={letter}>
+						{letter}
+					</button>
+				))}
+				<button class="alphabet-btn" data-letter="0-9">
+					0-9
+				</button>
+			</div>
+
+			{tags.length > 0 ? (
+				<>
+					<!-- Grid View -->
+					<div id="grid-view" class="tags-grid-view active">
+						<div class="tags-grid">
+							{tags.map((tagInfo) => (
+								<a href={`/${currentLang}/tags/${tagInfo.slug}/`} class="tag-card">
+									<div class="tag-name">
+										<span class="hash">#</span>
+										<span>{tagInfo.tag}</span>
+									</div>
+									<div class="tag-count">
+										{tagInfo.count} {tagInfo.count === 1 ? (currentLang === 'en' ? 'post' : 'artikel') : (currentLang === 'en' ? 'posts' : 'artikel')}
+									</div>
+									<div class="tag-preview">
+										<Tag tag={tagInfo.tag} lang={currentLang} size="sm" variant="minimal" density="compact" />
+									</div>
+								</a>
+							))}
+						</div>
+					</div>
+
+					<!-- Cloud View -->
+					<div id="cloud-view" class="tag-cloud-view">
+						<div class="tag-cloud">
+							{tags.map((tagInfo) => {
+								// Calculate size based on post count (larger tags = more posts)
+								const maxCount = Math.max(...tags.map(t => t.count));
+								const size = tagInfo.count >= maxCount * 0.7 ? 'lg' : tagInfo.count >= maxCount * 0.4 ? 'md' : 'sm';
+
+								return <Tag tag={tagInfo.tag} lang={currentLang} size={size} variant="minimal" showCount={true} count={tagInfo.count} />;
+							})}
+						</div>
+					</div>
+				</>
+			) : (
+				<div class="empty-state">
+					<h2>{currentLang === 'en' ? 'No tags yet' : 'Belum ada label'}</h2>
+					<p>{currentLang === 'en' ? 'Tags will appear here once posts are added.' : 'Label akan muncul di sini setelah artikel ditambahkan.'}</p>
+				</div>
+			)}
+
+			<!-- Back link -->
+			<a href={`/${currentLang}/blog/`} class="back-link">
+				← {currentLang === 'en' ? 'Back to blog' : 'Kembali ke blog'}
+			</a>
+		</main>
+		<Footer />
+
+		<script>
+			// Get all DOM elements
+			const searchInput = document.getElementById('tag-search') as HTMLInputElement;
+			const clearSearchBtn = document.getElementById('clear-search');
+			const sortSelect = document.getElementById('sort-select') as HTMLSelectElement;
+			const gridViewBtn = document.getElementById('grid-view-btn');
+			const cloudViewBtn = document.getElementById('cloud-view-btn');
+			const gridView = document.getElementById('grid-view');
+			const cloudView = document.getElementById('cloud-view');
+			const alphabetBtns = document.querySelectorAll('.alphabet-btn');
+			const tagCards = document.querySelectorAll('.tag-card');
+			const visibleCountSpan = document.getElementById('visible-count');
+
+			let currentSearchQuery = '';
+			let currentLetter = 'all';
+			let currentSort = 'popular';
+
+			// Get tag data from DOM
+			function getTagData(card: Element) {
+				const tagName = card.querySelector('.tag-name span:last-child')?.textContent || '';
+				const countText = card.querySelector('.tag-count')?.textContent || '0';
+				const count = parseInt(countText.match(/\d+/)?.[0] || '0');
+				return { tagName, count };
+			}
+
+			// Filter and sort tags
+			function filterAndSortTags() {
+				let visibleCount = 0;
+				const cards = Array.from(tagCards);
+
+				// Convert to array with data
+				const cardsWithData = cards.map(card => {
+					const data = getTagData(card);
+					return { card, ...data };
+				});
+
+				// Sort cards
+				let sortedCards = [...cardsWithData];
+				if (currentSort === 'alphabetical') {
+					sortedCards.sort((a, b) => a.tagName.localeCompare(b.tagName));
+				} else if (currentSort === 'count-asc') {
+					sortedCards.sort((a, b) => a.count - b.count);
+				} else {
+					// popular (default)
+					sortedCards.sort((a, b) => b.count - a.count);
+				}
+
+				// Reorder in DOM
+				const gridContainer = document.querySelector('.tags-grid');
+				if (gridContainer) {
+					sortedCards.forEach(({ card }) => {
+						gridContainer.appendChild(card);
+					});
+				}
+
+				// Filter cards
+				sortedCards.forEach(({ card, tagName }) => {
+					const matchesSearch = currentSearchQuery === '' ||
+						tagName.toLowerCase().includes(currentSearchQuery.toLowerCase());
+
+					let matchesLetter = true;
+					if (currentLetter !== 'all') {
+						const firstChar = tagName.charAt(0).toUpperCase();
+						if (currentLetter === '0-9') {
+							matchesLetter = /[0-9]/.test(firstChar);
+						} else {
+							matchesLetter = firstChar === currentLetter;
+						}
+					}
+
+					const shouldShow = matchesSearch && matchesLetter;
+					(card as HTMLElement).style.display = shouldShow ? '' : 'none';
+					if (shouldShow) visibleCount++;
+				});
+
+				// Update visible count
+				if (visibleCountSpan) {
+					visibleCountSpan.textContent = visibleCount.toString();
+				}
+
+				// Update alphabet button states
+				updateAlphabetButtons();
+			}
+
+			// Update alphabet button states (disable if no tags)
+			function updateAlphabetButtons() {
+				alphabetBtns.forEach(btn => {
+					const letter = btn.getAttribute('data-letter');
+					if (letter === 'all') return;
+
+					let hasMatchingTag = false;
+					tagCards.forEach(card => {
+						const { tagName } = getTagData(card);
+						const firstChar = tagName.charAt(0).toUpperCase();
+
+						if (letter === '0-9') {
+							if (/[0-9]/.test(firstChar)) hasMatchingTag = true;
+						} else if (firstChar === letter) {
+							hasMatchingTag = true;
+						}
+					});
+
+					if (hasMatchingTag) {
+						btn.classList.remove('disabled');
+					} else {
+						btn.classList.add('disabled');
+					}
+				});
+			}
+
+			// Search functionality
+			searchInput?.addEventListener('input', (e) => {
+				currentSearchQuery = (e.target as HTMLInputElement).value;
+
+				// Show/hide clear button
+				if (clearSearchBtn) {
+					clearSearchBtn.style.display = currentSearchQuery ? 'block' : 'none';
+				}
+
+				filterAndSortTags();
+			});
+
+			// Clear search
+			clearSearchBtn?.addEventListener('click', () => {
+				if (searchInput) {
+					searchInput.value = '';
+					currentSearchQuery = '';
+				}
+				if (clearSearchBtn) {
+					clearSearchBtn.style.display = 'none';
+				}
+				filterAndSortTags();
+			});
+
+			// Alphabet filter
+			alphabetBtns.forEach(btn => {
+				btn.addEventListener('click', () => {
+					if (btn.classList.contains('disabled')) return;
+
+					alphabetBtns.forEach(b => b.classList.remove('active'));
+					btn.classList.add('active');
+					currentLetter = btn.getAttribute('data-letter') || 'all';
+					filterAndSortTags();
+				});
+			});
+
+			// Sort select
+			sortSelect?.addEventListener('change', (e) => {
+				currentSort = (e.target as HTMLSelectElement).value;
+				filterAndSortTags();
+			});
+
+			// View toggle
+			gridViewBtn?.addEventListener('click', () => {
+				gridViewBtn.classList.add('active');
+				cloudViewBtn?.classList.remove('active');
+				gridView?.classList.add('active');
+				cloudView?.classList.remove('active');
+			});
+
+			cloudViewBtn?.addEventListener('click', () => {
+				cloudViewBtn.classList.add('active');
+				gridViewBtn?.classList.remove('active');
+				cloudView?.classList.add('active');
+				gridView?.classList.remove('active');
+			});
+
+			// Initialize
+			updateAlphabetButtons();
+		</script>
+	</body>
+</html>

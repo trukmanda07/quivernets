@@ -1,0 +1,255 @@
+---
+/**
+ * Tag Filter Page
+ * Shows all posts tagged with a specific tag
+ * Dynamic route: /[lang]/tags/[tag]
+ */
+
+import '../../../styles/global.css';
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import BaseHead from '../../../components/BaseHead.astro';
+import Breadcrumb from '../../../components/Breadcrumb.astro';
+import Footer from '../../../components/Footer.astro';
+import FormattedDate from '../../../components/FormattedDate.astro';
+import Header from '../../../components/Header.astro';
+import Tag from '../../../components/Tag.astro';
+import { SITE_TITLE } from '../../../consts';
+import { supportedLanguages, getCollectionName, useTranslations } from '../../../utils/i18n';
+
+export async function getStaticPaths() {
+	const paths = [];
+
+	// Generate paths for each language
+	for (const lang of supportedLanguages) {
+		const collectionName = getCollectionName(lang);
+		let posts = [];
+
+		try {
+			posts = await getCollection(collectionName);
+		} catch (error) {
+			console.log(`Collection ${collectionName} not found or empty, skipping...`);
+			continue;
+		}
+
+		// Collect all unique tags from posts
+		const tags = new Set<string>();
+		posts.forEach((post) => {
+			post.data.tags?.forEach((tag) => tags.add(tag));
+		});
+
+		// Create a path for each tag
+		tags.forEach((tag) => {
+			const tagSlug = tag.toLowerCase().replace(/\s+/g, '-');
+			paths.push({
+				params: { lang, tag: tagSlug },
+				props: { originalTag: tag },
+			});
+		});
+	}
+
+	return paths;
+}
+
+const { lang, tag: tagSlug } = Astro.params;
+const { originalTag } = Astro.props;
+const currentLang = lang || 'en';
+const t = useTranslations(currentLang);
+
+// Get all posts for the current language with this tag
+const collectionName = getCollectionName(currentLang);
+let posts = [];
+
+try {
+	const allPosts = await getCollection(collectionName);
+
+	// Filter posts by tag (case-insensitive match)
+	posts = allPosts
+		.filter((post) =>
+			post.data.tags?.some(
+				(tag) => tag.toLowerCase().replace(/\s+/g, '-') === tagSlug
+			)
+		)
+		.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+} catch (error) {
+	console.error(`Error loading posts for tag ${tagSlug}:`, error);
+}
+
+const pageTitle = `${t.tags.postsWithTag} "${originalTag}"`;
+const pageDescription = `${t.tags.postsWithTag} "${originalTag}" - ${posts.length} ${posts.length === 1 ? 'post' : 'posts'}`;
+
+// Breadcrumb segments
+const breadcrumbSegments = [
+	{ label: t.nav.home, url: `/${currentLang}/` },
+	{ label: t.nav.blog, url: `/${currentLang}/blog/` },
+	{ label: t.tags.title, url: `/${currentLang}/tags/` },
+	{ label: originalTag, url: undefined }
+];
+---
+
+<!doctype html>
+<html lang={currentLang}>
+	<head>
+		<BaseHead title={`${pageTitle} | ${SITE_TITLE}`} description={pageDescription} />
+		<style>
+			main {
+				width: 960px;
+			}
+			.page-header {
+				margin-bottom: 2rem;
+			}
+			.page-header h1 {
+				color: rgb(var(--black));
+				margin-bottom: 0.5rem;
+			}
+			.page-header .tag-info {
+				display: flex;
+				align-items: center;
+				gap: 1rem;
+				color: rgb(var(--gray));
+			}
+			ul {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 2rem;
+				list-style-type: none;
+				margin: 0;
+				padding: 0;
+			}
+			ul li {
+				width: calc(50% - 1rem);
+			}
+			ul li * {
+				text-decoration: none;
+				transition: 0.2s ease;
+			}
+			ul li img {
+				margin-bottom: 0.5rem;
+				border-radius: 12px;
+				width: 100%;
+			}
+			ul li a {
+				display: block;
+			}
+			.post-card {
+				height: 100%;
+				display: flex;
+				flex-direction: column;
+			}
+			.post-info {
+				flex: 1;
+			}
+			.title {
+				margin: 0.5rem 0;
+				color: rgb(var(--black));
+				line-height: 1.2;
+				font-size: 1.25rem;
+			}
+			.description {
+				margin: 0.5rem 0;
+				color: rgb(var(--gray-dark));
+				font-size: 0.9rem;
+			}
+			.date {
+				margin: 0.5rem 0;
+				color: rgb(var(--gray));
+				font-size: 0.875rem;
+			}
+			.post-tags {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.5rem;
+				margin-top: 0.75rem;
+			}
+			ul li a:hover h4,
+			ul li a:hover .date {
+				color: rgb(var(--accent));
+			}
+			ul a:hover img {
+				box-shadow: var(--box-shadow);
+			}
+			.empty-state {
+				text-align: center;
+				padding: 4rem 2rem;
+			}
+			.empty-state h2 {
+				color: rgb(var(--gray));
+				margin-bottom: 1rem;
+			}
+			.back-link {
+				display: inline-block;
+				margin-top: 2rem;
+				color: rgb(var(--accent));
+				text-decoration: none;
+			}
+			.back-link:hover {
+				text-decoration: underline;
+			}
+			@media (max-width: 720px) {
+				ul {
+					gap: 0.5em;
+				}
+				ul li {
+					width: 100%;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<!-- Breadcrumb Navigation -->
+			<Breadcrumb segments={breadcrumbSegments} />
+
+			<!-- Page Header -->
+			<div class="page-header">
+				<h1>{pageTitle}</h1>
+				<div class="tag-info">
+					<span>{posts.length} {posts.length === 1 ? (currentLang === 'en' ? 'post' : 'artikel') : (currentLang === 'en' ? 'posts' : 'artikel')}</span>
+				</div>
+			</div>
+
+			<!-- Posts List -->
+			<section>
+				{posts.length > 0 ? (
+					<ul>
+						{posts.map((post) => (
+							<li>
+								<a href={`/${currentLang}/blog/${post.id}/`}>
+									<div class="post-card">
+										{post.data.heroImage && (
+											<Image width={720} height={360} src={post.data.heroImage} alt="" />
+										)}
+										<div class="post-info">
+											<h4 class="title">{post.data.title}</h4>
+											<p class="description">{post.data.description}</p>
+											<p class="date">
+												<FormattedDate date={post.data.pubDate} />
+											</p>
+											<div class="post-tags">
+												{post.data.tags?.map((tag) => (
+													<Tag tag={tag} lang={currentLang} size="sm" variant="outlined" />
+												))}
+											</div>
+										</div>
+									</div>
+								</a>
+							</li>
+						))}
+					</ul>
+				) : (
+					<div class="empty-state">
+						<h2>{currentLang === 'en' ? 'No posts found' : 'Tidak ada artikel ditemukan'}</h2>
+						<p>{currentLang === 'en' ? `No posts with the tag "${originalTag}" yet.` : `Belum ada artikel dengan label "${originalTag}".`}</p>
+					</div>
+				)}
+			</section>
+
+			<!-- Back to all tags link -->
+			<a href={`/${currentLang}/tags/`} class="back-link">
+				← {currentLang === 'en' ? 'View all tags' : 'Lihat semua label'}
+			</a>
+		</main>
+		<Footer />
+	</body>
+</html>

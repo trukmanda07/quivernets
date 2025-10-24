@@ -1,0 +1,459 @@
+---
+import type { Language } from '../i18n';
+import { useTranslations } from '../utils/i18n';
+
+interface Props {
+	lang: Language;
+	showInline?: boolean;
+}
+
+const { lang, showInline = false } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<div class="search-container" data-show-inline={showInline}>
+	{!showInline && (
+		<button id="search-toggle" class="search-toggle" aria-label="Open search">
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				width="20"
+				height="20"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+			>
+				<circle cx="11" cy="11" r="8"></circle>
+				<path d="m21 21-4.3-4.3"></path>
+			</svg>
+			<span class="search-hint">{t.search.pressToSearch}</span>
+		</button>
+	)}
+
+	<div id="search-modal" class="search-modal" role="dialog" aria-modal="true" aria-labelledby="search-label">
+		<div class="search-backdrop"></div>
+		<div class="search-content">
+			<div class="search-header">
+				<div class="search-input-wrapper">
+					<svg
+						class="search-icon"
+						xmlns="http://www.w3.org/2000/svg"
+						width="20"
+						height="20"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<circle cx="11" cy="11" r="8"></circle>
+						<path d="m21 21-4.3-4.3"></path>
+					</svg>
+					<input
+						type="search"
+						id="search-input"
+						class="search-input"
+						placeholder={t.search.searchPosts}
+						aria-label="Search"
+						autocomplete="off"
+					/>
+					<button id="search-close" class="search-close" aria-label="Close search">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="20"
+							height="20"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<line x1="18" y1="6" x2="6" y2="18"></line>
+							<line x1="6" y1="6" x2="18" y2="18"></line>
+						</svg>
+					</button>
+				</div>
+				<div class="search-hint-text">
+					<kbd>ESC</kbd> {t.search.closeSearch.replace('Press ESC to ', '')}
+				</div>
+			</div>
+
+			<div id="search-results" class="search-results">
+				<div class="search-empty">
+					<p>{t.search.searchPosts}</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<style>
+	.search-container {
+		position: relative;
+	}
+
+	.search-toggle {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.5rem 1rem;
+		background: rgb(var(--gray-light));
+		border: 1px solid rgb(var(--gray));
+		border-radius: 8px;
+		color: rgb(var(--gray-dark));
+		cursor: pointer;
+		transition: all 0.2s ease;
+		font-size: 0.875rem;
+	}
+
+	.search-toggle:hover {
+		background: white;
+		border-color: rgb(var(--accent));
+		color: rgb(var(--accent));
+	}
+
+	.search-hint {
+		color: rgb(var(--gray));
+		font-size: 0.75rem;
+	}
+
+	.search-modal {
+		display: none;
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 1000;
+		align-items: flex-start;
+		justify-content: center;
+		padding-top: 10vh;
+	}
+
+	.search-modal.active {
+		display: flex;
+	}
+
+	.search-backdrop {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: rgba(0, 0, 0, 0.5);
+		backdrop-filter: blur(4px);
+	}
+
+	.search-content {
+		position: relative;
+		width: 90%;
+		max-width: 640px;
+		background: white;
+		border-radius: 12px;
+		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+		max-height: 70vh;
+		display: flex;
+		flex-direction: column;
+		animation: slideDown 0.2s ease-out;
+	}
+
+	@keyframes slideDown {
+		from {
+			opacity: 0;
+			transform: translateY(-20px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	.search-header {
+		padding: 1.5rem;
+		border-bottom: 1px solid rgb(var(--gray-light));
+	}
+
+	.search-input-wrapper {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+	}
+
+	.search-icon {
+		color: rgb(var(--gray));
+		flex-shrink: 0;
+	}
+
+	.search-input {
+		flex: 1;
+		border: none;
+		outline: none;
+		font-size: 1.125rem;
+		color: rgb(var(--black));
+		background: transparent;
+	}
+
+	.search-input::placeholder {
+		color: rgb(var(--gray));
+	}
+
+	.search-close {
+		background: none;
+		border: none;
+		color: rgb(var(--gray));
+		cursor: pointer;
+		padding: 0.25rem;
+		border-radius: 4px;
+		transition: all 0.2s ease;
+		flex-shrink: 0;
+	}
+
+	.search-close:hover {
+		background: rgb(var(--gray-light));
+		color: rgb(var(--black));
+	}
+
+	.search-hint-text {
+		margin-top: 0.75rem;
+		font-size: 0.75rem;
+		color: rgb(var(--gray));
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.search-hint-text kbd {
+		padding: 0.125rem 0.375rem;
+		background: rgb(var(--gray-light));
+		border: 1px solid rgb(var(--gray));
+		border-radius: 4px;
+		font-family: monospace;
+		font-size: 0.75rem;
+	}
+
+	.search-results {
+		overflow-y: auto;
+		max-height: calc(70vh - 120px);
+		padding: 0.5rem;
+	}
+
+	.search-empty {
+		padding: 3rem 2rem;
+		text-align: center;
+		color: rgb(var(--gray));
+	}
+
+	.search-result-item {
+		padding: 1rem;
+		border-radius: 8px;
+		cursor: pointer;
+		transition: background 0.2s ease;
+		text-decoration: none;
+		display: block;
+		color: inherit;
+	}
+
+	.search-result-item:hover {
+		background: rgb(var(--gray-light));
+	}
+
+	.search-result-title {
+		font-weight: 600;
+		color: rgb(var(--black));
+		margin-bottom: 0.25rem;
+		font-size: 1rem;
+	}
+
+	.search-result-description {
+		font-size: 0.875rem;
+		color: rgb(var(--gray-dark));
+		margin-bottom: 0.5rem;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	.search-result-meta {
+		display: flex;
+		gap: 0.75rem;
+		font-size: 0.75rem;
+		color: rgb(var(--gray));
+		flex-wrap: wrap;
+	}
+
+	.search-result-tag {
+		background: rgb(var(--gray-light));
+		padding: 0.125rem 0.5rem;
+		border-radius: 12px;
+	}
+
+	.search-loading {
+		padding: 2rem;
+		text-align: center;
+		color: rgb(var(--gray));
+	}
+
+	.search-no-results {
+		padding: 3rem 2rem;
+		text-align: center;
+		color: rgb(var(--gray-dark));
+	}
+
+	.search-no-results h3 {
+		margin-bottom: 0.5rem;
+		color: rgb(var(--black));
+	}
+
+	@media (max-width: 720px) {
+		.search-modal {
+			padding-top: 2rem;
+		}
+
+		.search-content {
+			width: 95%;
+			max-height: 80vh;
+		}
+
+		.search-header {
+			padding: 1rem;
+		}
+
+		.search-hint {
+			display: none;
+		}
+	}
+</style>
+
+<script>
+	import Fuse from 'fuse.js';
+	import type { SearchablePost } from '../utils/search';
+	import { createSearchIndex, searchPosts } from '../utils/search';
+
+	const currentLang = document.documentElement.lang as 'en' | 'id';
+	let searchIndex: Fuse<SearchablePost> | null = null;
+	let isIndexLoaded = false;
+
+	// DOM elements
+	const searchToggle = document.getElementById('search-toggle');
+	const searchModal = document.getElementById('search-modal');
+	const searchInput = document.getElementById('search-input') as HTMLInputElement;
+	const searchClose = document.getElementById('search-close');
+	const searchResults = document.getElementById('search-results');
+	const searchBackdrop = document.querySelector('.search-backdrop');
+
+	// Load search index
+	async function loadSearchIndex() {
+		if (isIndexLoaded) return;
+
+		try {
+			const response = await fetch(`/search-index-${currentLang}.json`);
+			if (!response.ok) throw new Error('Failed to load search index');
+
+			const posts: SearchablePost[] = await response.json();
+			searchIndex = createSearchIndex(posts);
+			isIndexLoaded = true;
+		} catch (error) {
+			console.error('Error loading search index:', error);
+		}
+	}
+
+	// Open search modal
+	function openSearch() {
+		searchModal?.classList.add('active');
+		searchInput?.focus();
+		document.body.style.overflow = 'hidden';
+		loadSearchIndex();
+	}
+
+	// Close search modal
+	function closeSearch() {
+		searchModal?.classList.remove('active');
+		if (searchInput) searchInput.value = '';
+		if (searchResults) searchResults.innerHTML = '<div class="search-empty"><p>Start typing to search...</p></div>';
+		document.body.style.overflow = '';
+	}
+
+	// Perform search
+	function performSearch(query: string) {
+		if (!searchResults || !searchIndex) return;
+
+		if (!query || query.trim().length < 2) {
+			searchResults.innerHTML = '<div class="search-empty"><p>Start typing to search...</p></div>';
+			return;
+		}
+
+		const results = searchPosts(searchIndex, query, 20);
+
+		if (results.length === 0) {
+			searchResults.innerHTML = `
+				<div class="search-no-results">
+					<h3>No results found</h3>
+					<p>Try different keywords or check your spelling</p>
+				</div>
+			`;
+			return;
+		}
+
+		const resultsHTML = results
+			.map((result) => {
+				const post = result.item;
+				const tags = post.tags?.slice(0, 3).map(tag => `<span class="search-result-tag">${tag}</span>`).join('') || '';
+
+				return `
+					<a href="/${currentLang}/blog/${post.slug}/" class="search-result-item">
+						<div class="search-result-title">${post.title}</div>
+						<div class="search-result-description">${post.description}</div>
+						<div class="search-result-meta">
+							${post.category ? `<span>${post.category}</span>` : ''}
+							${tags}
+						</div>
+					</a>
+				`;
+			})
+			.join('');
+
+		searchResults.innerHTML = resultsHTML;
+	}
+
+	// Event listeners
+	searchToggle?.addEventListener('click', openSearch);
+	searchClose?.addEventListener('click', closeSearch);
+	searchBackdrop?.addEventListener('click', closeSearch);
+
+	// Search input handler with debounce
+	let searchTimeout: number;
+	searchInput?.addEventListener('input', (e) => {
+		clearTimeout(searchTimeout);
+		const query = (e.target as HTMLInputElement).value;
+
+		searchTimeout = window.setTimeout(() => {
+			performSearch(query);
+		}, 300);
+	});
+
+	// Keyboard shortcuts
+	document.addEventListener('keydown', (e) => {
+		// Open search with '/' key
+		if (e.key === '/' && !searchModal?.classList.contains('active')) {
+			e.preventDefault();
+			openSearch();
+		}
+
+		// Close search with 'Escape' key
+		if (e.key === 'Escape' && searchModal?.classList.contains('active')) {
+			closeSearch();
+		}
+	});
+
+	// Prevent page scroll when search is open
+	searchInput?.addEventListener('keydown', (e) => {
+		if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+			e.preventDefault();
+		}
+	});
+</script>

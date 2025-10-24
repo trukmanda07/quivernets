@@ -1,0 +1,306 @@
+---
+title: 'How Computers Represent Information'
+description: 'Discover how computers transform everything you see—emojis, images, music, and videos—into zeros and ones using binary representation.'
+pubDate: 2025-10-23
+author: 'QuiverLearn'
+tags: ['computer-science', 'binary', 'encoding', 'fundamentals']
+category: 'Computer Science'
+difficulty: 'beginner'
+hasMath: true
+hasCode: false
+estimatedReadingTime: 12
+featured: true
+draft: false
+language: en
+---
+
+import DefinitionBox from '../../components/boxes/DefinitionBox.astro';
+import ExampleBox from '../../components/boxes/ExampleBox.astro';
+import InsightBox from '../../components/boxes/InsightBox.astro';
+import CalloutBox from '../../components/boxes/CalloutBox.astro';
+import PracticeProblem from '../../components/boxes/PracticeProblem.astro';
+import SplitView from '../../components/boxes/SplitView.astro';
+import SplitPanel from '../../components/boxes/SplitPanel.astro';
+
+What do emojis, music, and video games have in common? They're all made of **zeros and ones**. Computer science isn't just about how to make a program or software available on your phone. It's about **representing information**. Every image, sound, and text you see on a screen consists of binary digits. Let's explore how computers represent them behind the scenes.
+
+## What is Computer Science?
+
+<CalloutBox icon="💭">
+Fun fact: In Indonesia, there are some universities that call computer science 'information technology'. They are basically the same, but do you know why? It's **because they study information**.
+</CalloutBox>
+
+Basically, all fields of study are about **problem solving**, including computer science. It's about **problem solving** involving **information** using **computational thinking** to **represent** and **process** that information.
+
+<DefinitionBox title="Computer Science">
+**Computer science** is **problem solving** that uses **computational thinking** to **represent** and **process** information.
+</DefinitionBox>
+
+## Types of Information We Encounter Daily
+
+How do we represent this information? Before that, what forms of information do we have? Where can we find information in our daily life?
+
+- From a book, television, billboard, pamphlet, phone, internet, radio
+
+What forms of information do they have?
+
+- Text and letters
+- Numbers
+- Images and Color
+- Sound and Video
+
+# How do computers process those types of information?
+
+## Numbers: From Decimal to Binary
+
+Basically, computer hardware **only knows numbers, only 0 and 1**. Why does a computer only understand those two numbers? Because the transistors that make up this hardware only have two states. It's like a switch, on and off. Modern electronic devices, such as Macs, PCs, and phones, utilize millions of microscopic light switches called **transistors** to store information by being turned either on (one) or off (zero).
+
+<InsightBox title="💡 Why Binary?">
+Transistors are like tiny switches that can only be in two states: **ON (1)** or **OFF (0)**. This physical limitation is why computers use binary—it perfectly matches how the hardware works!
+</InsightBox>
+
+### Understanding the Decimal System
+
+How do they represent numbers? Like 12345, 1 million.
+Numbers that we know like 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, etc., are called the decimal system, base 10: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+
+Every single number can be represented as:
+
+$$
+a_n \cdot 10^n + a_{n-1} \cdot 10^{n-1} + \cdots + a_1 \cdot 10^1 + a_0
+$$
+
+<ExampleBox title="Decimal Example">
+Let's break down the number **1234**:
+
+$$
+1234 = 1 \cdot 10^3 + 2 \cdot 10^2 + 3 \cdot 10^1 + 4 \cdot 10^0
+$$
+
+$$
+1234 = 1000 + 200 + 30 + 4
+$$
+</ExampleBox>
+
+### Converting to Binary
+
+Because computers only know $0$ and $1$, we must represent all of those numbers in the binary system (base 2). How do we represent 11 as binary?
+
+<ExampleBox title="Converting 11 to Binary">
+Let's use the **division method**:
+
+- 11 ÷ 2 = 5 remainder **1**  ← rightmost bit
+- 5 ÷ 2 = 2 remainder **1**
+- 2 ÷ 2 = 1 remainder **0**
+- 1 ÷ 2 = 0 remainder **1**  ← leftmost bit
+
+Reading from bottom to top: **1011**
+
+We can verify this:
+
+$$
+11 = 1 \cdot 2^3 + 0 \cdot 2^2 + 1 \cdot 2^1 + 1 \cdot 2^0
+$$
+
+$$
+11 = 8 + 0 + 2 + 1 = 11 \text{ ✓}
+$$
+
+So $11$ in decimal = $1011$ in binary!
+</ExampleBox>
+
+<PracticeProblem level="Level 1">
+Convert **23** from decimal to binary using the division method.
+
+<details>
+<summary>Click for hint</summary>
+Keep dividing by 2 and write down the remainders. The binary number is formed by reading the remainders from bottom to top!
+</details>
+
+<details>
+<summary>Click for solution</summary>
+
+**Step-by-step conversion:**
+
+- 23 ÷ 2 = 11 remainder **1**  ← rightmost bit
+- 11 ÷ 2 = 5 remainder **1**
+- 5 ÷ 2 = 2 remainder **1**
+- 2 ÷ 2 = 1 remainder **0**
+- 1 ÷ 2 = 0 remainder **1**  ← leftmost bit
+
+**Answer:** $23$ in decimal = $10111$ in binary
+
+**Verification:**
+$$
+10111_2 = 1 \cdot 2^4 + 0 \cdot 2^3 + 1 \cdot 2^2 + 1 \cdot 2^1 + 1 \cdot 2^0
+$$
+$$
+= 16 + 0 + 4 + 2 + 1 = 23 \text{ ✓}
+$$
+</details>
+</PracticeProblem>
+
+## Text: ASCII and Unicode
+
+Now we move on to **Text and Letters**. How about it? Yes, we represent it as numbers.
+
+<SplitView>
+  <SplitPanel side="left" title="ASCII - The Foundation">
+    **American Standard Code for Information Interchange (ASCII)**
+
+    - Uses **7 bits** (0-127) or extended **8 bits** (0-255)
+    - Represents about **256 characters**
+    - Sufficient for English alphabet and standard symbols
+    - Examples:
+      - 'A' = 65
+      - 'a' = 97
+      - '0' = 48
+  </SplitPanel>
+
+  <SplitPanel side="right" title="Unicode - Global Characters">
+    **Universal Character Encoding**
+
+    - Uses **16, 24, or 32 bits**
+    - Supports up to **4 billion characters**
+    - Covers all human languages and emojis
+    - Uses "code points" (e.g., U+0041)
+    - Superset of ASCII
+  </SplitPanel>
+</SplitView>
+
+<ExampleBox title="Unicode Code Points">
+Here are some examples of Unicode code points:
+
+- 'A' = **U+0041** (Latin capital letter A)
+- '你' = **U+4F60** (Chinese character meaning "you")
+- '😀' = **U+1F600** (Grinning face emoji)
+
+Notice how each character, regardless of language or type, gets a unique code point!
+</ExampleBox>
+
+## Images: Pixels and Colors
+
+How do computers display an emoji and images?
+
+Emojis and images consist of several colors that represent them. Did you ever see people make an image from Lego bricks? The idea to represent those images is similar to how we represent images on the screen. We can represent the images using **pixels**, which are single dots on the screen. Those pixels are represented by our primary colors.
+
+<DefinitionBox title="Pixel">
+A **pixel** (picture element) is a single dot on the screen. It's the smallest unit of a digital image. Each pixel has a color defined by combining Red, Green, and Blue (RGB) values.
+</DefinitionBox>
+
+### Understanding Color Mixing
+
+<SplitView>
+  <SplitPanel side="left" title="Physical Paint (Subtractive)">
+    **Mixing Pigments**
+
+    - Uses **Cyan, Magenta, Yellow** (CMY)
+    - Subtracts light wavelengths
+    - Mixing all colors → **Black**
+    - Used in printing
+
+    Think: Paint absorbs light!
+  </SplitPanel>
+
+  <SplitPanel side="right" title="Computer Light (Additive)">
+    **Mixing Light**
+
+    - Uses **Red, Green, Blue** (RGB)
+    - Adds light wavelengths
+    - Mixing all colors → **White**
+    - Used in screens
+
+    Think: Light adds up!
+  </SplitPanel>
+</SplitView>
+
+### RGB Color System
+
+In computers, the color is defined by Red, Green, and Blue. Each color has an intensity that we can define from 0 to 255. If we increase the number, the color will be brighter.
+
+<ExampleBox title="RGB Color Values">
+Each color channel ranges from **0 to 255** (that's $2^8 = 256$ values):
+
+- $(255, 0, 0)$ = **Pure red** (max red, no green, no blue)
+- $(0, 255, 0)$ = **Pure green** (no red, max green, no blue)
+- $(0, 0, 255)$ = **Pure blue** (no red, no green, max blue)
+- $(255, 255, 0)$ = **Yellow** (red + green)
+- $(255, 255, 255)$ = **White** (all lights on)
+- $(0, 0, 0)$ = **Black** (all lights off)
+- $(128, 128, 128)$ = **Gray** (medium intensity all)
+
+With 3 channels × 256 values each = **16,777,216 possible colors**!
+</ExampleBox>
+
+<InsightBox title="💡 File Size">
+Large photographs require millions of bytes because of the high number of pixels. A 1920×1080 image has over 2 million pixels, and each pixel needs 3 bytes (RGB) = over 6 MB for a single uncompressed image!
+</InsightBox>
+
+## Video and Sound
+
+How about Video and Sound?
+
+### Video: Sequences of Images
+
+Videos can be represented as a sequence of images that play at a fast speed. Did you ever see a cartoonist draw images in the corner of books, and then open the book quickly? It makes the images move like a video.
+
+<CalloutBox icon="🎬">
+**Flipbook Animation**: This is exactly how video works! Modern videos typically show 24, 30, or 60 frames (images) per second. Our eyes perceive this rapid sequence as smooth motion.
+</CalloutBox>
+
+### Sound: Digital Sampling
+
+Sound is different—it's a continuous wave signal. To digitize it:
+
+1. A microphone **samples** the wave thousands of times per second
+2. Each sample measures the wave's amplitude (loudness) at that instant
+3. These measurements become bytes stored in audio files
+
+<DefinitionBox title="Sampling Rate">
+The **sampling rate** is how many times per second we measure the sound wave. CD-quality audio uses **44,100 samples per second** (44.1 kHz).
+
+Higher sample rates = better quality but larger files.
+</DefinitionBox>
+
+## Context: How Computers Know What's What
+
+It depends on the context, similar to words. In Software Engineering, "staging" means a deployment phase. In Data Engineering, it's about a layering phase. Computers can differentiate how to transform data depending on the context we provide.
+
+### File Formats as Context
+
+What is the representation of context in computers? It lies in the file format. We have `.JPEG` for images, `.txt` for text. This format represents context as special bytes called a header. This header tells the computer that the next million bytes are image data so the computer can decode them as pixels, or that the next bytes are ASCII text.
+
+<ExampleBox title="File Headers">
+Every file starts with special bytes called a **header** that tells the computer what type of data follows:
+
+- **JPEG images**: Start with bytes `FF D8 FF`
+- **PNG images**: Start with bytes `89 50 4E 47`
+- **MP3 audio**: Start with bytes `FF FB` or `ID3`
+- **PDF documents**: Start with `%PDF`
+
+Without these headers, the computer wouldn't know if those bytes represent an image, sound, or text!
+</ExampleBox>
+
+<InsightBox title="💡 The Power of Programming">
+The power of the programmer lies in writing code that tells the computer how to treat these patterns—whether to store a number, a letter, a color, or something else. Same bytes, different meaning!
+</InsightBox>
+
+## Conclusion
+
+Finally, we understand that every app, website, film, and game is built on binary data that is converted by computer hardware to represent real-world information.
+
+### Key Takeaways
+
+- Computers use **binary (0 and 1)** because transistors have two states
+- **Numbers** are converted from decimal to binary using division
+- **Text** is encoded using ASCII (English) or Unicode (global languages)
+- **Images** are made of pixels, each with RGB color values (0-255)
+- **Video** is a sequence of images played rapidly
+- **Sound** is digitized by sampling continuous wave signals
+- **File formats** provide context through headers
+
+Understanding how computers represent information is fundamental to computer science. This knowledge helps you appreciate the digital world around you and forms the foundation for deeper programming and system design concepts.
+
+---
+
+**Next in this series**: *Introduction to Algorithms and Problem Solving*

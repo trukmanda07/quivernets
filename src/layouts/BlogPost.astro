@@ -1,0 +1,348 @@
+---
+import '../styles/global.css';
+import { Image } from 'astro:assets';
+import { getCollection } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import Header from '../components/Header.astro';
+import Tag from '../components/Tag.astro';
+import RelatedPosts from '../components/RelatedPosts.astro';
+import ExplorerSidebar from '../components/ExplorerSidebar.astro';
+import TopicsSidebar from '../components/TopicsSidebar.astro';
+import TagBrowseSidebar from '../components/TagBrowseSidebar.astro';
+import PresentationSlideLink from '../components/PresentationSlideLink.astro';
+import type { TreeNode } from '../utils/explorerTree';
+import type { Heading } from '../utils/headingExtractor';
+import { getCollectionName } from '../utils/i18n';
+
+type Props = CollectionEntry<'blog'>['data'] & {
+	postId?: string;
+	language?: string;
+	explorerTree?: TreeNode[];
+	currentSlug?: string;
+	headings?: Heading[];
+};
+
+const {
+	title,
+	description,
+	pubDate,
+	updatedDate,
+	heroImage,
+	tags,
+	language,
+	category,
+	difficulty,
+	postId,
+	translationId,
+	translatedVersions,
+	explorerTree,
+	currentSlug,
+	headings
+} = Astro.props;
+
+// Get all posts to build tag cloud for sidebar
+const currentLang = language || 'en';
+const collectionName = getCollectionName(currentLang);
+
+type TagInfo = {
+	name: string;
+	slug: string;
+	count: number;
+};
+
+let allTags: TagInfo[] = [];
+try {
+	const allPosts = await getCollection(collectionName);
+
+	// Count tag occurrences
+	const tagCounts = new Map<string, number>();
+	allPosts.forEach((post) => {
+		post.data.tags?.forEach((tag) => {
+			tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+		});
+	});
+
+	// Create sorted tag list
+	allTags = Array.from(tagCounts.entries())
+		.map(([name, count]) => ({
+			name,
+			slug: name.toLowerCase().replace(/\s+/g, '-'),
+			count,
+		}))
+		.sort((a, b) => b.count - a.count);
+} catch (error) {
+	console.error(`Error loading tags from ${collectionName}:`, error);
+}
+
+// Check for related presentation
+// Load presentations directly from JSON files
+const enPresentationsRaw = import.meta.glob('/src/content/presentations-en/*.json', { eager: true });
+const idPresentationsRaw = import.meta.glob('/src/content/presentations-id/*.json', { eager: true });
+
+const presentationsRaw = currentLang === 'en' ? enPresentationsRaw : idPresentationsRaw;
+
+let relatedPresentation: any = null;
+for (const [path, module] of Object.entries(presentationsRaw)) {
+	const data = module as any;
+	if (data.relatedBlogPost === currentSlug) {
+		const id = path.split('/').pop()?.replace('.json', '') || '';
+		relatedPresentation = { id, data };
+		break;
+	}
+}
+---
+
+<html lang={language || 'en'}>
+	<head>
+		<BaseHead title={title} description={description} />
+		<style>
+			main {
+				width: calc(100% - 2em);
+				max-width: 1600px;
+				margin: 0 auto;
+			}
+			.post-layout {
+				display: grid;
+				grid-template-columns: 280px 1fr 280px;
+				gap: 2rem;
+				padding: 2rem 1rem;
+				align-items: start;
+			}
+			.post-layout.no-explorer {
+				grid-template-columns: 1fr 280px;
+			}
+			.post-layout.no-topics {
+				grid-template-columns: 280px 1fr;
+			}
+			.post-layout.no-sidebars {
+				grid-template-columns: 1fr;
+				max-width: 900px;
+				margin: 0 auto;
+			}
+			.right-sidebar-container {
+				display: flex;
+				flex-direction: column;
+				gap: 1.5rem;
+				position: sticky;
+				top: 2rem;
+				align-self: flex-start;
+				max-height: calc(100vh - 4rem);
+				overflow-y: auto;
+				overflow-x: hidden;
+			}
+			/* Custom scrollbar for right sidebar */
+			.right-sidebar-container::-webkit-scrollbar {
+				width: 4px;
+			}
+			.right-sidebar-container::-webkit-scrollbar-track {
+				background: transparent;
+			}
+			.right-sidebar-container::-webkit-scrollbar-thumb {
+				background: rgba(0, 0, 0, 0.2);
+				border-radius: 2px;
+			}
+			.right-sidebar-container::-webkit-scrollbar-thumb:hover {
+				background: rgba(0, 0, 0, 0.3);
+			}
+			.hero-image {
+				width: 100%;
+			}
+			.hero-image img {
+				display: block;
+				margin: 0 auto;
+				border-radius: 12px;
+				box-shadow: var(--box-shadow);
+			}
+			.prose {
+				width: 100%;
+				max-width: 800px;
+				margin: auto;
+				padding: 1em;
+				color: rgb(var(--gray-dark));
+			}
+			.title {
+				margin-bottom: 1em;
+				padding: 1em 0;
+				text-align: center;
+				line-height: 1;
+			}
+			.title h1 {
+				margin: 0 0 0.5em 0;
+			}
+			.date {
+				margin-bottom: 0.5em;
+				color: rgb(var(--gray));
+			}
+			.last-updated-on {
+				font-style: italic;
+			}
+			.post-meta {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.75rem;
+				align-items: center;
+				justify-content: center;
+				margin-top: 1rem;
+			}
+			.post-tags {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.5rem;
+				justify-content: center;
+				margin-top: 1rem;
+			}
+			.meta-badge {
+				display: inline-flex;
+				align-items: center;
+				padding: 0.25rem 0.75rem;
+				border-radius: 9999px;
+				font-size: 0.875rem;
+				font-weight: 500;
+				background-color: rgb(var(--gray-light));
+				color: rgb(var(--gray-dark));
+			}
+			.difficulty-badge {
+				background-color: rgb(168, 85, 247);
+				color: white;
+			}
+			.category-badge {
+				background-color: rgb(59, 130, 246);
+				color: white;
+			}
+			@media (max-width: 1200px) {
+				.post-layout,
+				.post-layout.no-explorer,
+				.post-layout.no-topics {
+					grid-template-columns: 280px 1fr;
+				}
+				.right-sidebar-container {
+					display: none;
+				}
+			}
+			@media (max-width: 960px) {
+				.post-layout,
+				.post-layout.no-explorer,
+				.post-layout.no-topics,
+				.post-layout.no-sidebars {
+					grid-template-columns: 1fr;
+				}
+				.right-sidebar-container {
+					display: flex;
+					position: static;
+					max-height: none;
+					margin-top: 2rem;
+				}
+			}
+		</style>
+	</head>
+
+	<body>
+		<Header />
+		<main>
+			<div class={`post-layout ${!explorerTree || explorerTree.length === 0 ? 'no-explorer' : ''} ${!headings || headings.length === 0 ? 'no-topics' : ''} ${(!explorerTree || explorerTree.length === 0) && (!headings || headings.length === 0) ? 'no-sidebars' : ''}`}>
+				{explorerTree && explorerTree.length > 0 && (
+					<ExplorerSidebar
+						tree={explorerTree}
+						title="Posts"
+						currentSlug={currentSlug}
+						sticky={true}
+					/>
+				)}
+				<article>
+				<div class="hero-image">
+					{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
+				</div>
+				<div class="prose">
+					<div class="title">
+						<div class="date">
+							<FormattedDate date={pubDate} />
+							{
+								updatedDate && (
+									<div class="last-updated-on">
+										Last updated on <FormattedDate date={updatedDate} />
+									</div>
+								)
+							}
+						</div>
+						<h1>{title}</h1>
+
+						{/* Meta information */}
+						{(category || difficulty) && (
+							<div class="post-meta">
+								{category && (
+									<span class="meta-badge category-badge">{category}</span>
+								)}
+								{difficulty && (
+									<span class="meta-badge difficulty-badge">
+										{difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+									</span>
+								)}
+							</div>
+						)}
+
+						{/* Tags */}
+						{tags && tags.length > 0 && (
+							<div class="post-tags">
+								{tags.map((tag) => (
+									<Tag tag={tag} lang={language || 'en'} size="md" />
+								))}
+							</div>
+						)}
+
+						{/* Presentation Link - Show if related presentation exists */}
+						{relatedPresentation && (
+							<PresentationSlideLink
+								presentationSlug={relatedPresentation.id}
+								currentType="blog"
+								language={currentLang}
+							/>
+						)}
+
+						<hr />
+					</div>
+					<slot />
+
+					{/* Related Posts Section */}
+					{postId && language && (
+						<RelatedPosts
+							currentPostId={postId}
+							tags={tags}
+							category={category}
+							difficulty={difficulty}
+							language={language}
+							translationId={translationId}
+							translatedVersions={translatedVersions}
+							maxRelated={3}
+						/>
+					)}
+				</div>
+			</article>
+			<div class="right-sidebar-container">
+				{headings && headings.length > 0 && (
+					<TopicsSidebar
+						headings={headings}
+						title="On this page"
+						sticky={false}
+						position="right"
+						minLevel={2}
+						maxLevel={4}
+						collapsible={true}
+						defaultCollapsed={false}
+					/>
+				)}
+				<TagBrowseSidebar
+					lang={currentLang}
+					tags={allTags}
+					sticky={false}
+					showSkillLevels={false}
+					maxTags={30}
+				/>
+			</div>
+			</div>
+		</main>
+		<Footer />
+	</body>
+</html>

@@ -1,0 +1,292 @@
+---
+/**
+ * Tag Component
+ * Displays a clickable tag badge with styling
+ * Links to the tag filter page for the current language
+ */
+
+interface Props {
+	tag: string;
+	lang: string;
+	size?: 'sm' | 'md' | 'lg';
+	variant?: 'default' | 'outlined' | 'minimal';
+	density?: 'compact' | 'normal' | 'spacious';
+	showCount?: boolean;
+	count?: number;
+}
+
+const {
+	tag,
+	lang,
+	size = 'md',
+	variant = 'default',
+	density = 'normal',
+	showCount = false,
+	count
+} = Astro.props;
+
+// Normalize tag for URL (lowercase, no spaces)
+const tagSlug = tag.toLowerCase().replace(/\s+/g, '-');
+
+// Generate tag URL with language prefix
+const tagUrl = `/${lang}/tags/${tagSlug}`;
+
+// Map certain tags to colors (optional, for visual categorization)
+const tagColors: Record<string, string> = {
+	// Mathematics
+	'calculus': 'blue',
+	'mathematics': 'blue',
+	'algebra': 'blue',
+	'geometry': 'blue',
+	'integration': 'blue',
+	'differentiation': 'blue',
+	'derivatives': 'blue',
+
+	// Computer Science
+	'computer-science': 'green',
+	'algorithms': 'green',
+	'data-structures': 'green',
+	'programming': 'green',
+
+	// Documentation/Meta
+	'guide': 'purple',
+	'documentation': 'purple',
+	'tutorial': 'purple',
+
+	// Tools/Frameworks
+	'mdx': 'orange',
+	'astro': 'orange',
+	'markdown': 'orange',
+
+	// General
+	'blog': 'gray',
+	'example': 'gray',
+	'template': 'gray',
+};
+
+// Get color for tag (default to accent color)
+const tagColor = tagColors[tagSlug] || 'accent';
+---
+
+<a href={tagUrl} class={`tag tag-${size} tag-${variant} tag-${tagColor} tag-density-${density}`}>
+	#{tag}
+	{showCount && count !== undefined && (
+		<span class="tag-count">{count}</span>
+	)}
+</a>
+
+<style>
+	.tag {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.25rem 0.75rem;
+		border-radius: 9999px;
+		font-size: 0.875rem;
+		font-weight: 500;
+		text-decoration: none;
+		transition: all 0.2s ease-in-out;
+		white-space: nowrap;
+		cursor: pointer;
+	}
+
+	/* Size variants */
+	.tag-sm {
+		padding: 0.125rem 0.5rem;
+		font-size: 0.75rem;
+	}
+
+	.tag-md {
+		padding: 0.25rem 0.75rem;
+		font-size: 0.875rem;
+	}
+
+	.tag-lg {
+		padding: 0.375rem 1rem;
+		font-size: 1rem;
+	}
+
+	/* Default variant (filled) */
+	.tag-default {
+		color: white;
+	}
+
+	/* Outlined variant */
+	.tag-outlined {
+		background-color: transparent;
+		border: 1.5px solid;
+	}
+
+	/* Minimal variant - Clean inline text style */
+	.tag-minimal {
+		background-color: transparent;
+		color: rgb(107, 114, 128);
+		border: none;
+		padding: 0;
+		font-size: 0.8125rem;
+		font-weight: 400;
+	}
+
+	.tag-minimal:hover {
+		color: rgb(59, 130, 246);
+		text-decoration: underline;
+		transform: none;
+		box-shadow: none;
+	}
+
+	.tag-minimal .tag-count {
+		background-color: rgb(203, 213, 225);
+		color: rgb(51, 65, 85);
+	}
+
+	/* Color schemes */
+	.tag-blue.tag-default {
+		background-color: rgb(59, 130, 246);
+	}
+	.tag-blue.tag-outlined {
+		border-color: rgb(59, 130, 246);
+		color: rgb(59, 130, 246);
+	}
+	.tag-blue:hover {
+		background-color: rgb(37, 99, 235);
+	}
+
+	.tag-green.tag-default {
+		background-color: rgb(34, 197, 94);
+	}
+	.tag-green.tag-outlined {
+		border-color: rgb(34, 197, 94);
+		color: rgb(34, 197, 94);
+	}
+	.tag-green:hover {
+		background-color: rgb(22, 163, 74);
+	}
+
+	.tag-purple.tag-default {
+		background-color: rgb(168, 85, 247);
+	}
+	.tag-purple.tag-outlined {
+		border-color: rgb(168, 85, 247);
+		color: rgb(168, 85, 247);
+	}
+	.tag-purple:hover {
+		background-color: rgb(147, 51, 234);
+	}
+
+	.tag-orange.tag-default {
+		background-color: rgb(249, 115, 22);
+	}
+	.tag-orange.tag-outlined {
+		border-color: rgb(249, 115, 22);
+		color: rgb(249, 115, 22);
+	}
+	.tag-orange:hover {
+		background-color: rgb(234, 88, 12);
+	}
+
+	.tag-gray.tag-default {
+		background-color: rgb(107, 114, 128);
+	}
+	.tag-gray.tag-outlined {
+		border-color: rgb(107, 114, 128);
+		color: rgb(107, 114, 128);
+	}
+	.tag-gray:hover {
+		background-color: rgb(75, 85, 99);
+	}
+
+	.tag-accent.tag-default {
+		background-color: var(--accent);
+	}
+	.tag-accent.tag-outlined {
+		border-color: var(--accent);
+		color: var(--accent);
+	}
+	.tag-accent:hover {
+		background-color: var(--accent-dark);
+	}
+
+	/* Hover effects */
+	.tag:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+			0 2px 4px -1px rgba(0, 0, 0, 0.06);
+	}
+
+	.tag-outlined:hover {
+		background-color: rgba(0, 0, 0, 0.05);
+	}
+
+	/* Dark mode support */
+	:global(.dark) .tag-outlined:hover {
+		background-color: rgba(255, 255, 255, 0.05);
+	}
+
+	/* Density variants */
+	.tag-density-compact {
+		padding: 0;
+		font-size: 0.8125rem;
+		gap: 0.25rem;
+	}
+
+	.tag-density-compact.tag-minimal {
+		padding: 0;
+		margin-right: 0.5rem;
+	}
+
+	.tag-density-normal {
+		padding: 0.25rem 0.75rem;
+		font-size: 0.875rem;
+		gap: 0.375rem;
+	}
+
+	.tag-density-spacious {
+		padding: 0.5rem 1rem;
+		font-size: 0.875rem;
+		gap: 0.5rem;
+	}
+
+	/* Tag count badge */
+	.tag-count {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 1.25rem;
+		height: 1.25rem;
+		padding: 0 0.375rem;
+		background-color: rgba(255, 255, 255, 0.3);
+		border-radius: 9999px;
+		font-size: 0.75rem;
+		font-weight: 600;
+		line-height: 1;
+	}
+
+	.tag-sm .tag-count {
+		min-width: 1rem;
+		height: 1rem;
+		font-size: 0.625rem;
+		padding: 0 0.25rem;
+	}
+
+	.tag-lg .tag-count {
+		min-width: 1.5rem;
+		height: 1.5rem;
+		font-size: 0.875rem;
+		padding: 0 0.5rem;
+	}
+
+	/* Override size when density is set */
+	.tag-density-compact.tag-sm,
+	.tag-density-compact.tag-md,
+	.tag-density-compact.tag-lg {
+		padding: 0.125rem 0.5rem;
+		font-size: 0.75rem;
+	}
+
+	.tag-density-spacious.tag-sm,
+	.tag-density-spacious.tag-md,
+	.tag-density-spacious.tag-lg {
+		padding: 0.5rem 1rem;
+		font-size: 0.875rem;
+	}
+</style>

@@ -1,0 +1,336 @@
+---
+import '../../../styles/global.css';
+import { getCollection } from 'astro:content';
+import BaseHead from '../../../components/BaseHead.astro';
+import Footer from '../../../components/Footer.astro';
+import Header from '../../../components/Header.astro';
+import ExplorerSidebar from '../../../components/ExplorerSidebar.astro';
+import TagBrowseSidebar from '../../../components/TagBrowseSidebar.astro';
+import InlineSearch from '../../../components/InlineSearch.astro';
+import PostCard from '../../../components/PostCard.astro';
+import ActiveFilters from '../../../components/ActiveFilters.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../../../consts';
+import { supportedLanguages, getCollectionName, useTranslations } from '../../../utils/i18n';
+import { buildExplorerTree } from '../../../utils/explorerTree';
+import { parseTagsFromUrl } from '../../../utils/tagHelpers';
+
+export async function getStaticPaths() {
+	return supportedLanguages.map((lang) => ({
+		params: { lang },
+	}));
+}
+
+const { lang } = Astro.params;
+const currentLang = lang || 'en';
+const t = useTranslations(currentLang);
+
+// Get posts for the current language
+const collectionName = getCollectionName(currentLang);
+let allPosts = [];
+try {
+	allPosts = (await getCollection(collectionName)).sort(
+		(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+	);
+	console.log(`Loaded ${allPosts.length} posts from ${collectionName}`);
+} catch (error) {
+	// Collection might be empty initially
+	console.error(`Error loading collection ${collectionName}:`, error);
+}
+
+// Extract unique categories and difficulties for filter UI
+const categories = [...new Set(allPosts.map(p => p.data.category).filter(Boolean))].sort();
+const difficulties = ['beginner', 'intermediate', 'advanced'] as const;
+
+// Server-side filtering for initial load
+const url = new URL(Astro.request.url);
+const categoryFilter = url.searchParams.get('category');
+const difficultyFilter = url.searchParams.get('difficulty');
+const sortOrder = url.searchParams.get('sort') || 'latest';
+const tagsParam = url.searchParams.get('tags');
+
+// Parse tags from URL
+const selectedTags = parseTagsFromUrl(tagsParam);
+
+let posts = allPosts;
+
+// Apply category filter
+if (categoryFilter && categoryFilter !== 'all') {
+	posts = posts.filter(p => p.data.category === categoryFilter);
+}
+
+// Apply difficulty filter
+if (difficultyFilter && difficultyFilter !== 'all') {
+	posts = posts.filter(p => p.data.difficulty === difficultyFilter);
+}
+
+// Apply tags filter (AND logic - post must have all selected tags)
+if (selectedTags.length > 0) {
+	posts = posts.filter(p => {
+		const postTags = (p.data.tags || []).map((t: string) => t.toLowerCase().replace(/\s+/g, '-'));
+		return selectedTags.every(selectedTag => postTags.includes(selectedTag));
+	});
+}
+
+// Apply sort
+if (sortOrder === 'oldest') {
+	posts = posts.sort((a, b) => a.data.pubDate.valueOf() - b.data.pubDate.valueOf());
+} else {
+	posts = posts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+}
+
+// Build explorer tree from all posts
+const explorerTree = buildExplorerTree(allPosts, currentLang);
+
+// Extract all tags with counts for TagBrowseSidebar
+type TagInfo = {
+	name: string;
+	slug: string;
+	count: number;
+};
+
+const tagCounts = new Map<string, number>();
+allPosts.forEach((post) => {
+	post.data.tags?.forEach((tag) => {
+		tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+	});
+});
+
+const allTags: TagInfo[] = Array.from(tagCounts.entries())
+	.map(([name, count]) => ({
+		name,
+		slug: name.toLowerCase().replace(/\s+/g, '-'),
+		count,
+	}))
+	.sort((a, b) => b.count - a.count);
+---
+
+<!doctype html>
+<html lang={currentLang}>
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<style>
+			main {
+				max-width: 1600px;
+				width: 100%;
+				margin: 0 auto;
+			}
+			.blog-layout {
+				display: grid;
+				grid-template-columns: 280px 1fr 280px;
+				gap: 2rem;
+				padding: 2rem 1rem;
+				align-items: start;
+			}
+			/* Posts Grid Layout */
+			.posts-section {
+				margin-top: 2rem;
+			}
+
+			.posts-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+				gap: 1.5rem;
+				margin: 0;
+				padding: 0;
+			}
+
+			/* Responsive grid adjustments */
+			@media (min-width: 1024px) {
+				.posts-grid {
+					grid-template-columns: repeat(2, 1fr);
+				}
+			}
+
+			@media (min-width: 1400px) {
+				.posts-grid {
+					grid-template-columns: repeat(3, 1fr);
+				}
+			}
+			@media (max-width: 1200px) {
+				.blog-layout {
+					grid-template-columns: 280px 1fr;
+				}
+				.tag-browse-sidebar {
+					display: none;
+				}
+			}
+			@media (max-width: 960px) {
+				.blog-layout {
+					grid-template-columns: 1fr;
+				}
+			}
+			@media (max-width: 768px) {
+				.posts-grid {
+					grid-template-columns: 1fr;
+					gap: 1rem;
+				}
+			}
+			.empty-state {
+				text-align: center;
+				padding: 4rem 2rem;
+			}
+			.empty-state h2 {
+				color: rgb(var(--gray));
+				margin-bottom: 1rem;
+			}
+
+			/* Search and Sort Bar */
+			.search-sort-bar {
+				display: flex;
+				gap: 1rem;
+				align-items: flex-start;
+				margin-bottom: 1.5rem;
+			}
+
+			.search-sort-bar > :first-child {
+				flex: 1;
+			}
+
+			.sort-dropdown {
+				display: flex;
+				align-items: flex-start;
+			}
+
+			.sort-dropdown select {
+				padding: 0.75rem 2.5rem 0.75rem 1rem;
+				border: 1px solid rgba(0, 0, 0, 0.1);
+				border-radius: 8px;
+				background: white;
+				color: rgb(var(--gray-dark));
+				font-size: 0.875rem;
+				font-weight: 500;
+				cursor: pointer;
+				transition: all 0.2s ease;
+				appearance: none;
+				background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+				background-repeat: no-repeat;
+				background-position: right 0.75rem center;
+				box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+				min-width: 140px;
+			}
+
+			.sort-dropdown select:hover {
+				border-color: rgb(var(--accent));
+				box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+			}
+
+			.sort-dropdown select:focus {
+				outline: none;
+				border-color: rgb(var(--accent));
+				box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.1);
+			}
+
+			/* Results Info */
+			.results-info {
+				margin-bottom: 1.5rem;
+				color: rgb(var(--gray-dark));
+				font-size: 0.875rem;
+				padding: 0.5rem 0;
+			}
+
+			.results-info strong {
+				color: rgb(var(--black));
+				font-weight: 600;
+			}
+
+			@media (max-width: 640px) {
+				.search-sort-bar {
+					flex-direction: column;
+					gap: 0.75rem;
+				}
+
+				.sort-dropdown select {
+					width: 100%;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<div class="blog-layout">
+				<!-- Explorer Sidebar -->
+				<ExplorerSidebar tree={explorerTree} title={t.filters.posts || "Posts"} sticky={true} />
+
+				<!-- Main Content -->
+				<div class="blog-content">
+			<!-- Active Filters Display -->
+			<ActiveFilters
+				tags={selectedTags}
+				category={categoryFilter}
+				difficulty={difficultyFilter}
+				lang={currentLang}
+			/>
+
+			<!-- Search and Sort Bar -->
+			<div class="search-sort-bar">
+				<InlineSearch
+					lang={currentLang}
+					categories={categories}
+					showQuickFilters={false}
+				/>
+				<div class="sort-dropdown">
+					<select id="sort-filter" data-filter="sort">
+						<option value="latest" selected={sortOrder === 'latest'}>{t.filters.latest}</option>
+						<option value="oldest" selected={sortOrder === 'oldest'}>{t.filters.oldest}</option>
+					</select>
+				</div>
+			</div>
+
+			<!-- Results Count -->
+			<div class="results-info">
+				{t.filters.showing} <strong>{posts.length}</strong> {t.filters.of} <strong>{allPosts.length}</strong> {t.filters.posts}
+			</div>
+
+			<section class="posts-section">
+				{posts.length > 0 ? (
+					<div class="posts-grid">
+						{posts.map((post, index) => (
+							<PostCard
+								post={post}
+								lang={currentLang}
+								featured={index === 0 && posts.length > 1}
+							/>
+						))}
+					</div>
+				) : (
+					<div class="empty-state">
+						<h2>{currentLang === 'en' ? 'No posts yet' : 'Belum ada artikel'}</h2>
+						<p>{currentLang === 'en' ? 'Check back soon for new content!' : 'Segera hadir konten baru!'}</p>
+					</div>
+				)}
+			</section>
+				</div>
+
+				<!-- Tag Browse Sidebar (Right) -->
+				<TagBrowseSidebar
+					lang={currentLang}
+					tags={allTags}
+					sticky={true}
+					showSkillLevels={true}
+					maxTags={30}
+				/>
+			</div>
+		</main>
+		<Footer />
+
+		<script>
+			// Client-side sort handling with URL state management
+			const currentLang = document.documentElement.lang;
+
+			// Sort filter change handler
+			document.getElementById('sort-filter')?.addEventListener('change', (e) => {
+				const sort = (e.target as HTMLSelectElement)?.value;
+				const params = new URLSearchParams();
+
+				if (sort && sort !== 'latest') {
+					params.set('sort', sort);
+				}
+
+				// Update URL without page reload
+				const newURL = `/${currentLang}/blog${params.toString() ? '?' + params.toString() : ''}`;
+				window.location.href = newURL;
+			});
+		</script>
+	</body>
+</html>

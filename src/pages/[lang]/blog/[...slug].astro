@@ -1,0 +1,69 @@
+---
+import { type CollectionEntry, getCollection, render } from 'astro:content';
+import BlogPost from '../../../layouts/BlogPost.astro';
+import { supportedLanguages, getCollectionName } from '../../../utils/i18n';
+import { buildExplorerTree } from '../../../utils/explorerTree';
+
+export async function getStaticPaths() {
+	const paths = [];
+
+	for (const lang of supportedLanguages) {
+		const collectionName = getCollectionName(lang);
+		try {
+			const posts = await getCollection(collectionName);
+			for (const post of posts) {
+				paths.push({
+					params: { lang, slug: post.id },
+					props: { post, lang },
+				});
+			}
+		} catch (error) {
+			// Collection might be empty initially
+			console.warn(`Collection ${collectionName} is empty or doesn't exist yet`);
+		}
+	}
+
+	return paths;
+}
+
+type Props = {
+	post: CollectionEntry<'blog-en'> | CollectionEntry<'blog-id'>;
+	lang: string;
+};
+
+const { post, lang } = Astro.props;
+const { Content, headings } = await render(post);
+
+// Build explorer tree for sidebar
+const collectionName = getCollectionName(lang);
+let allPosts = [];
+try {
+	allPosts = await getCollection(collectionName);
+} catch (error) {
+	console.warn(`Collection ${collectionName} is empty or doesn't exist yet`);
+}
+const explorerTree = buildExplorerTree(allPosts, lang);
+
+// Transform Astro headings to our Heading format for the Topics sidebar
+import { buildHeadingTree } from '../../../utils/headingExtractor';
+import type { FlatHeading } from '../../../utils/headingExtractor';
+
+const flatHeadings: FlatHeading[] = headings.map(h => ({
+	id: h.slug,
+	text: h.text,
+	level: h.depth
+}));
+
+const headingTree = buildHeadingTree(flatHeadings);
+---
+
+<BlogPost
+	{...post.data}
+	postId={post.id}
+	language={lang}
+	explorerTree={explorerTree}
+	currentSlug={post.id}
+	headings={headingTree}
+>
+	<Content />
+</BlogPost>

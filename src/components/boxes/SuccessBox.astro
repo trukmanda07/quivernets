@@ -1,0 +1,29 @@
+---
+interface Props {
+  title?: string;
+}
+
+const { title } = Astro.props;
+---
+
+<div class="success-box">
+  {title && <strong class="box-title">{title}</strong>}
+  <slot />
+</div>
+
+<style>
+  .success-box {
+    background: linear-gradient(to right, #e8f5e9, #c8e6c9);
+    border-left: 5px solid #4caf50;
+    padding: 20px;
+    margin: 25px 0;
+    border-radius: 5px;
+  }
+
+  .box-title {
+    color: #2e7d32;
+    font-size: 1.1em;
+    display: block;
+    margin-bottom: 10px;
+  }
+</style>

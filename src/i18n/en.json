@@ -1,0 +1,56 @@
+{
+  "nav": {
+    "home": "Home",
+    "blog": "Blog",
+    "presentations": "Presentations",
+    "about": "About",
+    "categories": "Categories"
+  },
+  "search": {
+    "placeholder": "Search...",
+    "results": "Search Results",
+    "noResults": "No results found",
+    "searching": "Searching...",
+    "foundResults": "Found {count} results for \"{query}\"",
+    "pressToSearch": "Press / to search",
+    "closeSearch": "Press ESC to close",
+    "searchPosts": "Search posts, topics, and more"
+  },
+  "tags": {
+    "title": "Tags",
+    "allTags": "All Tags",
+    "postsWithTag": "Posts tagged with"
+  },
+  "post": {
+    "readTime": "min read",
+    "publishedOn": "Published on",
+    "updatedOn": "Updated on",
+    "readMore": "Read More",
+    "relatedPosts": "You might also like"
+  },
+  "filters": {
+    "sortBy": "Sort by",
+    "latest": "Latest",
+    "oldest": "Oldest",
+    "difficulty": "Difficulty",
+    "category": "Category",
+    "all": "All",
+    "showAll": "Show All",
+    "clearFilters": "Clear Filters",
+    "filterBy": "Filter by",
+    "showing": "Showing",
+    "of": "of",
+    "posts": "posts"
+  },
+  "difficulty": {
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced"
+  },
+  "language": {
+    "switchTo": "Switch to Indonesian",
+    "current": "English",
+    "availableIn": "Also available in",
+    "notAvailable": "This post is not available in"
+  }
+}

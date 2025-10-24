@@ -1,0 +1,27 @@
+---
+interface Props {
+  level?: string;
+}
+
+const { level } = Astro.props;
+---
+
+<div class="practice-problem">
+  {level && <strong class="problem-level">{level}:</strong>}
+  <slot />
+</div>
+
+<style>
+  .practice-problem {
+    background: #f1f3f5;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 5px;
+    border-left: 4px solid #667eea;
+  }
+
+  .problem-level {
+    color: #667eea;
+    margin-right: 8px;
+  }
+</style>

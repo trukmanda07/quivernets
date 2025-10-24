@@ -1,0 +1,392 @@
+---
+/**
+ * Topics Sidebar Component (Table of Contents)
+ * Displays hierarchical navigation for article headings
+ */
+
+import type { Heading } from '../utils/headingExtractor';
+
+interface Props {
+	headings: Heading[];
+	title?: string;
+	sticky?: boolean;
+	position?: 'left' | 'right';
+	minLevel?: number;
+	maxLevel?: number;
+	collapsible?: boolean;
+	defaultCollapsed?: boolean;
+}
+
+const {
+	headings,
+	title = 'On this page',
+	sticky = true,
+	position = 'right',
+	minLevel = 2,
+	maxLevel = 4,
+	collapsible = false,
+	defaultCollapsed = false
+} = Astro.props;
+
+// Filter headings by level
+const filteredHeadings = headings.filter(h => h.level >= minLevel && h.level <= maxLevel);
+---
+
+<aside class={`topics-sidebar ${sticky ? 'topics-sticky' : ''} topics-${position} ${collapsible ? 'collapsible' : ''} ${defaultCollapsed ? 'collapsed' : ''}`}>
+	<div class="topics-header" role={collapsible ? 'button' : undefined} tabindex={collapsible ? 0 : undefined}>
+		<h3 class="topics-title">{title}</h3>
+		{collapsible && (
+			<svg class="collapse-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+			</svg>
+		)}
+	</div>
+
+	<nav class="topics-nav" aria-label="Table of contents">
+		{filteredHeadings.length > 0 ? (
+			<ul class="toc-list">
+				{filteredHeadings.map((heading) => (
+					<li class={`toc-item toc-level-${heading.level}`}>
+						<a
+							href={`#${heading.id}`}
+							class="toc-link"
+							data-heading-id={heading.id}
+						>
+							{heading.text}
+						</a>
+						{heading.children && heading.children.length > 0 && (
+							<ul class="toc-list">
+								{heading.children.map((child) => (
+									<li class={`toc-item toc-level-${child.level}`}>
+										<a
+											href={`#${child.id}`}
+											class="toc-link"
+											data-heading-id={child.id}
+										>
+											{child.text}
+										</a>
+										{child.children && child.children.length > 0 && (
+											<ul class="toc-list">
+												{child.children.map((grandchild) => (
+													<li class={`toc-item toc-level-${grandchild.level}`}>
+														<a
+															href={`#${grandchild.id}`}
+															class="toc-link"
+															data-heading-id={grandchild.id}
+														>
+															{grandchild.text}
+														</a>
+													</li>
+												))}
+											</ul>
+										)}
+									</li>
+								))}
+							</ul>
+						)}
+					</li>
+				))}
+			</ul>
+		) : (
+			<div class="topics-empty">
+				<p>No headings found</p>
+			</div>
+		)}
+	</nav>
+</aside>
+
+<script>
+	// Client-side script for scroll tracking and active states
+	function initTopicsSidebar() {
+		const sidebar = document.querySelector('.topics-sidebar');
+		if (!sidebar) return;
+
+		// Handle collapsible functionality
+		const header = sidebar.querySelector('.topics-header');
+		if (header && sidebar.classList.contains('collapsible')) {
+			header.addEventListener('click', () => {
+				sidebar.classList.toggle('collapsed');
+			});
+
+			header.addEventListener('keydown', (e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault();
+					sidebar.classList.toggle('collapsed');
+				}
+			});
+		}
+
+		const links = sidebar.querySelectorAll('.toc-link');
+		if (links.length === 0) return;
+
+		// Get all heading elements in the article
+		const headingIds = Array.from(links).map(link => {
+			const href = link.getAttribute('href');
+			return href ? href.slice(1) : '';
+		}).filter(id => id);
+
+		const headingElements = headingIds
+			.map(id => document.getElementById(id))
+			.filter(el => el !== null);
+
+		if (headingElements.length === 0) return;
+
+		// Track active section
+		let activeId = null;
+
+		function setActiveLink(id) {
+			if (activeId === id) return;
+
+			// Remove active class from all links
+			links.forEach(link => link.classList.remove('active'));
+
+			// Add active class to the current link
+			const activeLink = sidebar.querySelector(`.toc-link[data-heading-id="${id}"]`);
+			if (activeLink) {
+				activeLink.classList.add('active');
+				activeId = id;
+
+				// Scroll the link into view within the sidebar if needed
+				activeLink.scrollIntoView({
+					block: 'nearest',
+					behavior: 'smooth'
+				});
+			}
+		}
+
+		// Intersection Observer for scroll tracking
+		const observerOptions = {
+			rootMargin: '-80px 0px -80% 0px',
+			threshold: 0
+		};
+
+		const observer = new IntersectionObserver((entries) => {
+			entries.forEach(entry => {
+				if (entry.isIntersecting) {
+					setActiveLink(entry.target.id);
+				}
+			});
+		}, observerOptions);
+
+		// Observe all headings
+		headingElements.forEach(heading => {
+			observer.observe(heading);
+		});
+
+		// Handle smooth scroll on link click
+		links.forEach(link => {
+			link.addEventListener('click', (e) => {
+				e.preventDefault();
+				const targetId = link.getAttribute('data-heading-id');
+				if (targetId) {
+					const targetElement = document.getElementById(targetId);
+					if (targetElement) {
+						// Smooth scroll to the heading
+						targetElement.scrollIntoView({
+							behavior: 'smooth',
+							block: 'start'
+						});
+
+						// Update URL hash without jumping
+						history.pushState(null, '', `#${targetId}`);
+
+						// Set as active immediately
+						setActiveLink(targetId);
+					}
+				}
+			});
+		});
+
+		// Set initial active state based on URL hash
+		if (window.location.hash) {
+			const initialId = window.location.hash.slice(1);
+			if (headingIds.includes(initialId)) {
+				setActiveLink(initialId);
+			}
+		} else if (headingIds.length > 0) {
+			// Set the first heading as active by default
+			setActiveLink(headingIds[0]);
+		}
+	}
+
+	// Initialize on page load
+	initTopicsSidebar();
+
+	// Re-initialize on view transitions (Astro's SPA mode)
+	document.addEventListener('astro:page-load', initTopicsSidebar);
+</script>
+
+<style>
+	.topics-sidebar {
+		width: 100%;
+		max-width: 250px;
+		display: flex;
+		flex-direction: column;
+		background: rgb(var(--gray-light));
+		border-radius: 8px;
+		overflow: hidden;
+	}
+
+	.topics-sticky {
+		position: sticky;
+		top: 2rem;
+		align-self: flex-start;
+		max-height: calc(100vh - 4rem);
+	}
+
+	.topics-header {
+		padding: 1rem 1.25rem;
+		background: rgba(0, 0, 0, 0.02);
+		border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.collapsible .topics-header {
+		cursor: pointer;
+		user-select: none;
+		transition: background 0.2s ease;
+	}
+
+	.collapsible .topics-header:hover {
+		background: rgba(0, 0, 0, 0.05);
+	}
+
+	.topics-title {
+		margin: 0;
+		font-size: 0.875rem;
+		font-weight: 600;
+		color: rgb(var(--black));
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.collapse-icon {
+		color: rgb(var(--gray-dark));
+		transition: transform 0.2s ease;
+	}
+
+	.collapsed .collapse-icon {
+		transform: rotate(-90deg);
+	}
+
+	.topics-nav {
+		flex: 1;
+		overflow-y: auto;
+		overflow-x: hidden;
+		padding: 1rem 0.75rem;
+		transition: max-height 0.3s ease, padding 0.3s ease, opacity 0.2s ease;
+		max-height: 500px;
+		opacity: 1;
+	}
+
+	.collapsed .topics-nav {
+		max-height: 0;
+		padding: 0 0.75rem;
+		opacity: 0;
+		overflow: hidden;
+	}
+
+	.topics-nav::-webkit-scrollbar {
+		width: 4px;
+	}
+
+	.topics-nav::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	.topics-nav::-webkit-scrollbar-thumb {
+		background: rgba(0, 0, 0, 0.2);
+		border-radius: 2px;
+	}
+
+	.topics-nav::-webkit-scrollbar-thumb:hover {
+		background: rgba(0, 0, 0, 0.3);
+	}
+
+	.toc-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.toc-item {
+		margin: 0;
+	}
+
+	.toc-link {
+		display: block;
+		padding: 0.5rem 0.75rem;
+		font-size: 0.875rem;
+		line-height: 1.4;
+		color: rgb(var(--gray-dark));
+		text-decoration: none;
+		border-left: 2px solid transparent;
+		transition: all 0.2s ease;
+		word-wrap: break-word;
+	}
+
+	.toc-link:hover {
+		color: rgb(var(--accent));
+		background: rgba(0, 0, 0, 0.03);
+	}
+
+	.toc-link.active {
+		color: rgb(var(--accent));
+		border-left-color: rgb(var(--accent));
+		background: rgba(var(--accent-rgb), 0.1);
+		font-weight: 500;
+	}
+
+	/* Indentation for different heading levels */
+	.toc-level-2 .toc-link {
+		padding-left: 0.75rem;
+	}
+
+	.toc-level-3 .toc-link {
+		padding-left: 1.5rem;
+		font-size: 0.8125rem;
+	}
+
+	.toc-level-4 .toc-link {
+		padding-left: 2.25rem;
+		font-size: 0.8125rem;
+	}
+
+	.toc-level-5 .toc-link {
+		padding-left: 3rem;
+		font-size: 0.75rem;
+	}
+
+	.toc-level-6 .toc-link {
+		padding-left: 3.75rem;
+		font-size: 0.75rem;
+	}
+
+	/* Nested lists */
+	.toc-item > .toc-list {
+		margin-top: 0.25rem;
+	}
+
+	.topics-empty {
+		padding: 2rem 1.25rem;
+		text-align: center;
+		color: rgb(var(--gray-dark));
+		font-size: 0.875rem;
+	}
+
+	/* Mobile responsiveness */
+	@media (max-width: 1200px) {
+		.topics-sidebar {
+			display: none;
+		}
+	}
+
+	/* Show on larger screens */
+	@media (min-width: 1201px) {
+		.topics-sidebar {
+			display: flex;
+		}
+	}
+</style>

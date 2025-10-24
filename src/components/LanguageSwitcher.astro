@@ -1,0 +1,90 @@
+---
+import type { Language } from '../i18n';
+import { getLangFromUrl, switchLanguage, useTranslations } from '../utils/i18n';
+
+const pathname = Astro.url.pathname;
+const currentLang = getLangFromUrl(pathname);
+const t = useTranslations(currentLang);
+
+// Determine the target language
+const targetLang: Language = currentLang === 'en' ? 'id' : 'en';
+const switchUrl = switchLanguage(pathname, targetLang);
+---
+
+<div class="language-switcher">
+	<a href={switchUrl} class="lang-button" title={t.language.switchTo}>
+		<span class="flag">{currentLang === 'en' ? '🇬🇧' : '🇮🇩'}</span>
+		<span class="lang-code">{currentLang.toUpperCase()}</span>
+		<svg class="switch-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<path d="M8 2L12 6H4L8 2Z" fill="currentColor"/>
+			<path d="M8 14L4 10H12L8 14Z" fill="currentColor"/>
+		</svg>
+	</a>
+</div>
+
+<style>
+	.language-switcher {
+		display: flex;
+		align-items: center;
+	}
+
+	.lang-button {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.5rem 0.75rem;
+		border-radius: 0.5rem;
+		background: var(--accent);
+		color: white;
+		text-decoration: none;
+		font-weight: 600;
+		font-size: 0.875rem;
+		transition: all 0.2s ease;
+		border: 2px solid transparent;
+	}
+
+	.lang-button:hover {
+		background: var(--accent-dark, #e74c3c);
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	}
+
+	.flag {
+		font-size: 1.25rem;
+		line-height: 1;
+	}
+
+	.lang-code {
+		font-family: monospace;
+		letter-spacing: 0.5px;
+	}
+
+	.switch-icon {
+		opacity: 0.8;
+		margin-left: 0.25rem;
+	}
+
+	@media (max-width: 720px) {
+		.lang-code {
+			display: none;
+		}
+
+		.lang-button {
+			padding: 0.5rem;
+		}
+	}
+</style>
+
+<script>
+	// Store language preference in localStorage
+	document.addEventListener('DOMContentLoaded', () => {
+		const langButton = document.querySelector('.lang-button');
+		if (langButton) {
+			langButton.addEventListener('click', (e) => {
+				const url = (e.currentTarget as HTMLAnchorElement).href;
+				const lang = url.match(/\/(en|id)\//)?.[1] || 'en';
+				localStorage.setItem('preferredLanguage', lang);
+			});
+		}
+	});
+</script>

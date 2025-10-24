@@ -1,0 +1,89 @@
+---
+/**
+ * Breadcrumb Navigation Component
+ * Displays hierarchical navigation path with i18n support
+ *
+ * Usage:
+ * <Breadcrumb segments={[
+ *   { label: 'Home', url: '/en/' },
+ *   { label: 'Blog', url: '/en/blog/' },
+ *   { label: 'Current Page' }
+ * ]} />
+ */
+
+export interface BreadcrumbSegment {
+	label: string;
+	url?: string;
+}
+
+interface Props {
+	segments: BreadcrumbSegment[];
+	separator?: string;
+}
+
+const { segments, separator = '/' } = Astro.props;
+---
+
+<nav class="breadcrumb" aria-label="Breadcrumb navigation">
+	{segments.map((segment, index) => (
+		<>
+			{segment.url ? (
+				<a href={segment.url} class="breadcrumb-link">
+					{segment.label}
+				</a>
+			) : (
+				<span class="breadcrumb-current">{segment.label}</span>
+			)}
+			{index < segments.length - 1 && (
+				<span class="breadcrumb-separator" aria-hidden="true">
+					{separator}
+				</span>
+			)}
+		</>
+	))}
+</nav>
+
+<style>
+	.breadcrumb {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.875rem;
+		margin-bottom: 2rem;
+		flex-wrap: wrap;
+	}
+
+	.breadcrumb-link {
+		color: rgb(var(--accent));
+		text-decoration: none;
+		transition: color 0.2s ease;
+	}
+
+	.breadcrumb-link:hover {
+		text-decoration: underline;
+		color: rgb(var(--accent-dark, var(--accent)));
+	}
+
+	.breadcrumb-link:focus {
+		outline: 2px solid rgb(var(--accent));
+		outline-offset: 2px;
+		border-radius: 2px;
+	}
+
+	.breadcrumb-current {
+		color: rgb(var(--gray-dark));
+		font-weight: 500;
+	}
+
+	.breadcrumb-separator {
+		color: rgb(var(--gray));
+		opacity: 0.5;
+		user-select: none;
+	}
+
+	@media (max-width: 720px) {
+		.breadcrumb {
+			font-size: 0.75rem;
+		}
+	}
+</style>

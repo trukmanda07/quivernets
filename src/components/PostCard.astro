@@ -1,0 +1,401 @@
+---
+/**
+ * Post Card Component
+ * Clean, modern card design for blog posts
+ * Features optimized images, typography, and hover effects
+ */
+
+import { Image } from 'astro:assets';
+import FormattedDate from './FormattedDate.astro';
+import Tag from './Tag.astro';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+	post: CollectionEntry<'blog-en'> | CollectionEntry<'blog-id'>;
+	lang: string;
+	featured?: boolean;
+}
+
+const { post, lang, featured = false } = Astro.props;
+
+// Generate post URL
+const postUrl = `/${lang}/blog/${post.id}/`;
+
+// Difficulty badge colors
+const difficultyColors = {
+	beginner: 'green',
+	intermediate: 'orange',
+	advanced: 'red'
+};
+
+const difficultyColor = post.data.difficulty
+	? difficultyColors[post.data.difficulty]
+	: null;
+---
+
+<article class={`post-card ${featured ? 'post-card-featured' : ''}`}>
+	<a href={postUrl} class="post-card-link">
+		{/* Image Section */}
+		{post.data.heroImage && (
+			<div class="post-card-image">
+				<Image
+					src={post.data.heroImage}
+					alt={post.data.title}
+					width={featured ? 800 : 400}
+					height={featured ? 400 : 250}
+					quality={85}
+					format="webp"
+					loading={featured ? 'eager' : 'lazy'}
+					class="card-image"
+				/>
+				{/* Difficulty Badge Overlay */}
+				{post.data.difficulty && (
+					<div class={`difficulty-badge difficulty-${post.data.difficulty}`}>
+						<span class="difficulty-icon">
+							{post.data.difficulty === 'beginner' ? '⭐' :
+							 post.data.difficulty === 'intermediate' ? '⭐⭐' : '⭐⭐⭐'}
+						</span>
+						<span class="difficulty-text">
+							{post.data.difficulty.charAt(0).toUpperCase() + post.data.difficulty.slice(1)}
+						</span>
+					</div>
+				)}
+			</div>
+		)}
+
+		{/* Content Section */}
+		<div class="post-card-content">
+			{/* Title */}
+			<h3 class="post-title">{post.data.title}</h3>
+
+			{/* Description */}
+			<p class="post-description">{post.data.description}</p>
+
+			{/* Meta Info and Tags */}
+			<div class="post-meta">
+				<time class="post-date">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						width="14"
+						height="14"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+					>
+						<circle cx="12" cy="12" r="10"></circle>
+						<polyline points="12 6 12 12 16 14"></polyline>
+					</svg>
+					<FormattedDate date={post.data.pubDate} />
+				</time>
+
+				{/* Tags inline with date */}
+				{post.data.tags && post.data.tags.length > 0 && (
+					<>
+						{post.data.tags.slice(0, 4).map((tag) => (
+							<Tag tag={tag} lang={lang} size="sm" variant="minimal" density="compact" />
+						))}
+						{post.data.tags.length > 4 && (
+							<span class="more-tags">+{post.data.tags.length - 4}</span>
+						)}
+					</>
+				)}
+			</div>
+		</div>
+
+		{/* Read More Indicator */}
+		<div class="post-card-footer">
+			<span class="read-more">
+				{lang === 'en' ? 'Read more' : 'Baca selengkapnya'}
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="16"
+					height="16"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					<line x1="5" y1="12" x2="19" y2="12"></line>
+					<polyline points="12 5 19 12 12 19"></polyline>
+				</svg>
+			</span>
+		</div>
+	</a>
+</article>
+
+<style>
+	.post-card {
+		display: flex;
+		flex-direction: column;
+		background: white;
+		border: 1px solid rgb(229, 231, 235);
+		border-radius: 12px;
+		overflow: hidden;
+		transition: all 0.3s ease;
+		height: 100%;
+	}
+
+	.post-card:hover {
+		transform: translateY(-4px);
+		box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+		border-color: rgb(var(--accent));
+	}
+
+	.post-card-link {
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		text-decoration: none;
+		color: inherit;
+	}
+
+	/* Featured card - larger, more prominent */
+	.post-card-featured {
+		grid-column: 1 / -1;
+	}
+
+	.post-card-featured .post-title {
+		font-size: 1.75rem;
+	}
+
+	.post-card-featured .post-description {
+		font-size: 1rem;
+	}
+
+	/* Image Section */
+	.post-card-image {
+		position: relative;
+		width: 100%;
+		aspect-ratio: 16 / 10;
+		overflow: hidden;
+		background: rgb(243, 244, 246);
+	}
+
+	.card-image {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: transform 0.3s ease;
+	}
+
+	.post-card:hover .card-image {
+		transform: scale(1.05);
+	}
+
+	/* Difficulty Badge Overlay */
+	.difficulty-badge {
+		position: absolute;
+		top: 0.75rem;
+		right: 0.75rem;
+		display: flex;
+		align-items: center;
+		gap: 0.375rem;
+		padding: 0.375rem 0.75rem;
+		background: rgba(255, 255, 255, 0.95);
+		backdrop-filter: blur(8px);
+		border-radius: 20px;
+		font-size: 0.75rem;
+		font-weight: 600;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+	}
+
+	.difficulty-beginner {
+		color: rgb(34, 197, 94);
+	}
+
+	.difficulty-intermediate {
+		color: rgb(249, 115, 22);
+	}
+
+	.difficulty-advanced {
+		color: rgb(239, 68, 68);
+	}
+
+	.difficulty-icon {
+		font-size: 0.875rem;
+		line-height: 1;
+	}
+
+	.difficulty-text {
+		line-height: 1;
+	}
+
+	/* Content Section */
+	.post-card-content {
+		display: grid;
+		grid-template-rows: auto auto 1fr;
+		gap: 0.5rem;
+		padding: 1rem;
+		flex: 1;
+	}
+
+	.post-category {
+		display: inline-block;
+		align-self: flex-start;
+		padding: 0.25rem 0.625rem;
+		font-size: 0.75rem;
+		font-weight: 600;
+		color: rgb(var(--accent));
+		background: rgba(var(--accent-rgb), 0.1);
+		border-radius: 4px;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.post-title {
+		margin: 0;
+		font-size: 1.125rem;
+		font-weight: 700;
+		line-height: 1.4;
+		color: rgb(15, 23, 42);
+		transition: color 0.2s ease;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		height: 3.15rem;
+	}
+
+	.post-card:hover .post-title {
+		color: rgb(var(--accent));
+	}
+
+	.post-description {
+		margin: 0;
+		font-size: 0.9375rem;
+		line-height: 1.6;
+		color: rgb(100, 116, 139);
+		display: -webkit-box;
+		-webkit-line-clamp: 3;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		height: 4.5rem;
+		align-self: start;
+	}
+
+	/* Meta Info */
+	.post-meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		align-items: center;
+		font-size: 0.8125rem;
+		color: rgb(148, 163, 184);
+		min-height: 1.5rem;
+		line-height: 1.5;
+	}
+
+	.post-date,
+	.post-updated {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+		line-height: 1;
+	}
+
+	/* Ensure tags align with date */
+	.post-meta :global(.tag) {
+		line-height: 1;
+		display: inline-flex;
+		align-items: center;
+	}
+
+	.post-date svg,
+	.post-updated svg {
+		flex-shrink: 0;
+	}
+
+	/* More tags indicator */
+	.more-tags {
+		font-size: 0.8125rem;
+		font-weight: 400;
+		color: rgb(107, 114, 128);
+	}
+
+	/* Footer / Read More */
+	.post-card-footer {
+		padding: 0.75rem 1rem;
+		border-top: 1px solid rgb(243, 244, 246);
+		background: rgb(249, 250, 251);
+	}
+
+	.read-more {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.8125rem;
+		font-weight: 600;
+		color: rgb(var(--accent));
+		transition: gap 0.2s ease;
+	}
+
+	.post-card:hover .read-more {
+		gap: 0.75rem;
+	}
+
+	.read-more svg {
+		transition: transform 0.2s ease;
+	}
+
+	.post-card:hover .read-more svg {
+		transform: translateX(2px);
+	}
+
+	/* Responsive */
+	@media (max-width: 768px) {
+		.post-card-content {
+			padding: 0.875rem;
+			gap: 0.5rem;
+		}
+
+		.post-title {
+			font-size: 1rem;
+			height: 2.8rem;
+			line-height: 1.4;
+		}
+
+		.post-description {
+			font-size: 0.875rem;
+			-webkit-line-clamp: 3;
+			height: 3.9rem;
+		}
+
+		.post-card-footer {
+			padding: 0.625rem 0.875rem;
+		}
+
+		.difficulty-badge {
+			top: 0.5rem;
+			right: 0.5rem;
+			padding: 0.25rem 0.625rem;
+		}
+	}
+
+	/* Dark mode support */
+	:global(.dark) .post-card {
+		background: rgb(30, 41, 59);
+		border-color: rgb(51, 65, 85);
+	}
+
+	:global(.dark) .post-card:hover {
+		border-color: rgb(var(--accent));
+	}
+
+	:global(.dark) .post-title {
+		color: rgb(248, 250, 252);
+	}
+
+	:global(.dark) .post-description {
+		color: rgb(148, 163, 184);
+	}
+
+	:global(.dark) .post-card-footer {
+		background: rgb(15, 23, 42);
+		border-top-color: rgb(51, 65, 85);
+	}
+</style>

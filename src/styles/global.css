@@ -1,0 +1,254 @@
+@import "tailwindcss";
+@import "katex/dist/katex.min.css";
+
+/* Custom styles for QuiverLearn */
+
+/* Typography improvements for educational content */
+body {
+  font-family: 'Georgia', serif;
+  line-height: 1.8;
+  background: linear-gradient(to bottom, #f8f9fa 0%, #e9ecef 100%);
+  color: #2c3e50;
+}
+
+/* Math content styling */
+.math-display {
+  @apply overflow-x-auto my-4;
+}
+
+.math-inline {
+  @apply inline;
+}
+
+/* Enhanced Code block styling */
+pre {
+  background: #282c34 !important;
+  color: #abb2bf;
+  padding: 20px;
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  overflow-x: auto;
+  margin: 25px 0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+code {
+  @apply font-mono text-sm;
+}
+
+/* Blog post content styling */
+.prose {
+  @apply max-w-none;
+  line-height: 1.8;
+  color: #2c3e50;
+}
+
+.prose h2 {
+  color: #667eea;
+  font-size: 2em;
+  margin-top: 50px;
+  margin-bottom: 20px;
+  border-bottom: 3px solid #667eea;
+  padding-bottom: 10px;
+}
+
+.prose h3 {
+  color: #764ba2;
+  font-size: 1.5em;
+  margin-top: 35px;
+  margin-bottom: 15px;
+}
+
+.prose h4 {
+  color: #667eea;
+  font-size: 1.3em;
+  margin-top: 25px;
+  margin-bottom: 10px;
+}
+
+.prose p {
+  @apply mb-4;
+  line-height: 1.8;
+}
+
+.prose ul, .prose ol {
+  @apply mb-4 ml-6;
+  line-height: 1.8;
+}
+
+.prose li {
+  @apply mb-2;
+}
+
+.prose a {
+  color: #667eea;
+  text-decoration: none;
+}
+
+.prose a:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
+
+.prose img {
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  margin: 20px 0;
+}
+
+.prose blockquote {
+  @apply border-l-4 pl-4 italic my-4;
+  border-color: #ffc107;
+  background: #fffbf0;
+  padding: 15px 20px;
+}
+
+/* Table styling */
+.prose table {
+  @apply w-full border-collapse my-4;
+}
+
+.prose th {
+  @apply bg-gray-100 border border-gray-300 px-4 py-2 text-left font-semibold;
+}
+
+.prose td {
+  @apply border border-gray-300 px-4 py-2;
+}
+
+/* Details/Summary styling for interactive content */
+.prose details {
+  margin: 20px 0;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 5px;
+}
+
+.prose summary {
+  cursor: pointer;
+  font-weight: bold;
+  color: #667eea;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.prose summary:hover {
+  background: #e9ecef;
+}
+
+/* Step indicators */
+.step {
+  margin: 15px 0;
+  padding-left: 30px;
+  position: relative;
+}
+
+.step::before {
+  content: "▸";
+  position: absolute;
+  left: 0;
+  color: #667eea;
+  font-size: 1.5em;
+}
+
+/* Meta info styling */
+.meta {
+  text-align: center;
+  color: #6c757d;
+  margin-bottom: 30px;
+  font-size: 0.9em;
+}
+
+/* Mobile responsive refinements */
+@media (max-width: 768px) {
+  body {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .prose {
+    padding: 1rem;
+  }
+
+  .prose h2 {
+    font-size: 1.5em;
+    margin-top: 30px;
+    margin-bottom: 15px;
+  }
+
+  .prose h3 {
+    font-size: 1.3em;
+    margin-top: 25px;
+    margin-bottom: 12px;
+  }
+
+  .prose h4 {
+    font-size: 1.1em;
+    margin-top: 20px;
+    margin-bottom: 10px;
+  }
+
+  .prose img {
+    margin: 15px 0;
+  }
+
+  .prose blockquote {
+    padding: 12px 15px;
+    margin: 20px 0;
+  }
+
+  .prose table {
+    font-size: 0.875rem;
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  pre {
+    padding: 15px;
+    margin: 20px -1rem;
+    border-radius: 0;
+    font-size: 0.85rem;
+  }
+
+  code {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 15px;
+  }
+
+  .prose h2 {
+    font-size: 1.3em;
+  }
+
+  .prose h3 {
+    font-size: 1.2em;
+  }
+
+  .prose h4 {
+    font-size: 1.1em;
+  }
+
+  pre {
+    font-size: 0.8rem;
+  }
+}
+
+/* Improved touch target sizes for mobile */
+@media (hover: none) and (pointer: coarse) {
+  button,
+  a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .prose a {
+    padding: 0.25rem 0;
+    display: inline-block;
+  }
+}

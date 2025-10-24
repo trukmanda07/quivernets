@@ -1,0 +1,125 @@
+---
+/**
+ * Example Usage of ExplorerSidebar Component
+ *
+ * This file demonstrates how to use the ExplorerSidebar component
+ * in your Astro pages.
+ */
+
+import { getCollection } from 'astro:content';
+import ExplorerSidebar from './ExplorerSidebar.astro';
+import { buildExplorerTree } from '../utils/explorerTree';
+
+// Example 1: Basic usage with English blog posts
+const postsEn = await getCollection('blog-en');
+const treeEn = buildExplorerTree(postsEn, 'en');
+---
+
+<!-- Example 1: Basic Explorer Sidebar -->
+<ExplorerSidebar tree={treeEn} title="Blog Explorer" />
+
+<!-- Example 2: With current page highlighting -->
+<ExplorerSidebar
+	tree={treeEn}
+	title="Blog Explorer"
+	currentSlug="your-current-post-slug"
+/>
+
+<!-- Example 3: Non-sticky version -->
+<ExplorerSidebar
+	tree={treeEn}
+	title="Blog Explorer"
+	sticky={false}
+/>
+
+<!-- Example 4: In a two-column layout -->
+<div class="page-layout">
+	<ExplorerSidebar tree={treeEn} title="Posts" sticky={true} />
+	<main class="main-content">
+		<!-- Your main content here -->
+	</main>
+</div>
+
+<style>
+	.page-layout {
+		display: grid;
+		grid-template-columns: 280px 1fr;
+		gap: 2rem;
+		max-width: 1200px;
+		margin: 0 auto;
+		padding: 2rem;
+	}
+
+	@media (max-width: 960px) {
+		.page-layout {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>
+
+<!--
+INTEGRATION GUIDE:
+
+1. In your blog index page ([lang]/blog/index.astro):
+---
+import { getCollection } from 'astro:content';
+import ExplorerSidebar from '../../components/ExplorerSidebar.astro';
+import { buildExplorerTree } from '../../utils/explorerTree';
+
+const { lang } = Astro.params;
+const posts = await getCollection(`blog-${lang}`);
+const tree = buildExplorerTree(posts, lang);
+---
+
+<div class="blog-page">
+	<ExplorerSidebar tree={tree} title="Posts" />
+	<div class="posts-grid">
+		<!-- Your posts grid here -->
+	</div>
+</div>
+
+2. In your individual blog post page ([lang]/blog/[...slug].astro):
+---
+import { getCollection } from 'astro:content';
+import ExplorerSidebar from '../../../components/ExplorerSidebar.astro';
+import { buildExplorerTree } from '../../../utils/explorerTree';
+
+const { lang, slug } = Astro.params;
+const posts = await getCollection(`blog-${lang}`);
+const tree = buildExplorerTree(posts, lang);
+---
+
+<div class="post-layout">
+	<ExplorerSidebar tree={tree} currentSlug={slug} />
+	<article>
+		<!-- Your post content -->
+	</article>
+</div>
+
+3. Customizing the tree structure:
+
+   By default, posts are organized by category and content type (determined by tags).
+   You can customize this by modifying the getContentType() function in explorerTree.ts.
+
+   Tags that determine content type:
+   - Courses: 'course', 'tutorial', 'lesson'
+   - Books: 'book', 'textbook', 'reading'
+   - Papers: 'paper', 'research', 'publication'
+   - General: anything else
+
+4. Features:
+   - Collapse/expand folders
+   - Persistent state (saved in localStorage)
+   - Current page highlighting
+   - Expand all / Collapse all buttons
+   - Responsive design
+   - Keyboard accessible
+   - Smooth animations
+
+5. Styling:
+   The component uses your existing CSS custom properties:
+   - --gray-light: background color
+   - --gray-dark: text color
+   - --black: title color
+   - --accent: highlight color
+-->

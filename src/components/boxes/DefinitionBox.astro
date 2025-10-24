@@ -1,0 +1,30 @@
+---
+interface Props {
+  title?: string;
+}
+
+const { title } = Astro.props;
+---
+
+<div class="definition-box">
+  {title && <strong class="box-title">{title}</strong>}
+  <slot />
+</div>
+
+<style>
+  .definition-box {
+    background: linear-gradient(to right, #e3f2fd, #bbdefb);
+    border-left: 5px solid #2196f3;
+    padding: 20px;
+    margin: 25px 0;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .box-title {
+    color: #1565c0;
+    font-size: 1.1em;
+    display: block;
+    margin-bottom: 10px;
+  }
+</style>

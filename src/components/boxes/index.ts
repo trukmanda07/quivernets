@@ -1,0 +1,12 @@
+// Export all box components for easy importing
+export { default as HeroSection } from './HeroSection.astro';
+export { default as DefinitionBox } from './DefinitionBox.astro';
+export { default as WarningBox } from './WarningBox.astro';
+export { default as SuccessBox } from './SuccessBox.astro';
+export { default as InsightBox } from './InsightBox.astro';
+export { default as ExampleBox } from './ExampleBox.astro';
+export { default as CalloutBox } from './CalloutBox.astro';
+export { default as SplitView } from './SplitView.astro';
+export { default as SplitPanel } from './SplitPanel.astro';
+export { default as CodeBlock } from './CodeBlock.astro';
+export { default as PracticeProblem } from './PracticeProblem.astro';

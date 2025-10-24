@@ -1,0 +1,35 @@
+---
+interface Props {
+  side: 'left' | 'right';
+  title?: string;
+}
+
+const { side, title } = Astro.props;
+---
+
+<div class={`split-panel split-panel-${side}`}>
+  {title && <h3 class="panel-title">{title}</h3>}
+  <slot />
+</div>
+
+<style>
+  .split-panel {
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .split-panel-left {
+    background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+  }
+
+  .split-panel-right {
+    background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+    color: white;
+  }
+
+  .panel-title {
+    margin-top: 0;
+    font-size: 1.2em;
+  }
+</style>

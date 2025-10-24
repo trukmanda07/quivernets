@@ -1,0 +1,551 @@
+---
+// Fundamental Theorem of Calculus Presentation Component
+// Pure Astro version - no React dependencies needed
+
+interface Slide {
+  title: string;
+  time: string;
+  content: string;
+}
+
+const slides: Slide[] = [
+  {
+    title: "Opening Image",
+    time: "0:00-2:00",
+    content: `
+      <div class="space-y-4">
+        <div class="bg-gradient-to-r from-blue-500 to-purple-600 p-8 rounded-lg text-white">
+          <h2 class="text-4xl font-bold mb-4">The Bridge Between Two Worlds</h2>
+          <p class="text-xl">Imagine you're tracking a car's journey...</p>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-red-100 p-6 rounded-lg border-4 border-red-500">
+            <h3 class="font-bold text-xl mb-2">World 1: Speed</h3>
+            <p class="text-lg">At each instant: "How fast am I going?"</p>
+            <div class="mt-4 text-3xl">📊 $v(t)$</div>
+          </div>
+          <div class="bg-blue-100 p-6 rounded-lg border-4 border-blue-500">
+            <h3 class="font-bold text-xl mb-2">World 2: Distance</h3>
+            <p class="text-lg">Total accumulated: "How far did I travel?"</p>
+            <div class="mt-4 text-3xl">📏 $s(t)$</div>
+          </div>
+        </div>
+        <div class="bg-yellow-100 p-4 rounded-lg border-2 border-yellow-500">
+          <p class="text-lg font-semibold">Question: Are these two worlds connected?</p>
+        </div>
+      </div>
+    `
+  },
+  {
+    title: "Theme Stated",
+    time: "2:00-3:00",
+    content: `
+      <div class="flex items-center justify-center h-full">
+        <div class="bg-gradient-to-br from-purple-100 to-pink-100 p-12 rounded-lg border-4 border-purple-500 max-w-3xl">
+          <p class="text-3xl italic text-center leading-relaxed">
+            "What if I told you that <span class="text-purple-700 font-bold">building up</span> and <span class="text-pink-700 font-bold">breaking down</span> are secretly the <span class="underline">same operation</span>—just viewed from opposite directions?"
+          </p>
+          <p class="text-center mt-6 text-gray-600">- A wise calculus student (probably not named Neo)</p>
+        </div>
+      </div>
+    `
+  },
+  {
+    title: "Setup",
+    time: "3:00-8:00",
+    content: `
+      <div class="space-y-4">
+        <h2 class="text-3xl font-bold">Our Current Tools (The Flawed World)</h2>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-white p-6 rounded-lg shadow-lg">
+            <h3 class="text-2xl font-bold text-red-600 mb-3">The Derivative</h3>
+            <p class="mb-2">Takes a function $\\to$ gives us the <em>rate of change</em></p>
+            <div class="bg-gray-100 p-3 rounded mt-2 font-mono">
+              $s(t) \\to s'(t) = v(t)$
+            </div>
+            <p class="mt-3 text-sm text-gray-600">Position $\\to$ Velocity</p>
+          </div>
+          <div class="bg-white p-6 rounded-lg shadow-lg">
+            <h3 class="text-2xl font-bold text-blue-600 mb-3">The Integral</h3>
+            <p class="mb-2">Adds up tiny pieces $\\to$ gives us <em>accumulation</em></p>
+            <div class="bg-gray-100 p-3 rounded mt-2 font-mono">
+              $\\int v(t) \\, dt = ?$
+            </div>
+            <p class="mt-3 text-sm text-gray-600">Velocity $\\to$ Total distance?</p>
+          </div>
+        </div>
+        <div class="bg-red-50 border-l-4 border-red-500 p-4">
+          <p class="font-semibold">The Problem (Stasis = Death):</p>
+          <p>We have two separate tools, learned in isolation. Computing integrals is painfully slow (Riemann sums with hundreds of rectangles!). There must be a better way...</p>
+        </div>
+      </div>
+    `
+  },
+  {
+    title: "Catalyst",
+    time: "8:00-10:00",
+    content: `
+      <div class="flex flex-col items-center justify-center h-full space-y-6">
+        <div class="bg-gradient-to-r from-orange-400 to-red-500 text-white p-8 rounded-lg shadow-2xl max-w-3xl">
+          <h2 class="text-4xl font-bold mb-4">The Inciting Incident</h2>
+          <p class="text-2xl mb-6">A car accelerates from rest with velocity $v(t) = 2t$ m/s</p>
+          <div class="bg-white text-black p-6 rounded-lg">
+            <p class="text-xl font-bold mb-3">Challenge: Find the distance traveled from $t=0$ to $t=5$</p>
+            <div class="space-y-2">
+              <p>Method 1 (Riemann Sum): Calculate 100+ rectangles... 😰</p>
+              <p>Method 2 (???) : There must be a shortcut! 🤔</p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-yellow-100 border-4 border-yellow-500 p-4 rounded-lg">
+          <p class="text-xl font-semibold">What if derivatives and integrals are secretly related?</p>
+        </div>
+      </div>
+    `
+  },
+  {
+    title: "Break into Two",
+    time: "10:00-12:00",
+    content: `
+      <div class="space-y-6">
+        <h2 class="text-4xl font-bold text-center text-purple-700">Entering the Upside-Down World</h2>
+        <div class="bg-gradient-to-br from-purple-50 to-blue-50 p-8 rounded-lg border-4 border-purple-500">
+          <h3 class="text-2xl font-bold mb-4">The Fundamental Theorem of Calculus (Part 1)</h3>
+          <div class="bg-white p-6 rounded-lg shadow-lg">
+            <p class="text-xl mb-4">If $F(x) = \\int_a^x f(t) \\, dt$, then:</p>
+            <div class="bg-blue-100 p-4 rounded text-center">
+              <p class="text-3xl font-bold">$F'(x) = f(x)$</p>
+            </div>
+            <p class="mt-4 text-lg">In English: <span class="font-bold">The derivative of an integral gets you back to the original function!</span></p>
+          </div>
+        </div>
+        <div class="flex justify-center gap-4">
+          <div class="bg-green-100 p-4 rounded-lg border-2 border-green-500">
+            <p class="font-bold">Integration and differentiation are <span class="text-green-700">inverse operations</span>!</p>
+          </div>
+        </div>
+      </div>
+    `
+  },
+  {
+    title: "Fun and Games - Example 1",
+    time: "12:00-17:00",
+    content: `
+      <div class="space-y-4">
+        <h2 class="text-3xl font-bold">Let's See This Magic in Action</h2>
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+          <h3 class="text-xl font-bold mb-3">Example 1: The Simple Case</h3>
+          <p class="mb-3">Given: $v(t) = 2t$</p>
+          <p class="mb-4">Find: Distance from $t=0$ to $t=5$</p>
+
+          <div class="space-y-4 bg-gray-50 p-4 rounded">
+            <div class="flex items-start gap-3">
+              <div class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 font-bold">1</div>
+              <div>
+                <p class="font-semibold">Find the antiderivative (reverse of derivative):</p>
+                <p class="mt-1 font-mono bg-white p-2 rounded">If $v(t) = 2t$, then $s(t) = t^2$</p>
+                <p class="text-sm text-gray-600 mt-1">(because the derivative of $t^2$ is $2t$)</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+              <div class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 font-bold">2</div>
+              <div>
+                <p class="font-semibold">Evaluate at the endpoints:</p>
+                <p class="mt-1 font-mono bg-white p-2 rounded">$s(5) - s(0) = 5^2 - 0^2 = 25$ meters</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-green-100 border-l-4 border-green-500 p-4 mt-4">
+            <p class="font-bold">That's it! No rectangles! 🎉</p>
+            <p class="text-sm mt-1">Compare: Riemann sum would need 100+ calculations. This took 2 seconds!</p>
+          </div>
+        </div>
+      </div>
+    `
+  },
+  {
+    title: "Midpoint",
+    time: "22:00-24:00",
+    content: `
+      <div class="space-y-6">
+        <h2 class="text-3xl font-bold text-center">The Plot Twist 🎭</h2>
+        <div class="bg-gradient-to-r from-yellow-100 to-orange-100 p-8 rounded-lg border-4 border-orange-500">
+          <h3 class="text-2xl font-bold mb-4">Wait... What About the "+C"?</h3>
+          <p class="text-xl mb-4">If $s(t) = t^2$ works, then so does $s(t) = t^2 + 7$, or $t^2 + 100$...</p>
+          <div class="bg-white p-6 rounded-lg mt-4">
+            <p class="font-bold text-lg mb-2">The Problem:</p>
+            <p>Antiderivatives aren't unique! There's a whole family of them!</p>
+            <div class="bg-red-50 p-4 rounded mt-3 border-2 border-red-300">
+              <p class="text-center text-xl font-mono">$\\int 2t \\, dt = t^2 + C$</p>
+              <p class="text-center text-sm text-gray-600 mt-2">$C$ = any constant!</p>
+            </div>
+          </div>
+        </div>
+        <div class="bg-blue-100 border-l-4 border-blue-500 p-4">
+          <p class="font-semibold">The Midpoint Revelation:</p>
+          <p>We need PART 2 of the theorem to handle this properly...</p>
+        </div>
+      </div>
+    `
+  },
+  {
+    title: "All Is Lost",
+    time: "28:00-30:00",
+    content: `
+      <div class="space-y-6">
+        <h2 class="text-3xl font-bold text-center text-red-700">The Hardest Challenge</h2>
+        <div class="bg-gradient-to-br from-red-50 to-pink-50 p-8 rounded-lg border-4 border-red-500">
+          <h3 class="text-2xl font-bold mb-4">Prove FTC Part 2</h3>
+          <div class="bg-white p-6 rounded-lg shadow-lg">
+            <p class="text-xl mb-4">Show that: $\\int_a^b f(x) \\, dx = F(b) - F(a)$</p>
+            <p class="mb-3">where $F'(x) = f(x)$</p>
+
+            <div class="bg-gray-100 p-4 rounded mt-4">
+              <p class="font-bold mb-2">The Challenge:</p>
+              <p class="text-sm">We need to connect:</p>
+              <ul class="list-disc ml-6 mt-2 space-y-1 text-sm">
+                <li>The limit definition of the integral (Riemann sums)</li>
+                <li>The definition of the derivative</li>
+                <li>The behavior of antiderivatives</li>
+              </ul>
+            </div>
+
+            <div class="bg-red-100 p-4 rounded mt-4 border-2 border-red-400">
+              <p class="font-bold">😰 This seems impossible!</p>
+              <p class="text-sm mt-1">How do we bridge these three separate ideas?</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    `
+  },
+  {
+    title: "Break into Three",
+    time: "32:00-35:00",
+    content: `
+      <div class="space-y-6">
+        <h2 class="text-4xl font-bold text-center text-green-700">💡 The Epiphany!</h2>
+        <div class="bg-gradient-to-br from-green-50 to-blue-50 p-8 rounded-lg border-4 border-green-500">
+          <h3 class="text-2xl font-bold mb-4">The Key Insight</h3>
+          <div class="bg-white p-6 rounded-lg shadow-lg space-y-4">
+            <div class="bg-yellow-100 p-4 rounded border-2 border-yellow-400">
+              <p class="text-lg font-bold mb-2">The Accumulation Function:</p>
+              <p class="font-mono text-center text-xl">$A(x) = \\int_a^x f(t) \\, dt$</p>
+              <p class="text-center text-sm text-gray-600 mt-2">measures the area from a to x</p>
+            </div>
+
+            <div class="bg-blue-100 p-4 rounded">
+              <p class="font-bold mb-2">When we change x slightly to x + h:</p>
+              <p class="text-sm">$A(x+h) - A(x) \\approx f(x) \\cdot h$</p>
+              <p class="text-sm mt-2">Divide by h: $\\frac{A(x+h) - A(x)}{h} \\approx f(x)$</p>
+              <p class="text-sm mt-2">As $h \\to 0$: $A'(x) = f(x)$ ✓</p>
+            </div>
+
+            <div class="bg-green-100 p-4 rounded border-2 border-green-400">
+              <p class="font-bold text-center text-xl">Therefore: Integration and differentiation are inverses!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    `
+  },
+  {
+    title: "Finale",
+    time: "35:00-42:00",
+    content: `
+      <div class="space-y-4">
+        <h2 class="text-3xl font-bold text-center">The Complete Picture</h2>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-purple-100 p-6 rounded-lg border-3 border-purple-500">
+            <h3 class="text-xl font-bold mb-3">FTC Part 1</h3>
+            <p class="font-mono text-sm mb-2">$\\frac{d}{dx} \\left[\\int_a^x f(t) \\, dt\\right] = f(x)$</p>
+            <p class="text-sm">Derivative undoes integral</p>
+          </div>
+          <div class="bg-blue-100 p-6 rounded-lg border-3 border-blue-500">
+            <h3 class="text-xl font-bold mb-3">FTC Part 2</h3>
+            <p class="font-mono text-sm mb-2">$\\int_a^b f(x) \\, dx = F(b) - F(a)$</p>
+            <p class="text-sm">Easy way to compute integrals</p>
+          </div>
+        </div>
+
+        <div class="bg-gradient-to-r from-green-100 to-blue-100 p-6 rounded-lg">
+          <h3 class="text-xl font-bold mb-3">Applications Unlocked:</h3>
+          <div class="grid grid-cols-3 gap-3">
+            <div class="bg-white p-3 rounded shadow text-center">
+              <div class="text-3xl mb-2">🚗</div>
+              <p class="text-sm font-semibold">Physics: Motion</p>
+            </div>
+            <div class="bg-white p-3 rounded shadow text-center">
+              <div class="text-3xl mb-2">📊</div>
+              <p class="text-sm font-semibold">Economics: Total profit</p>
+            </div>
+            <div class="bg-white p-3 rounded shadow text-center">
+              <div class="text-3xl mb-2">🌡️</div>
+              <p class="text-sm font-semibold">Engineering: Heat transfer</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-yellow-100 border-l-4 border-yellow-500 p-4">
+          <p class="font-bold">The Power:</p>
+          <p>Any integral can now be computed without limits or Riemann sums—just find an antiderivative!</p>
+        </div>
+      </div>
+    `
+  },
+  {
+    title: "Final Image",
+    time: "42:00-45:00",
+    content: `
+      <div class="space-y-6">
+        <div class="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-8 rounded-lg shadow-2xl">
+          <h2 class="text-4xl font-bold mb-4 text-center">The Two Worlds, United</h2>
+          <div class="grid grid-cols-2 gap-6 mt-6">
+            <div class="bg-white/20 p-6 rounded-lg backdrop-blur">
+              <h3 class="font-bold text-2xl mb-2">Differentiation ↓</h3>
+              <p class="text-lg">Breaking things down into rates</p>
+            </div>
+            <div class="bg-white/20 p-6 rounded-lg backdrop-blur">
+              <h3 class="font-bold text-2xl mb-2">Integration ↑</h3>
+              <p class="text-lg">Building things up from parts</p>
+            </div>
+          </div>
+          <div class="text-center mt-6 text-2xl">
+            ⇅<br/>
+            <span class="text-3xl font-bold">They're inverses!</span>
+          </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+          <h3 class="text-2xl font-bold mb-3">What's Next?</h3>
+          <ul class="space-y-2">
+            <li class="flex items-center gap-2">
+              <span class="text-green-500 text-xl">✓</span>
+              <span>Try problems: Compute 10 integrals in 10 minutes!</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="text-blue-500 text-xl">→</span>
+              <span>Next lecture: Integration techniques</span>
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="text-purple-500 text-xl">★</span>
+              <span>Future: Applications in physics and beyond</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-gradient-to-r from-blue-500 to-purple-500 text-white p-4 rounded-lg text-center">
+          <p class="text-xl italic">"The calculus is the greatest aid we have to the appreciation of physical truth."</p>
+          <p class="text-sm mt-2">- William Fogg Osgood</p>
+        </div>
+      </div>
+    `
+  }
+];
+---
+
+<div class="ftc-presentation w-full h-screen bg-gray-100 flex flex-col">
+  <!-- Header -->
+  <div class="bg-gray-800 text-white p-4 flex justify-between items-center">
+    <div>
+      <h1 class="text-2xl font-bold">The Fundamental Theorem of Calculus</h1>
+      <p class="text-sm text-gray-300">A Narrative Presentation</p>
+    </div>
+    <div class="text-sm">
+      Slide <span id="current-slide-num">1</span> of {slides.length}
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="flex-1 overflow-auto p-8">
+    <div class="max-w-6xl mx-auto">
+      <div class="bg-white rounded-lg shadow-2xl p-12 min-h-[600px]">
+        <div class="flex justify-between items-center mb-8 border-b pb-4">
+          <h2 id="slide-title" class="text-2xl font-bold text-gray-700">{slides[0].title}</h2>
+          <span id="slide-time" class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+            {slides[0].time}
+          </span>
+        </div>
+        <div id="slide-content" class="slide-content-container" set:html={slides[0].content}></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Navigation -->
+  <div class="bg-gray-800 p-4">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <button
+        id="prev-btn"
+        class="flex items-center gap-2 bg-blue-500 text-white px-6 py-2 rounded-lg disabled:bg-gray-600 disabled:cursor-not-allowed hover:bg-blue-600 transition"
+        disabled
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Previous
+      </button>
+
+      <div class="flex gap-2" id="slide-dots">
+        {slides.map((_, idx) => (
+          <button
+            class={`slide-dot w-3 h-3 rounded-full transition ${idx === 0 ? 'bg-blue-500' : 'bg-gray-600'}`}
+            data-slide={idx}
+          />
+        ))}
+      </div>
+
+      <button
+        id="next-btn"
+        class="flex items-center gap-2 bg-blue-500 text-white px-6 py-2 rounded-lg disabled:bg-gray-600 disabled:cursor-not-allowed hover:bg-blue-600 transition"
+      >
+        Next
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ slides }}>
+  // Presentation state management
+  let currentSlide = 0;
+
+  // Get DOM elements
+  const slideTitle = document.getElementById('slide-title');
+  const slideTime = document.getElementById('slide-time');
+  const slideContent = document.getElementById('slide-content');
+  const currentSlideNum = document.getElementById('current-slide-num');
+  const prevBtn = document.getElementById('prev-btn');
+  const nextBtn = document.getElementById('next-btn');
+  const slideDots = document.querySelectorAll('.slide-dot');
+
+  // Update slide display
+  function updateSlide(index) {
+    const slide = slides[index];
+    slideTitle.textContent = slide.title;
+    slideTime.textContent = slide.time;
+    slideContent.innerHTML = slide.content;
+    currentSlideNum.textContent = (index + 1).toString();
+
+    // Render KaTeX math
+    renderKaTeX();
+
+    // Update buttons
+    prevBtn.disabled = index === 0;
+    nextBtn.disabled = index === slides.length - 1;
+
+    // Update dots
+    slideDots.forEach((dot, idx) => {
+      if (idx === index) {
+        dot.classList.remove('bg-gray-600');
+        dot.classList.add('bg-blue-500');
+      } else {
+        dot.classList.remove('bg-blue-500');
+        dot.classList.add('bg-gray-600');
+      }
+    });
+  }
+
+  // Render KaTeX for math expressions
+  function renderKaTeX() {
+    if (typeof renderMathInElement !== 'undefined') {
+      renderMathInElement(slideContent, {
+        delimiters: [
+          {left: '$$', right: '$$', display: true},
+          {left: '$', right: '$', display: false},
+        ],
+        throwOnError: false
+      });
+    }
+  }
+
+  // Navigation functions
+  function nextSlide() {
+    if (currentSlide < slides.length - 1) {
+      currentSlide++;
+      updateSlide(currentSlide);
+    }
+  }
+
+  function prevSlide() {
+    if (currentSlide > 0) {
+      currentSlide--;
+      updateSlide(currentSlide);
+    }
+  }
+
+  function goToSlide(index) {
+    if (index >= 0 && index < slides.length) {
+      currentSlide = index;
+      updateSlide(currentSlide);
+    }
+  }
+
+  // Event listeners
+  prevBtn.addEventListener('click', prevSlide);
+  nextBtn.addEventListener('click', nextSlide);
+
+  slideDots.forEach((dot, idx) => {
+    dot.addEventListener('click', () => goToSlide(idx));
+  });
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') {
+      prevSlide();
+    } else if (e.key === 'ArrowRight') {
+      nextSlide();
+    }
+  });
+
+  // Render KaTeX on initial load
+  document.addEventListener('DOMContentLoaded', () => {
+    renderKaTeX();
+  });
+</script>
+
+<style>
+  .ftc-presentation {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  /* Smooth transitions for slide content */
+  #slide-content {
+    animation: fadeIn 0.3s ease-in;
+  }
+
+  /* Add proper spacing and max-width to slide content */
+  .slide-content-container {
+    max-width: 100%;
+    padding: 1rem 0;
+  }
+
+  /* Ensure slide content has proper spacing */
+  .slide-content-container > * {
+    margin-bottom: 1rem;
+  }
+
+  .slide-content-container > *:last-child {
+    margin-bottom: 0;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Ensure buttons are accessible */
+  button:focus-visible {
+    outline: 2px solid #60a5fa;
+    outline-offset: 2px;
+  }
+</style>

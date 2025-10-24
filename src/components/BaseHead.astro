@@ -1,0 +1,86 @@
+---
+// Import the global.css file here so that it is included on
+// all pages through the use of the <BaseHead /> component.
+import '../styles/global.css';
+import type { ImageMetadata } from 'astro';
+import FallbackImage from '../assets/blog-placeholder-1.jpg';
+import { SITE_TITLE } from '../consts';
+import { getLangFromUrl, removeLanguagePrefix, supportedLanguages } from '../utils/i18n';
+
+interface Props {
+	title: string;
+	description: string;
+	image?: ImageMetadata;
+	language?: string;
+	translatedVersions?: {
+		en?: string;
+		id?: string;
+	};
+}
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const currentLang = getLangFromUrl(Astro.url.pathname);
+
+const { title, description, image = FallbackImage, language, translatedVersions } = Astro.props;
+
+// Generate alternate language URLs for hreflang
+const pathWithoutLang = removeLanguagePrefix(Astro.url.pathname);
+const alternateUrls = supportedLanguages.map(lang => ({
+	lang,
+	url: new URL(`/${lang}${pathWithoutLang}`, Astro.site).href
+}));
+---
+
+<!-- Global Metadata -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="sitemap" href="/sitemap-index.xml" />
+<link
+	rel="alternate"
+	type="application/rss+xml"
+	title={SITE_TITLE}
+	href={new URL('rss.xml', Astro.site)}
+/>
+<meta name="generator" content={Astro.generator} />
+
+<!-- Font preloads -->
+<link rel="preload" href="/fonts/atkinson-regular.woff" as="font" type="font/woff" crossorigin />
+<link rel="preload" href="/fonts/atkinson-bold.woff" as="font" type="font/woff" crossorigin />
+
+<!-- Canonical URL -->
+<link rel="canonical" href={canonicalURL} />
+
+<!-- Hreflang tags for multilingual SEO -->
+{alternateUrls.map(({ lang, url }) => (
+	<link rel="alternate" hreflang={lang} href={url} />
+))}
+<!-- x-default hreflang for language selector -->
+<link rel="alternate" hreflang="x-default" href={new URL(`/en${pathWithoutLang}`, Astro.site).href} />
+
+<!-- Language meta tag -->
+<meta property="og:locale" content={currentLang === 'en' ? 'en_US' : 'id_ID'} />
+{alternateUrls
+	.filter(({ lang }) => lang !== currentLang)
+	.map(({ lang }) => (
+		<meta property="og:locale:alternate" content={lang === 'en' ? 'en_US' : 'id_ID'} />
+	))}
+
+<!-- Primary Meta Tags -->
+<title>{title}</title>
+<meta name="title" content={title} />
+<meta name="description" content={description} />
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content={Astro.url} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={new URL(image.src, Astro.url)} />
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:url" content={Astro.url} />
+<meta property="twitter:title" content={title} />
+<meta property="twitter:description" content={description} />
+<meta property="twitter:image" content={new URL(image.src, Astro.url)} />
