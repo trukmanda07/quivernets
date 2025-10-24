@@ -52,5 +52,12 @@
     "current": "English",
     "availableIn": "Also available in",
     "notAvailable": "This post is not available in"
+  },
+  "presentation": {
+    "readBlog": "Read Blog",
+    "share": "Share",
+    "shareThisSlide": "Share this slide",
+    "copyLink": "Copy Link",
+    "shareOn": "Share on"
   }
 }

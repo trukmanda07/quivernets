@@ -1,0 +1,306 @@
+---
+title: 'Bagaimana Komputer Merepresentasikan Informasi'
+description: 'Temukan bagaimana komputer mengubah segala yang Anda lihat—emoji, gambar, musik, dan video—menjadi angka nol dan satu menggunakan representasi binary.'
+pubDate: 2025-10-23
+author: 'QuiverLearn'
+tags: ['computer-science', 'binary', 'encoding', 'fundamentals']
+category: 'Computer Science'
+difficulty: 'beginner'
+hasMath: true
+hasCode: false
+estimatedReadingTime: 12
+featured: true
+draft: false
+language: id
+---
+
+import DefinitionBox from '../../components/boxes/DefinitionBox.astro';
+import ExampleBox from '../../components/boxes/ExampleBox.astro';
+import InsightBox from '../../components/boxes/InsightBox.astro';
+import CalloutBox from '../../components/boxes/CalloutBox.astro';
+import PracticeProblem from '../../components/boxes/PracticeProblem.astro';
+import SplitView from '../../components/boxes/SplitView.astro';
+import SplitPanel from '../../components/boxes/SplitPanel.astro';
+
+Apa persamaan antara emoji, musik, dan video game? Semuanya terbuat dari **angka nol dan satu**. Computer science bukan hanya tentang cara membuat program atau software yang tersedia di ponsel Anda. Ini tentang **merepresentasikan informasi**. Setiap gambar, suara, dan teks yang Anda lihat di layar terdiri dari digit binary. Mari kita jelajahi bagaimana komputer merepresentasikannya di balik layar.
+
+## Apa itu Computer Science?
+
+<CalloutBox icon="💭">
+Fakta menarik: Di Indonesia, ada beberapa universitas yang menyebut computer science sebagai 'teknologi informasi'. Keduanya pada dasarnya sama, tapi tahukah Anda mengapa? **Karena mereka mempelajari informasi**.
+</CalloutBox>
+
+Pada dasarnya, semua bidang studi adalah tentang **pemecahan masalah**, termasuk computer science. Ini tentang **pemecahan masalah** yang melibatkan **informasi** menggunakan **computational thinking** untuk **merepresentasikan** dan **memproses** informasi tersebut.
+
+<DefinitionBox title="Computer Science">
+**Computer science** adalah **pemecahan masalah** yang menggunakan **computational thinking** untuk **merepresentasikan** dan **memproses** informasi.
+</DefinitionBox>
+
+## Jenis-jenis Informasi yang Kita Temui Sehari-hari
+
+Bagaimana kita merepresentasikan informasi ini? Sebelum itu, bentuk informasi apa yang kita miliki? Di mana kita bisa menemukan informasi dalam kehidupan sehari-hari?
+
+- Dari buku, televisi, papan reklame, pamflet, ponsel, internet, radio
+
+Bentuk informasi apa yang mereka miliki?
+
+- Teks dan huruf
+- Angka
+- Gambar dan Warna
+- Suara dan Video
+
+# Bagaimana komputer memproses jenis-jenis informasi tersebut?
+
+## Angka: Dari Desimal ke Binary
+
+Pada dasarnya, hardware komputer **hanya mengenal angka, hanya 0 dan 1**. Mengapa komputer hanya memahami kedua angka tersebut? Karena transistor yang menyusun hardware ini hanya memiliki dua state. Ini seperti saklar, hidup dan mati. Perangkat elektronik modern, seperti Mac, PC, dan ponsel, memanfaatkan jutaan saklar cahaya mikroskopis yang disebut **transistor** untuk menyimpan informasi dengan cara dihidupkan (satu) atau dimatikan (nol).
+
+<InsightBox title="💡 Mengapa Binary?">
+Transistor seperti saklar kecil yang hanya bisa berada dalam dua state: **HIDUP (1)** atau **MATI (0)**. Keterbatasan fisik inilah yang membuat komputer menggunakan binary—ini sempurna sesuai dengan cara kerja hardware!
+</InsightBox>
+
+### Memahami Sistem Desimal
+
+Bagaimana mereka merepresentasikan angka? Seperti 12345, 1 juta.
+Angka yang kita kenal seperti 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, dst., disebut sistem desimal, basis 10: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+
+Setiap angka tunggal dapat direpresentasikan sebagai:
+
+$$
+a_n \cdot 10^n + a_{n-1} \cdot 10^{n-1} + \cdots + a_1 \cdot 10^1 + a_0
+$$
+
+<ExampleBox title="Contoh Desimal">
+Mari kita uraikan angka **1234**:
+
+$$
+1234 = 1 \cdot 10^3 + 2 \cdot 10^2 + 3 \cdot 10^1 + 4 \cdot 10^0
+$$
+
+$$
+1234 = 1000 + 200 + 30 + 4
+$$
+</ExampleBox>
+
+### Konversi ke Binary
+
+Karena komputer hanya mengenal $0$ dan $1$, kita harus merepresentasikan semua angka tersebut dalam sistem binary (basis 2). Bagaimana kita merepresentasikan 11 sebagai binary?
+
+<ExampleBox title="Mengkonversi 11 ke Binary">
+Mari gunakan **metode pembagian**:
+
+- 11 ÷ 2 = 5 sisa **1**  ← bit paling kanan
+- 5 ÷ 2 = 2 sisa **1**
+- 2 ÷ 2 = 1 sisa **0**
+- 1 ÷ 2 = 0 sisa **1**  ← bit paling kiri
+
+Membaca dari bawah ke atas: **1011**
+
+Kita dapat memverifikasi ini:
+
+$$
+11 = 1 \cdot 2^3 + 0 \cdot 2^2 + 1 \cdot 2^1 + 1 \cdot 2^0
+$$
+
+$$
+11 = 8 + 0 + 2 + 1 = 11 \text{ ✓}
+$$
+
+Jadi $11$ dalam desimal = $1011$ dalam binary!
+</ExampleBox>
+
+<PracticeProblem level="Level 1">
+Konversi **23** dari desimal ke binary menggunakan metode pembagian.
+
+<details>
+<summary>Klik untuk petunjuk</summary>
+Terus bagi dengan 2 dan catat sisanya. Angka binary dibentuk dengan membaca sisa dari bawah ke atas!
+</details>
+
+<details>
+<summary>Klik untuk solusi</summary>
+
+**Konversi langkah demi langkah:**
+
+- 23 ÷ 2 = 11 sisa **1**  ← bit paling kanan
+- 11 ÷ 2 = 5 sisa **1**
+- 5 ÷ 2 = 2 sisa **1**
+- 2 ÷ 2 = 1 sisa **0**
+- 1 ÷ 2 = 0 sisa **1**  ← bit paling kiri
+
+**Jawaban:** $23$ dalam desimal = $10111$ dalam binary
+
+**Verifikasi:**
+$$
+10111_2 = 1 \cdot 2^4 + 0 \cdot 2^3 + 1 \cdot 2^2 + 1 \cdot 2^1 + 1 \cdot 2^0
+$$
+$$
+= 16 + 0 + 4 + 2 + 1 = 23 \text{ ✓}
+$$
+</details>
+</PracticeProblem>
+
+## Teks: ASCII dan Unicode
+
+Sekarang kita beralih ke **Teks dan Huruf**. Bagaimana dengan itu? Ya, kita merepresentasikannya sebagai angka.
+
+<SplitView>
+  <SplitPanel side="left" title="ASCII - Fondasinya">
+    **American Standard Code for Information Interchange (ASCII)**
+
+    - Menggunakan **7 bit** (0-127) atau **8 bit** yang diperluas (0-255)
+    - Merepresentasikan sekitar **256 karakter**
+    - Cukup untuk alfabet Inggris dan simbol standar
+    - Contoh:
+      - 'A' = 65
+      - 'a' = 97
+      - '0' = 48
+  </SplitPanel>
+
+  <SplitPanel side="right" title="Unicode - Karakter Global">
+    **Universal Character Encoding**
+
+    - Menggunakan **16, 24, atau 32 bit**
+    - Mendukung hingga **4 miliar karakter**
+    - Mencakup semua bahasa manusia dan emoji
+    - Menggunakan "code points" (mis., U+0041)
+    - Superset dari ASCII
+  </SplitPanel>
+</SplitView>
+
+<ExampleBox title="Unicode Code Points">
+Berikut beberapa contoh Unicode code points:
+
+- 'A' = **U+0041** (Latin capital letter A)
+- '你' = **U+4F60** (Karakter Mandarin yang berarti "kamu")
+- '😀' = **U+1F600** (Grinning face emoji)
+
+Perhatikan bagaimana setiap karakter, terlepas dari bahasa atau jenisnya, mendapat code point yang unik!
+</ExampleBox>
+
+## Gambar: Pixel dan Warna
+
+Bagaimana komputer menampilkan emoji dan gambar?
+
+Emoji dan gambar terdiri dari beberapa warna yang merepresentasikannya. Pernahkah Anda melihat orang membuat gambar dari balok Lego? Ide untuk merepresentasikan gambar tersebut mirip dengan cara kita merepresentasikan gambar di layar. Kita dapat merepresentasikan gambar menggunakan **pixel**, yang merupakan titik tunggal di layar. Pixel tersebut direpresentasikan oleh warna-warna primer kita.
+
+<DefinitionBox title="Pixel">
+**Pixel** (picture element) adalah titik tunggal di layar. Ini adalah unit terkecil dari gambar digital. Setiap pixel memiliki warna yang didefinisikan dengan menggabungkan nilai Red, Green, dan Blue (RGB).
+</DefinitionBox>
+
+### Memahami Pencampuran Warna
+
+<SplitView>
+  <SplitPanel side="left" title="Cat Fisik (Subtractive)">
+    **Pencampuran Pigmen**
+
+    - Menggunakan **Cyan, Magenta, Yellow** (CMY)
+    - Mengurangi panjang gelombang cahaya
+    - Mencampur semua warna → **Hitam**
+    - Digunakan dalam pencetakan
+
+    Ingat: Cat menyerap cahaya!
+  </SplitPanel>
+
+  <SplitPanel side="right" title="Cahaya Komputer (Additive)">
+    **Pencampuran Cahaya**
+
+    - Menggunakan **Red, Green, Blue** (RGB)
+    - Menambahkan panjang gelombang cahaya
+    - Mencampur semua warna → **Putih**
+    - Digunakan di layar
+
+    Ingat: Cahaya bertambah!
+  </SplitPanel>
+</SplitView>
+
+### Sistem Warna RGB
+
+Dalam komputer, warna didefinisikan oleh Red, Green, dan Blue. Setiap warna memiliki intensitas yang dapat kita definisikan dari 0 hingga 255. Jika kita meningkatkan angkanya, warnanya akan lebih cerah.
+
+<ExampleBox title="Nilai Warna RGB">
+Setiap channel warna berkisar dari **0 hingga 255** (yaitu $2^8 = 256$ nilai):
+
+- $(255, 0, 0)$ = **Merah murni** (merah maksimal, tidak ada hijau, tidak ada biru)
+- $(0, 255, 0)$ = **Hijau murni** (tidak ada merah, hijau maksimal, tidak ada biru)
+- $(0, 0, 255)$ = **Biru murni** (tidak ada merah, tidak ada hijau, biru maksimal)
+- $(255, 255, 0)$ = **Kuning** (merah + hijau)
+- $(255, 255, 255)$ = **Putih** (semua cahaya menyala)
+- $(0, 0, 0)$ = **Hitam** (semua cahaya mati)
+- $(128, 128, 128)$ = **Abu-abu** (intensitas sedang semua)
+
+Dengan 3 channel × 256 nilai masing-masing = **16.777.216 warna yang mungkin**!
+</ExampleBox>
+
+<InsightBox title="💡 Ukuran File">
+Foto besar memerlukan jutaan byte karena jumlah pixel yang tinggi. Gambar 1920×1080 memiliki lebih dari 2 juta pixel, dan setiap pixel membutuhkan 3 byte (RGB) = lebih dari 6 MB untuk satu gambar yang tidak dikompresi!
+</InsightBox>
+
+## Video dan Suara
+
+Bagaimana dengan Video dan Suara?
+
+### Video: Urutan Gambar
+
+Video dapat direpresentasikan sebagai urutan gambar yang diputar dengan kecepatan tinggi. Pernahkah Anda melihat kartunis menggambar gambar di sudut buku, lalu membuka buku dengan cepat? Itu membuat gambar bergerak seperti video.
+
+<CalloutBox icon="🎬">
+**Animasi Flipbook**: Beginilah cara kerja video! Video modern biasanya menampilkan 24, 30, atau 60 frame (gambar) per detik. Mata kita mempersepsikan urutan cepat ini sebagai gerakan yang mulus.
+</CalloutBox>
+
+### Suara: Digital Sampling
+
+Suara berbeda—itu adalah sinyal gelombang kontinu. Untuk mendigitalisasinya:
+
+1. Mikrofon **mengambil sampel** gelombang ribuan kali per detik
+2. Setiap sampel mengukur amplitudo (kenyaringan) gelombang pada saat itu
+3. Pengukuran ini menjadi byte yang disimpan dalam file audio
+
+<DefinitionBox title="Sampling Rate">
+**Sampling rate** adalah berapa kali per detik kita mengukur gelombang suara. Audio kualitas CD menggunakan **44.100 sampel per detik** (44,1 kHz).
+
+Sampling rate yang lebih tinggi = kualitas lebih baik tetapi file lebih besar.
+</DefinitionBox>
+
+## Konteks: Bagaimana Komputer Tahu Apa Itu Apa
+
+Ini tergantung pada konteksnya, mirip dengan kata-kata. Dalam Software Engineering, "staging" berarti fase deployment. Dalam Data Engineering, ini tentang fase layering. Komputer dapat membedakan cara mengubah data tergantung pada konteks yang kita berikan.
+
+### Format File sebagai Konteks
+
+Apa representasi konteks dalam komputer? Terletak pada format file. Kita memiliki `.JPEG` untuk gambar, `.txt` untuk teks. Format ini merepresentasikan konteks sebagai byte khusus yang disebut header. Header ini memberi tahu komputer bahwa sejuta byte berikutnya adalah data gambar sehingga komputer dapat mendekodenya sebagai pixel, atau bahwa byte berikutnya adalah teks ASCII.
+
+<ExampleBox title="File Header">
+Setiap file dimulai dengan byte khusus yang disebut **header** yang memberi tahu komputer jenis data apa yang mengikuti:
+
+- **Gambar JPEG**: Dimulai dengan byte `FF D8 FF`
+- **Gambar PNG**: Dimulai dengan byte `89 50 4E 47`
+- **Audio MP3**: Dimulai dengan byte `FF FB` atau `ID3`
+- **Dokumen PDF**: Dimulai dengan `%PDF`
+
+Tanpa header ini, komputer tidak akan tahu apakah byte tersebut merepresentasikan gambar, suara, atau teks!
+</ExampleBox>
+
+<InsightBox title="💡 Kekuatan Programming">
+Kekuatan programmer terletak pada menulis kode yang memberi tahu komputer bagaimana memperlakukan pola-pola ini—apakah untuk menyimpan angka, huruf, warna, atau sesuatu yang lain. Byte yang sama, arti yang berbeda!
+</InsightBox>
+
+## Kesimpulan
+
+Akhirnya, kita memahami bahwa setiap aplikasi, website, film, dan game dibangun di atas data binary yang dikonversi oleh hardware komputer untuk merepresentasikan informasi dunia nyata.
+
+### Poin-poin Penting
+
+- Komputer menggunakan **binary (0 dan 1)** karena transistor memiliki dua state
+- **Angka** dikonversi dari desimal ke binary menggunakan pembagian
+- **Teks** dikodekan menggunakan ASCII (Inggris) atau Unicode (bahasa global)
+- **Gambar** terbuat dari pixel, masing-masing dengan nilai warna RGB (0-255)
+- **Video** adalah urutan gambar yang diputar dengan cepat
+- **Suara** didigitalisasi dengan mengambil sampel sinyal gelombang kontinu
+- **Format file** memberikan konteks melalui header
+
+Memahami bagaimana komputer merepresentasikan informasi adalah fundamental untuk computer science. Pengetahuan ini membantu Anda menghargai dunia digital di sekitar Anda dan membentuk fondasi untuk konsep programming dan desain sistem yang lebih dalam.
+
+---
+
+**Selanjutnya dalam seri ini**: *Pengantar Algoritma dan Pemecahan Masalah*
