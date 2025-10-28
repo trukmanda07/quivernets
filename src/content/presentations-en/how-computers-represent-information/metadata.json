@@ -1,0 +1,18 @@
+{
+  "title": "How Computers Represent Information",
+  "description": "An interactive narrative presentation exploring how computers transform everything—emojis, images, music, and videos—into zeros and ones using binary representation.",
+  "pubDate": "2025-10-23T00:00:00.000Z",
+  "relatedBlogPost": "how-computers-represent-information",
+  "category": "Computer Science",
+  "tags": [
+    "computer-science",
+    "binary",
+    "encoding",
+    "fundamentals"
+  ],
+  "difficulty": "beginner",
+  "language": "en",
+  "estimatedTime": 45,
+  "totalSlides": 11,
+  "author": "QuiverLearn"
+}

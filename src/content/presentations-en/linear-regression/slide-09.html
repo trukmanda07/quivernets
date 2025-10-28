@@ -1,0 +1,28 @@
+<!--
+  Slide 9: First Attempt: Sum of Errors (FAILS!)
+  Time: 22:00-25:00
+-->
+<div class="space-y-0.5">
+  <h4 class="text-sm font-bold">Naive Approach: Just Add Them Up</h4>
+  <div class="bg-white p-1 rounded-lg shadow-lg border-3 border-gray-400">
+    <h5 class="text-3xl font-bold mb-0">First Idea</h5>
+    <div class="bg-gray-50 p-0.5 rounded text-center">
+      <p class="text-2xl mb-0">Sum all the errors:</p>
+      <p class="font-mono text-2xl mt-0">$\sum e_i = \sum (y_i - (w_0 + w_1x_i))$</p>
+    </div>
+  </div>
+  <div class="bg-red-100 p-1 rounded-lg border-4 border-red-500">
+    <h5 class="text-3xl font-bold mb-0 text-red-700">❌ Fatal Flaw!</h5>
+    <div class="bg-white p-1 rounded mt-0.5">
+      <p class="text-2xl mb-0 leading-tight"><strong>Problem:</strong> Positive and negative errors cancel out!</p>
+      <p class="text-2xl mt-0 leading-tight"><strong>Example:</strong><br>• Point 1: error = +5 (underestimated)<br>•
+        Point 2: error = -5 (overestimated)<br>• Total: +5 + (-5) = 0 ✓ "Perfect"?</p>
+      <p class="text-2xl mt-0.5 bg-red-50 p-0.5 rounded font-bold">But both predictions were wrong by 5 units!</p>
+    </div>
+  </div>
+  <div class="bg-yellow-100 border-l-4 border-yellow-500 p-0.5">
+    <p class="text-2xl font-bold mb-0">The Takeaway:</p>
+    <p class="text-2xl leading-tight">We need a metric where <strong>all errors are non-negative</strong> so they can't
+      cancel out.</p>
+  </div>
+</div>

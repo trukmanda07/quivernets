@@ -1,0 +1,31 @@
+<!--
+  Slide 10: Two Better Metrics
+  Time: 25:00-29:00
+-->
+<div class="space-y-1">
+  <h4 class="text-sm font-bold text-center">Non-Negative Error Metrics</h4>
+  <div class="grid grid-cols-2 gap-1">
+    <div class="bg-purple-50 p-1.5 rounded-lg border-3 border-purple-500">
+      <h5 class="text-3xl font-bold mb-0.5">Sum of Absolute Errors</h5>
+      <div class="bg-white p-1 rounded shadow">
+        <p class="font-mono text-2xl text-center mb-0.5">$\sum |e_i|$</p>
+        <p class="text-2xl mb-0"><strong>Pros:</strong></p>
+        <p class="text-2xl leading-tight">✓ All errors positive<br>✓ Equal weight to all errors<br>✓ Robust to outliers
+        </p>
+        <p class="text-2xl mt-0.5 mb-0"><strong>Cons:</strong></p>
+        <p class="text-2xl leading-tight">✗ Not differentiable at zero<br>✗ Harder to optimize</p>
+      </div>
+    </div>
+    <div class="bg-green-50 p-1.5 rounded-lg border-3 border-green-500">
+      <h5 class="text-3xl font-bold mb-0.5">Sum of Squared Errors ⭐</h5>
+      <div class="bg-white p-1 rounded shadow">
+        <p class="font-mono text-2xl text-center mb-0.5">$\sum e_i^2$</p>
+        <p class="text-2xl mb-0"><strong>Pros:</strong></p>
+        <p class="text-2xl leading-tight">✓ All errors positive<br>✓ Heavily penalizes outliers<br>✓ Differentiable
+          everywhere<br>✓ Nice statistical properties</p>
+        <p class="text-2xl mt-0.5 mb-0"><strong>Winner!</strong></p>
+        <p class="text-2xl leading-tight bg-green-100 p-0.5 rounded">Used in linear regression</p>
+      </div>
+    </div>
+  </div>
+</div>

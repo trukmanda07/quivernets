@@ -1,0 +1,28 @@
+<!--
+  Slide 9: Percobaan Pertama: Jumlah Error (GAGAL!)
+  Time: 22:00-25:00
+-->
+<div class="space-y-0.5">
+  <h4 class="text-sm font-bold">Pendekatan Naif: Cukup Jumlahkan</h4>
+  <div class="bg-white p-1 rounded-lg shadow-lg border-3 border-gray-400">
+    <h5 class="text-3xl font-bold mb-0">Ide Pertama</h5>
+    <div class="bg-gray-50 p-0.5 rounded text-center">
+      <p class="text-2xl mb-0">Jumlahkan semua error:</p>
+      <p class="font-mono text-2xl mt-0">$\sum e_i = \sum (y_i - (w_0 + w_1x_i))$</p>
+    </div>
+  </div>
+  <div class="bg-red-100 p-1 rounded-lg border-4 border-red-500">
+    <h5 class="text-3xl font-bold mb-0 text-red-700">❌ Cacat Fatal!</h5>
+    <div class="bg-white p-1 rounded mt-0.5">
+      <p class="text-2xl mb-0 leading-tight"><strong>Masalah:</strong> Error positif dan negatif saling meniadakan!</p>
+      <p class="text-2xl mt-0 leading-tight"><strong>Contoh:</strong><br>• Titik 1: error = +5 (meremehkan)<br>• Titik
+        2: error = -5 (melebih-lebihkan)<br>• Total: +5 + (-5) = 0 ✓ "Sempurna"?</p>
+      <p class="text-2xl mt-0.5 bg-red-50 p-0.5 rounded font-bold">Tapi kedua prediksi salah sebesar 5 unit!</p>
+    </div>
+  </div>
+  <div class="bg-yellow-100 border-l-4 border-yellow-500 p-0.5">
+    <p class="text-2xl font-bold mb-0">Kesimpulan:</p>
+    <p class="text-2xl leading-tight">Kita perlu metrik di mana <strong>semua error non-negatif</strong> sehingga tidak
+      dapat saling meniadakan.</p>
+  </div>
+</div>

@@ -1,0 +1,25 @@
+<!--
+  Slide 17: Derivation Step 1: Expand
+  Time: 49:00-52:00
+-->
+<div class="space-y-0.5">
+  <h4 class="text-sm font-bold">Expanding the Matrix Expression</h4>
+  <div class="bg-white p-0.5 rounded-lg shadow-lg border-3 border-blue-500">
+    <h5 class="text-3xl font-bold mb-0">Step 1: Use Matrix Properties</h5>
+    <div class="bg-blue-50 p-0.5 rounded">
+      <p class="text-2xl mb-0 leading-tight"><strong>Start with:</strong><br><span class="font-mono">$f(W) = \|y -
+          XW\|_2^2$</span></p>
+      <p class="text-2xl mt-0.5 mb-0 leading-tight"><strong>Rewrite as dot product:</strong><br><span
+          class="font-mono">$f(W) = (y - XW)^T(y - XW)$</span></p>
+      <p class="text-2xl mt-0.5 mb-0 leading-tight"><strong>Distribute transpose:</strong><br><span class="font-mono">$=
+          (y^T - W^TX^T)(y - XW)$</span></p>
+      <p class="text-2xl mt-0.5 mb-0 leading-tight"><strong>FOIL (multiply out):</strong><br><span class="font-mono">$=
+          y^Ty - W^TX^Ty - y^TXW + W^TX^TXW$</span></p>
+    </div>
+  </div>
+  <div class="bg-green-100 p-0.5 rounded-lg border-3 border-green-400">
+    <h5 class="text-3xl font-bold mb-0">Step 2: Simplify</h5>
+    <p class="text-2xl mb-0 leading-tight">Since $W^TX^Ty$ and $y^TXW$ are scalars and equal:</p>
+    <p class="font-mono text-2xl bg-white p-0.5 rounded mt-0 leading-tight">$f(W) = y^Ty - 2y^TXW + W^TX^TXW$</p>
+  </div>
+</div>

@@ -1,0 +1,146 @@
+[
+  {
+    "slideNumber": 1,
+    "title": "Opening: The Marketing Challenge",
+    "time": "0:00-2:30",
+    "fileName": "slide-01.html"
+  },
+  {
+    "slideNumber": 2,
+    "title": "Theme: Finding Patterns in Data",
+    "time": "2:30-4:00",
+    "fileName": "slide-02.html"
+  },
+  {
+    "slideNumber": 3,
+    "title": "Setup: The Historical Data",
+    "time": "4:00-7:00",
+    "fileName": "slide-03.html"
+  },
+  {
+    "slideNumber": 4,
+    "title": "Setup: What is a Linear Function?",
+    "time": "7:00-10:00",
+    "fileName": "slide-04.html"
+  },
+  {
+    "slideNumber": 5,
+    "title": "Catalyst: The Reality Check",
+    "time": "10:00-13:00",
+    "fileName": "slide-05.html"
+  },
+  {
+    "slideNumber": 6,
+    "title": "Adding Randomness: The Error Term",
+    "time": "13:00-16:00",
+    "fileName": "slide-06.html"
+  },
+  {
+    "slideNumber": 7,
+    "title": "Understanding Error",
+    "time": "16:00-19:00",
+    "fileName": "slide-07.html"
+  },
+  {
+    "slideNumber": 8,
+    "title": "Break into Two: The Optimization Problem",
+    "time": "19:00-22:00",
+    "fileName": "slide-08.html"
+  },
+  {
+    "slideNumber": 9,
+    "title": "First Attempt: Sum of Errors (FAILS!)",
+    "time": "22:00-25:00",
+    "fileName": "slide-09.html"
+  },
+  {
+    "slideNumber": 10,
+    "title": "Two Better Metrics",
+    "time": "25:00-29:00",
+    "fileName": "slide-10.html"
+  },
+  {
+    "slideNumber": 11,
+    "title": "SSE: Our Optimization Metric",
+    "time": "29:00-32:00",
+    "fileName": "slide-11.html"
+  },
+  {
+    "slideNumber": 12,
+    "title": "Extending to Multiple Variables",
+    "time": "32:00-36:00",
+    "fileName": "slide-12.html"
+  },
+  {
+    "slideNumber": 13,
+    "title": "General Form: n Variables",
+    "time": "36:00-39:00",
+    "fileName": "slide-13.html"
+  },
+  {
+    "slideNumber": 14,
+    "title": "Midpoint: The Matrix Insight",
+    "time": "39:00-42:00",
+    "fileName": "slide-14.html"
+  },
+  {
+    "slideNumber": 15,
+    "title": "Matrix Formulation",
+    "time": "42:00-46:00",
+    "fileName": "slide-15.html"
+  },
+  {
+    "slideNumber": 16,
+    "title": "Solving: The Calculus Approach",
+    "time": "46:00-49:00",
+    "fileName": "slide-16.html"
+  },
+  {
+    "slideNumber": 17,
+    "title": "Derivation Step 1: Expand",
+    "time": "49:00-52:00",
+    "fileName": "slide-17.html"
+  },
+  {
+    "slideNumber": 18,
+    "title": "Derivation Step 2: Gradient",
+    "time": "52:00-55:00",
+    "fileName": "slide-18.html"
+  },
+  {
+    "slideNumber": 19,
+    "title": "Derivation Step 3: Solve",
+    "time": "55:00-58:00",
+    "fileName": "slide-19.html"
+  },
+  {
+    "slideNumber": 20,
+    "title": "All Is Lost: Computational Challenge",
+    "time": "58:00-61:00",
+    "fileName": "slide-20.html"
+  },
+  {
+    "slideNumber": 21,
+    "title": "Break into Three: The Solution",
+    "time": "61:00-64:00",
+    "fileName": "slide-21.html"
+  },
+  {
+    "slideNumber": 22,
+    "title": "Finale: Comparison",
+    "time": "64:00-68:00",
+    "fileName": "slide-22.html"
+  },
+  {
+    "slideNumber": 23,
+    "title": "Final Image: Key Takeaways",
+    "time": "68:00-73:00",
+    "fileName": "slide-23.html"
+  },
+  {
+    "slideNumber": 24,
+    "title": "What's Next?",
+    "time": "73:00-75:00",
+    "fileName": "slide-24.html"
+  }
+]

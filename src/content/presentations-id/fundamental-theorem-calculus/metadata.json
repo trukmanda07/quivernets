@@ -1,0 +1,18 @@
+{
+  "title": "Teorema Fundamental Kalkulus",
+  "description": "Presentasi naratif interaktif yang menjelajahi Teorema Fundamental Kalkulus, jembatan antara diferensiasi dan integrasi.",
+  "pubDate": "2025-10-21T00:00:00.000Z",
+  "relatedBlogPost": "fundamental-theorem-calculus",
+  "category": "Calculus",
+  "tags": [
+    "calculus",
+    "mathematics",
+    "integration",
+    "differentiation"
+  ],
+  "difficulty": "intermediate",
+  "language": "id",
+  "estimatedTime": 45,
+  "totalSlides": 11,
+  "author": "QuiverLearn"
+}

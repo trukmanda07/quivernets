@@ -1,0 +1,30 @@
+<!--
+  Slide 17: Comparison - Methods Side-by-Side
+  Time: 60:00-63:00
+-->
+<div class="space-y-1">
+  <h4 class="text-sm font-bold">Normal Equation vs. Gradient Descent</h4>
+  <div class="grid grid-cols-2 gap-1.5">
+    <div class="bg-blue-100 p-2 rounded-lg border-4 border-blue-500">
+      <h5 class="text-3xl font-bold mb-0.5">Normal Equation</h5>
+      <p class="text-2xl font-mono text-center mb-1">$W = (X^TX)^{-1}X^Ty$</p>
+      <p class="text-2xl mb-0.5 font-bold text-green-700">✓ Keuntungan:</p>
+      <p class="text-2xl leading-tight">Solusi eksak dalam satu langkah<br>Tidak ada parameter untuk tune<br>Tidak perlu
+        iterasi</p>
+      <p class="text-2xl mt-1 mb-0.5 font-bold text-red-700">✗ Kerugian:</p>
+      <p class="text-2xl leading-tight">Kompleksitas $O(n^3)$<br>Memerlukan inversi matriks<br>Tidak praktis untuk $n$
+        besar</p>
+      <p class="text-2xl mt-1 font-semibold">Gunakan: $n < 10.000$</p>
+    </div>
+    <div class="bg-green-100 p-2 rounded-lg border-4 border-green-500">
+      <h5 class="text-3xl font-bold mb-0.5">Gradient Descent</h5>
+      <p class="text-2xl font-mono text-center mb-1">$W_{new} = W_{old} - \varepsilon \nabla_W f(W)$</p>
+      <p class="text-2xl mb-0.5 font-bold text-green-700">✓ Keuntungan:</p>
+      <p class="text-2xl leading-tight">Skalabel untuk dataset besar<br>$O(n)$ per iterasi<br>Efisien memori<br>Fondasi
+        untuk deep learning</p>
+      <p class="text-2xl mt-1 mb-0.5 font-bold text-red-700">✗ Kerugian:</p>
+      <p class="text-2xl leading-tight">Butuh banyak iterasi<br>Harus tune learning rate</p>
+      <p class="text-2xl mt-1 font-semibold">Gunakan: $n > 10.000$</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,134 @@
+[
+  {
+    "slideNumber": 1,
+    "title": "Opening Image",
+    "time": "0:00-3:00",
+    "fileName": "slide-01.html"
+  },
+  {
+    "slideNumber": 2,
+    "title": "Theme Stated",
+    "time": "3:00-5:00",
+    "fileName": "slide-02.html"
+  },
+  {
+    "slideNumber": 3,
+    "title": "Setup - Three Questions",
+    "time": "5:00-8:00",
+    "fileName": "slide-03.html"
+  },
+  {
+    "slideNumber": 4,
+    "title": "Question 1 - What is a Gradient?",
+    "time": "8:00-12:00",
+    "fileName": "slide-04.html"
+  },
+  {
+    "slideNumber": 5,
+    "title": "Question 2 - Computing Gradients (Single Variable)",
+    "time": "12:00-16:00",
+    "fileName": "slide-05.html"
+  },
+  {
+    "slideNumber": 6,
+    "title": "Question 2 - Partial Derivatives",
+    "time": "16:00-20:00",
+    "fileName": "slide-06.html"
+  },
+  {
+    "slideNumber": 7,
+    "title": "Question 2 - Gradient Vector",
+    "time": "20:00-24:00",
+    "fileName": "slide-07.html"
+  },
+  {
+    "slideNumber": 8,
+    "title": "Question 3 - Why Gradients? Convex Functions",
+    "time": "24:00-28:00",
+    "fileName": "slide-08.html"
+  },
+  {
+    "slideNumber": 9,
+    "title": "Catalyst - Directional Derivatives",
+    "time": "28:00-32:00",
+    "fileName": "slide-09.html"
+  },
+  {
+    "slideNumber": 10,
+    "title": "Catalyst - Finding Best Direction",
+    "time": "32:00-36:00",
+    "fileName": "slide-10.html"
+  },
+  {
+    "slideNumber": 11,
+    "title": "Break into Two - The Algorithm",
+    "time": "36:00-40:00",
+    "fileName": "slide-11.html"
+  },
+  {
+    "slideNumber": 12,
+    "title": "Fun and Games - Example Iteration",
+    "time": "40:00-44:00",
+    "fileName": "slide-12.html"
+  },
+  {
+    "slideNumber": 13,
+    "title": "Midpoint - Learning Rate Challenge",
+    "time": "44:00-48:00",
+    "fileName": "slide-13.html"
+  },
+  {
+    "slideNumber": 14,
+    "title": "All Is Lost - Learning Rate Strategies",
+    "time": "48:00-52:00",
+    "fileName": "slide-14.html"
+  },
+  {
+    "slideNumber": 15,
+    "title": "Break into Three - Modern Methods",
+    "time": "52:00-55:00",
+    "fileName": "slide-15.html"
+  },
+  {
+    "slideNumber": 16,
+    "title": "Finale - Complete Picture",
+    "time": "55:00-60:00",
+    "fileName": "slide-16.html"
+  },
+  {
+    "slideNumber": 17,
+    "title": "Comparison - Methods Side-by-Side",
+    "time": "60:00-63:00",
+    "fileName": "slide-17.html"
+  },
+  {
+    "slideNumber": 18,
+    "title": "Key Takeaways - Summary",
+    "time": "63:00-66:00",
+    "fileName": "slide-18.html"
+  },
+  {
+    "slideNumber": 19,
+    "title": "Practice Problem 1",
+    "time": "66:00-68:00",
+    "fileName": "slide-19.html"
+  },
+  {
+    "slideNumber": 20,
+    "title": "Practice Problem 2",
+    "time": "68:00-70:00",
+    "fileName": "slide-20.html"
+  },
+  {
+    "slideNumber": 21,
+    "title": "What's Next",
+    "time": "70:00-72:00",
+    "fileName": "slide-21.html"
+  },
+  {
+    "slideNumber": 22,
+    "title": "Final Image",
+    "time": "72:00-75:00",
+    "fileName": "slide-22.html"
+  }
+]

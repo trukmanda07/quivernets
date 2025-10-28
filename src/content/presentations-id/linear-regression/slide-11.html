@@ -1,0 +1,29 @@
+<!--
+  Slide 11: SSE: Metrik Optimisasi Kita
+  Time: 29:00-32:00
+-->
+<div class="space-y-1.5">
+  <h4 class="text-sm font-bold text-center">Sum of Squared Errors (SSE)</h4>
+  <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-3 rounded-lg border-4 border-green-500">
+    <h5 class="text-3xl font-bold mb-1">Formulanya</h5>
+    <div class="bg-white p-2 rounded-lg shadow-lg text-center">
+      <p class="font-mono text-2xl mb-1.5">$\text{SSE} = \sum e_i^2 = \sum (y_i - (w_0 + w_1x_i))^2$</p>
+      <p class="text-2xl">Kembangkan setiap term dan kuadratkan!</p>
+    </div>
+  </div>
+  <div class="bg-blue-50 p-2.5 rounded-lg">
+    <h5 class="text-3xl font-bold mb-1">Mengapa Mengkuadratkan Bekerja</h5>
+    <div class="grid grid-cols-2 gap-1.5">
+      <div class="bg-white p-2 rounded border-2 border-blue-300">
+        <p class="text-2xl font-bold">Error kecil</p>
+        <p class="text-2xl">Mendapat penalti kecil</p>
+        <p class="font-mono text-2xl text-gray-600">$1^2 = 1$</p>
+      </div>
+      <div class="bg-white p-2 rounded border-2 border-red-300">
+        <p class="text-2xl font-bold">Error besar</p>
+        <p class="text-2xl">Mendapat penalti sangat besar</p>
+        <p class="font-mono text-2xl text-red-600">$10^2 = 100$</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,18 @@
+{
+  "title": "The Fundamental Theorem of Calculus",
+  "description": "An interactive narrative presentation exploring the Fundamental Theorem of Calculus, the bridge between differentiation and integration.",
+  "pubDate": "2025-10-21T00:00:00.000Z",
+  "relatedBlogPost": "fundamental-theorem-calculus",
+  "category": "Calculus",
+  "tags": [
+    "calculus",
+    "mathematics",
+    "integration",
+    "differentiation"
+  ],
+  "difficulty": "intermediate",
+  "language": "en",
+  "estimatedTime": 45,
+  "totalSlides": 11,
+  "author": "QuiverLearn"
+}

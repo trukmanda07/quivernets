@@ -1,0 +1,354 @@
+---
+title: 'Memahami Linear Regression: Dari Marketing hingga Matematika'
+description: 'Pelajari bagaimana linear regression membantu memprediksi hasil dengan menemukan garis yang paling sesuai dengan data Anda, dari contoh sederhana hingga formulasi matrix tingkat lanjut.'
+pubDate: 2025-10-26
+author: 'QuiverLearn'
+tags: ['machine-learning', 'regression', 'statistics', 'optimization', 'mathematics']
+category: 'Machine Learning'
+difficulty: 'intermediate'
+hasMath: true
+hasCode: false
+estimatedReadingTime: 15
+featured: true
+draft: false
+language: id
+---
+
+import DefinitionBox from '../../components/boxes/DefinitionBox.astro';
+import ExampleBox from '../../components/boxes/ExampleBox.astro';
+import InsightBox from '../../components/boxes/InsightBox.astro';
+import WarningBox from '../../components/boxes/WarningBox.astro';
+import CalloutBox from '../../components/boxes/CalloutBox.astro';
+import PracticeProblem from '../../components/boxes/PracticeProblem.astro';
+import SplitView from '../../components/boxes/SplitView.astro';
+import SplitPanel from '../../components/boxes/SplitPanel.astro';
+
+Bayangkan Anda adalah seorang manajer marketing yang mencoba memprediksi penjualan bulan depan berdasarkan anggaran iklan Anda. Berapa banyak yang harus Anda keluarkan untuk mencapai target? Di sinilah **linear regression** berperan—salah satu teknik paling fundamental dalam machine learning dan statistik. Mari kita eksplorasi bagaimana kita dapat menemukan hubungan matematis dalam data untuk membuat prediksi yang akurat.
+
+## Masalah Marketing
+
+<CalloutBox icon="💭">
+Bagaimana jika kita bisa memprediksi penjualan di masa depan berdasarkan pengeluaran iklan kita? Linear regression membuat ini mungkin dengan menemukan pola dalam data historis.
+</CalloutBox>
+
+<ExampleBox title="Dataset Marketing">
+Misalkan kita memiliki data historis berikut dari perusahaan kita:
+
+| Pengeluaran Iklan TV Bulanan | Penjualan Bulanan |
+|------------------------------|-------------------|
+| 120                          | 5                 |
+| 125                          | 7                 |
+| 140                          | 8                 |
+| 110                          | 6                 |
+
+Tujuan kita: Menemukan fungsi yang merepresentasikan hubungan antara pengeluaran iklan (input) dan penjualan (output) untuk memprediksi penjualan di masa depan.
+</ExampleBox>
+
+Kita ingin menemukan fungsi yang merepresentasikan hubungan antara variabel input ($x$, pengeluaran iklan) dan variabel output ($y$, penjualan) untuk memprediksi output berdasarkan variabel input pada data baru (masa depan). Kita mengasumsikan hubungannya adalah **linear**.
+
+## Apa itu Fungsi Linear?
+
+<DefinitionBox title="Fungsi Linear">
+Sebuah **fungsi linear** adalah fungsi yang membentuk:
+- Sebuah **garis lurus** dalam ruang 2 dimensi
+- Sebuah **bidang datar** dalam ruang 3 dimensi
+- Sebuah **hyperplane** dalam dimensi yang lebih tinggi
+
+Dalam istilah matematis, fungsi linear sederhana dapat ditulis sebagai:
+
+$$
+\hat{y} = f(x) = w_0 + w_1x
+$$
+
+dimana $w_0$ adalah intercept dan $w_1$ adalah slope.
+</DefinitionBox>
+
+## Sifat Stokastik dari Data Nyata
+
+Pada kenyataannya, kita tidak tahu persis semua variabel yang mempengaruhi penjualan bulanan kita. Ada banyak faktor di luar iklan TV—musiman, aksi kompetitor, kondisi ekonomi, dan kebetulan acak. Ketidakpastian ini berarti fungsi kita perlu memperhitungkan keacakan.
+
+<InsightBox title="💡 Mengapa Menambahkan Error Term?">
+Hubungan di dunia nyata tidak pernah sempurna. Dengan menambahkan error term, kita mengakui bahwa model kita tidak akan menangkap segalanya dengan sempurna—dan itu tidak masalah! Kita mencari aproksimasi yang berguna, bukan prediksi yang sempurna.
+</InsightBox>
+
+Kita memodifikasi fungsi kita untuk menyertakan variabel acak:
+
+$$
+\hat{y} = f(x) = w_0 + w_1x + \varepsilon
+$$
+
+dimana $\varepsilon$ (epsilon) adalah **error term** atau **residual**.
+
+## Memahami Error Function
+
+<DefinitionBox title="Error (Residual)">
+**Error** untuk sebuah titik data $(x_i, y_i)$ adalah selisih antara nilai aktual dan nilai prediksi kita:
+
+$$
+e_i = y_i - (w_0 + w_1x_i)
+$$
+
+Ini merepresentasikan seberapa jauh prediksi kita dari nilai sebenarnya.
+</DefinitionBox>
+
+Tujuan kita adalah **meminimalkan** error function ini. Fungsi linear kita mungkin tidak pas persis dengan data, tapi kita dapat **mentoleransi beberapa error**—kita hanya ingin membuatnya sekecil mungkin di seluruh titik data kita.
+
+## Menemukan Garis Terbaik
+
+Ada tak terhingga garis (fungsi linear) yang bisa kita gambar melalui data kita. Bagaimana kita menemukan yang **terbaik**?
+
+<CalloutBox icon="🎯">
+Kita ingin mencari garis yang membuat total error terkecil di seluruh observasi. Tapi bagaimana kita mengukur "total error"?
+</CalloutBox>
+
+### Percobaan Pertama: Sum of Errors
+
+Naluri pertama kita mungkin hanya menjumlahkan semua error:
+
+$$
+\sum e_i
+$$
+
+<WarningBox title="⚠️ Masalah dengan Penjumlahan Sederhana">
+Pendekatan ini memiliki cacat kritis! Pertimbangkan sebuah garis yang diposisikan di atas semua titik data kita. Setiap error akan negatif. Jika kita memindahkan garis lebih ke atas, error menjadi lebih negatif, membuat metrik kita lebih buruk ke arah yang salah.
+
+**Masalahnya**: Error positif dan negatif saling meniadakan, sehingga metrik ini tidak menangkap besaran kesalahan kita dengan benar.
+</WarningBox>
+
+### Pendekatan yang Lebih Baik: Metrik Non-Negatif
+
+Kita memerlukan metrik dimana semua error adalah non-negatif. Dua pilihan populer adalah:
+
+<SplitView>
+  <SplitPanel side="left" title="Sum of Absolute Errors (SAE)">
+    $$
+    \sum |e_i|
+    $$
+
+    - Memperlakukan semua error secara sama
+    - Bobot yang sama untuk error kecil dan besar
+    - Lebih robust terhadap outlier
+  </SplitPanel>
+
+  <SplitPanel side="right" title="Sum of Squared Errors (SSE)">
+    $$
+    \sum e_i^2 = \sum (y_i - (w_0 + w_1x_i))^2
+    $$
+
+    - Memberikan penalti lebih berat untuk error yang lebih besar
+    - Error kecil mendapat bobot kecil
+    - Error besar mendapat bobot besar
+    - Secara matematis lebih mudah
+  </SplitPanel>
+</SplitView>
+
+<InsightBox title="💡 Mengapa Memilih SSE?">
+Kita biasanya menggunakan **SSE (Sum of Squared Errors)** karena:
+1. Memberikan penalti berat pada outlier, membuat model kita lebih sensitif terhadap kesalahan besar
+2. Secara matematis dapat didifferensiasi, membuat optimisasi lebih mudah
+3. Memiliki sifat statistik yang baik (terkait dengan maximum likelihood estimation)
+</InsightBox>
+
+Metrik optimisasi kita menjadi:
+
+$$
+\text{SSE} = \sum e_i^2 = \sum (y_i - (w_0 + w_1x_i))^2
+$$
+
+## Memperluas ke Beberapa Variabel
+
+Sejauh ini, kita telah melihat hubungan linear dengan satu variabel input. Tapi bagaimana jika penjualan kita bergantung pada beberapa faktor—iklan TV, iklan radio, dan pengeluaran media sosial?
+
+### Dua Variabel: Sebuah Bidang Datar
+
+Ketika kita memiliki dua variabel input, hubungan linear kita menjadi sebuah **bidang datar** dalam ruang 3D.
+
+<ExampleBox title="Fungsi Linear Dua Variabel">
+Dengan dua variabel input $x_1$ (iklan TV) dan $x_2$ (iklan radio):
+
+$$
+\hat{y} = f(x) = w_0 + w_1x_1 + w_2x_2
+$$
+
+Metrik error kita menjadi:
+
+$$
+\sum e_i^2 = \sum (y_i - (w_0 + w_1x_{i1} + w_2x_{i2}))^2
+$$
+</ExampleBox>
+
+### Kasus Umum: Ruang n-Dimensi
+
+<DefinitionBox title="Fungsi Linear Umum">
+Untuk $n$ variabel input, kita dapat menulis fungsi linear sebagai:
+
+$$
+\hat{y} = f(x) = w_0 + w_1x_1 + w_2x_2 + \cdots + w_{n-1}x_{n-1}
+$$
+
+Dan metrik error kita menjadi:
+
+$$
+\sum e_i^2 = \sum (y_i - (w_0 + w_1x_{i1} + w_2x_{i2} + \cdots + w_{n-1}x_{in-1}))^2
+$$
+</DefinitionBox>
+
+## Formulasi Matrix: Pendekatan Elegan
+
+Menuliskan semua suku tersebut menjadi merepotkan. Kita dapat menyederhanakan semuanya menggunakan notasi matrix!
+
+<InsightBox title="💡 Kekuatan Matrix">
+Notasi matrix bukan hanya tentang membuat persamaan terlihat lebih rapi—ia memungkinkan kita menangani ribuan variabel dengan rumus sederhana yang sama!
+</InsightBox>
+
+Kita dapat mengekspresikan seluruh masalah kita secara kompak:
+
+$$
+\text{SSE} = \|y - XW\|_2^2
+$$
+
+dimana:
+- $X \in \mathbb{R}^{m \times n}$ adalah matrix data input kita ($m$ observasi, $n$ fitur)
+- $y \in \mathbb{R}^m$ adalah vector data output kita
+- $W \in \mathbb{R}^n$ adalah vector bobot kita (parameter yang dicari)
+- $\|\cdot\|_2^2$ adalah squared L2 norm (jumlah elemen yang dikuadratkan)
+
+## Menyelesaikan Bobot Optimal
+
+Sekarang tiba bagian derivasi matematis untuk menemukan bobot $W$ yang meminimalkan error function kita.
+
+<CalloutBox icon="🔍">
+Kita akan menggunakan kalkulus untuk menemukan minimum dari error function kita. Insight kunci: pada titik minimum, turunan (gradient) sama dengan nol!
+</CalloutBox>
+
+Mari kita ekspansi ekspresi matrix:
+
+$$
+\begin{aligned}
+f(W) = \|y - XW\|_2^2
+&= (y - XW)^T(y - XW) \\
+&= (y^T - W^TX^T)(y - XW) \\
+&= y^Ty - W^TX^Ty - y^TXW + W^TX^TXW
+\end{aligned}
+$$
+
+Karena $W^TX^Ty$ dan $y^TXW$ adalah skalar dan sama satu sama lain:
+
+$$
+f(W) = \|y - XW\|_2^2 = y^Ty - 2y^TXW + W^TX^TXW
+$$
+
+Untuk meminimalkan $f(W)$, kita ambil gradient terhadap $W$ dan setel sama dengan nol:
+
+$$
+\nabla f(W) = -2X^Ty + 2X^TXW = 0
+$$
+
+Menyelesaikan untuk $W$:
+
+$$
+X^TXW = X^Ty
+$$
+
+<DefinitionBox title="Normal Equation">
+Vector bobot optimal diberikan oleh **normal equation**:
+
+$$
+W = (X^TX)^{-1}X^Ty
+$$
+
+Ini adalah solusi closed-form untuk linear regression!
+</DefinitionBox>
+
+## Tantangan Komputasional
+
+Kita telah menemukan formula yang indah, tapi ada masalah praktis yang mengintai di bawahnya.
+
+<WarningBox title="⚠️ Computational Complexity">
+Menghitung inverse dari sebuah matrix adalah **komputasional yang mahal**:
+
+- Untuk 1.000 observasi: Kita perlu menginvers matrix $1000 \times 1000$
+- Untuk 100.000 observasi: Kita perlu menginvers matrix $100.000 \times 100.000$
+
+Inversi matrix memiliki complexity $O(n^3)$, membuat solusi ini **tidak praktis untuk dataset besar**.
+</WarningBox>
+
+<InsightBox title="💡 Solusinya: Metode Iteratif">
+Daripada menghitung inverse secara langsung, kita menggunakan **metode optimisasi iteratif** seperti **Gradient Descent**. Metode-metode ini:
+- Mengambil langkah kecil menuju minimum
+- Tidak memerlukan inversi matrix
+- Lebih scalable untuk dataset besar
+- Adalah fondasi dari machine learning modern
+
+Gradient Descent akan dijelaskan secara detail di posting berikutnya!
+</InsightBox>
+
+## Poin-Poin Utama
+
+<CalloutBox icon="🎓">
+**Yang Telah Kita Pelajari:**
+
+1. **Linear regression** menemukan hubungan linear yang paling sesuai antara variabel input dan output
+2. Kita mengukur "terbaik" menggunakan **Sum of Squared Errors (SSE)**
+3. **Normal equation** $W = (X^TX)^{-1}X^Ty$ memberikan solusi optimal
+4. Untuk dataset besar, kita memerlukan **metode iteratif** seperti Gradient Descent
+5. Linear regression meluas secara natural dari satu variabel ke banyak dimensi
+</CalloutBox>
+
+## Soal Latihan
+
+<PracticeProblem level="Level 1">
+Diberikan tiga titik data: $(1, 2)$, $(2, 4)$, dan $(3, 5)$, hitung error $e_i$ untuk setiap titik jika garis kita adalah $y = 1 + 1.5x$.
+
+<details>
+<summary>Klik untuk petunjuk</summary>
+Gunakan formula $e_i = y_i - (w_0 + w_1x_i)$ dimana $w_0 = 1$ dan $w_1 = 1.5$.
+</details>
+
+<details>
+<summary>Klik untuk solusi</summary>
+
+Untuk setiap titik:
+- Titik 1: $e_1 = 2 - (1 + 1.5 \cdot 1) = 2 - 2.5 = -0.5$
+- Titik 2: $e_2 = 4 - (1 + 1.5 \cdot 2) = 4 - 4 = 0$
+- Titik 3: $e_3 = 5 - (1 + 1.5 \cdot 3) = 5 - 5.5 = -0.5$
+
+Sum of Squared Errors: $\text{SSE} = (-0.5)^2 + 0^2 + (-0.5)^2 = 0.5$
+</details>
+</PracticeProblem>
+
+<PracticeProblem level="Level 2">
+Jelaskan mengapa kita mengkuadratkan error dalam SSE daripada hanya mengambil nilai absolut. Apa trade-off-nya?
+
+<details>
+<summary>Klik untuk petunjuk</summary>
+Pikirkan tentang bagaimana besaran error yang berbeda diberi bobot, dan pertimbangkan sifat matematis yang diperlukan untuk optimisasi.
+</details>
+
+<details>
+<summary>Klik untuk solusi</summary>
+
+**Keuntungan SSE (squared errors):**
+- Memberikan penalti berat pada error besar (outlier memiliki dampak kuadratik)
+- Dapat didifferensiasi di semua titik (optimisasi yang smooth)
+- Terkait dengan asumsi Gaussian dalam statistik
+- Minimum global yang unik (fungsi konveks)
+
+**Keuntungan SAE (absolute errors):**
+- Lebih robust terhadap outlier
+- Memperlakukan semua error secara sama
+- Lebih baik untuk data dengan distribusi heavy-tailed
+
+**Trade-off**: SSE secara matematis lebih mudah dan umum digunakan, tapi SAE lebih robust ketika Anda memiliki outlier atau tidak ingin terlalu memberikan penalti pada error besar.
+</details>
+</PracticeProblem>
+
+## Referensi
+
+1. James, G., Witten, D., Hastie, T., & Tibshirani, R. - Introduction to Statistical Learning
+2. Posik, P. - Linear Methods for Regression and Classification
+3. Boyd, S., & Vandenberghe, L. - Convex Optimization
+
+## Apa Selanjutnya?
+
+Di posting berikutnya, kita akan mendalami **Gradient Descent**—metode optimisasi iteratif yang membuat linear regression praktis untuk dataset besar dan membentuk fondasi untuk melatih neural network!

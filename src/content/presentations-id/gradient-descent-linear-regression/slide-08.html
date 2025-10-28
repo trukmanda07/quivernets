@@ -1,0 +1,27 @@
+<!--
+  Slide 8: Question 3 - Why Gradients? Convex Functions
+  Time: 24:00-28:00
+-->
+<div class="space-y-1">
+  <h4 class="text-sm font-bold">Mengapa Menggunakan Gradients untuk Optimisasi?</h4>
+  <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-2 rounded-lg border-4 border-green-500">
+    <h5 class="text-3xl font-bold mb-0">Fungsi Convex: Satu Minimum Global</h5>
+    <div class="bg-white p-1.5 rounded-lg shadow-lg">
+      <p class="text-2xl mb-1">Metrik linear regression kita $f(W) = \|y - XW\|_2^2$ adalah <span
+          class="font-bold text-green-700">convex</span>.</p>
+      <p class="text-2xl font-bold mb-0.5">Properti Khusus:</p>
+      <p class="text-2xl leading-tight">✓ Hanya SATU minimum—minimum global<br>✓ Tidak ada minima lokal untuk
+        terjebak<br>✓ Minimum apapun yang kita temukan adalah solusi TERBAIK<br>✓ Minimum lokal = Minimum global</p>
+    </div>
+  </div>
+  <div class="grid grid-cols-2 gap-1 mt-1">
+    <div class="bg-green-100 p-1.5 rounded-lg border-2 border-green-500">
+      <p class="text-2xl font-bold mb-0">✓ Linear Regression</p>
+      <p class="text-2xl leading-tight">Permukaan berbentuk mangkuk<br>Minimum tunggal<br>Selalu konvergen</p>
+    </div>
+    <div class="bg-red-100 p-1.5 rounded-lg border-2 border-red-500">
+      <p class="text-2xl font-bold mb-0">✗ Neural Networks</p>
+      <p class="text-2xl leading-tight">Banyak minima lokal<br>Bisa terjebak<br>Tidak ada jaminan</p>
+    </div>
+  </div>
+</div>

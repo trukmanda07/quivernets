@@ -1,32 +1,32 @@
 ---
-import PresentationLayout from '../../../layouts/PresentationLayout.astro';
-import PresentationBase from '../../../components/PresentationBase.astro';
+/**
+ * Dynamic Presentation Route (reveal.js version)
+ * Handles all presentations with language support
+ * Routes: /{lang}/presentations/{slug}
+ *
+ * NEW: Loads presentations from file-based structure
+ * src/content/presentations-{lang}/{slug}/
+ */
+
+import RevealLayout from '../../../layouts/RevealLayout.astro';
+import RevealPresentation from '../../../components/RevealPresentation.astro';
+import { getAllPresentationSlugs, loadPresentation } from '../../../utils/loadPresentation';
 
 export async function getStaticPaths() {
-  // Load all presentation JSON files
-  const enPresentations = import.meta.glob('/src/content/presentations-en/*.json', { eager: true });
-  const idPresentations = import.meta.glob('/src/content/presentations-id/*.json', { eager: true });
-
   const paths = [];
+  const languages = ['en', 'id'];
 
-  // Process English presentations
-  for (const [path, module] of Object.entries(enPresentations)) {
-    const slug = path.split('/').pop()?.replace('.json', '');
-    if (slug) {
-      paths.push({
-        params: { lang: 'en', slug },
-        props: { data: module as any, lang: 'en' }
-      });
-    }
-  }
+  // Generate paths for all presentations in all languages
+  for (const lang of languages) {
+    const slugs = getAllPresentationSlugs(lang);
 
-  // Process Indonesian presentations
-  for (const [path, module] of Object.entries(idPresentations)) {
-    const slug = path.split('/').pop()?.replace('.json', '');
-    if (slug) {
+    for (const slug of slugs) {
+      // Load presentation data from file structure
+      const { metadata, slides } = loadPresentation(slug, lang);
+
       paths.push({
-        params: { lang: 'id', slug },
-        props: { data: module as any, lang: 'id' }
+        params: { lang, slug },
+        props: { metadata, slides, lang, slug }
       });
     }
   }
@@ -35,23 +35,27 @@ export async function getStaticPaths() {
 }
 
 interface Props {
-  data: any;
+  metadata: any;
+  slides: any[];
   lang: string;
+  slug: string;
 }
 
-const { data, lang } = Astro.props;
+const { metadata, slides, lang, slug } = Astro.props;
 ---
 
-<PresentationLayout
-  title={data.title}
-  description={data.description}
+<RevealLayout
+  title={metadata.title}
+  description={metadata.description}
   language={lang}
+  theme="custom"
 >
-  <PresentationBase
-    slides={data.slides}
-    title={data.title}
-    totalSlides={data.totalSlides}
-    relatedBlogPost={data.relatedBlogPost}
+  <RevealPresentation
+    title={metadata.title}
+    slides={slides}
+    relatedBlogPost={metadata.relatedBlogPost}
     language={lang}
+    displayMode="instagram"
+    slug={slug}
   />
-</PresentationLayout>
+</RevealLayout>

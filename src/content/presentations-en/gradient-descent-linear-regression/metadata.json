@@ -1,0 +1,19 @@
+{
+  "title": "Gradient Descent for Linear Regression: The Iterative Solution",
+  "description": "Discover how gradient descent solves linear regression efficiently through iteration, understanding gradients, partial derivatives, and learning rates to optimize machine learning models.",
+  "pubDate": "2025-10-26T00:00:00.000Z",
+  "relatedBlogPost": "gradient-descent-linear-regression",
+  "category": "Machine Learning",
+  "tags": [
+    "machine-learning",
+    "gradient-descent",
+    "optimization",
+    "calculus",
+    "linear-regression"
+  ],
+  "difficulty": "intermediate",
+  "language": "en",
+  "estimatedTime": 70,
+  "totalSlides": 21,
+  "author": "QuiverLearn"
+}
