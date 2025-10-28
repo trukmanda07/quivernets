@@ -1,0 +1,25 @@
+<!--
+  Slide 17: Langkah Derivasi 1: Kembangkan
+  Time: 49:00-52:00
+-->
+<div class="space-y-0.5">
+  <h4 class="text-sm font-bold">Mengembangkan Ekspresi Matrix</h4>
+  <div class="bg-white p-0.5 rounded-lg shadow-lg border-3 border-blue-500">
+    <h5 class="text-3xl font-bold mb-0">Langkah 1: Gunakan Sifat Matrix</h5>
+    <div class="bg-blue-50 p-0.5 rounded">
+      <p class="text-2xl mb-0 leading-tight"><strong>Mulai dengan:</strong><br><span class="font-mono">$f(W) = \|y -
+          XW\|_2^2$</span></p>
+      <p class="text-2xl mt-0.5 mb-0 leading-tight"><strong>Tulis ulang sebagai dot product:</strong><br><span
+          class="font-mono">$f(W) = (y - XW)^T(y - XW)$</span></p>
+      <p class="text-2xl mt-0.5 mb-0 leading-tight"><strong>Distribusikan transpose:</strong><br><span
+          class="font-mono">$= (y^T - W^TX^T)(y - XW)$</span></p>
+      <p class="text-2xl mt-0.5 mb-0 leading-tight"><strong>FOIL (kalikan):</strong><br><span class="font-mono">$= y^Ty
+          - W^TX^Ty - y^TXW + W^TX^TXW$</span></p>
+    </div>
+  </div>
+  <div class="bg-green-100 p-0.5 rounded-lg border-3 border-green-400">
+    <h5 class="text-3xl font-bold mb-0">Langkah 2: Sederhanakan</h5>
+    <p class="text-2xl mb-0 leading-tight">Karena $W^TX^Ty$ dan $y^TXW$ adalah skalar dan sama:</p>
+    <p class="font-mono text-2xl bg-white p-0.5 rounded mt-0 leading-tight">$f(W) = y^Ty - 2y^TXW + W^TX^TXW$</p>
+  </div>
+</div>

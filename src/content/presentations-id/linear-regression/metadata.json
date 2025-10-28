@@ -1,0 +1,19 @@
+{
+  "title": "Memahami Linear Regression: Dari Marketing hingga Matematika",
+  "description": "Pelajari bagaimana linear regression membantu memprediksi hasil dengan menemukan garis yang paling sesuai dengan data Anda, dari contoh sederhana hingga formulasi matrix tingkat lanjut.",
+  "pubDate": "2025-10-26T00:00:00.000Z",
+  "relatedBlogPost": "linear-regression",
+  "category": "Machine Learning",
+  "tags": [
+    "machine-learning",
+    "regression",
+    "statistics",
+    "optimization",
+    "mathematics"
+  ],
+  "difficulty": "intermediate",
+  "language": "id",
+  "estimatedTime": 60,
+  "totalSlides": 22,
+  "author": "QuiverLearn"
+}

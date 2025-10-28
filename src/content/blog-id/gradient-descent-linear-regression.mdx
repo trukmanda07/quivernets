@@ -1,0 +1,618 @@
+---
+title: 'Gradient Descent untuk Linear Regression: Solusi Iteratif'
+description: 'Temukan bagaimana gradient descent menyelesaikan linear regression secara efisien melalui iterasi, memahami gradient, partial derivative, dan learning rate untuk mengoptimalkan model machine learning.'
+pubDate: 2025-10-26
+author: 'QuiverLearn'
+tags: ['machine-learning', 'gradient-descent', 'optimization', 'calculus', 'linear-regression']
+category: 'Machine Learning'
+difficulty: 'intermediate'
+hasMath: true
+hasCode: false
+estimatedReadingTime: 18
+featured: true
+draft: false
+language: id
+---
+
+import DefinitionBox from '../../components/boxes/DefinitionBox.astro';
+import ExampleBox from '../../components/boxes/ExampleBox.astro';
+import InsightBox from '../../components/boxes/InsightBox.astro';
+import WarningBox from '../../components/boxes/WarningBox.astro';
+import CalloutBox from '../../components/boxes/CalloutBox.astro';
+import PracticeProblem from '../../components/boxes/PracticeProblem.astro';
+import SplitView from '../../components/boxes/SplitView.astro';
+import SplitPanel from '../../components/boxes/SplitPanel.astro';
+
+Dalam [postingan sebelumnya tentang linear regression](/blog/linear-regression), kita menemukan **normal equation**—sebuah solusi closed-form yang indah untuk menemukan bobot optimal. Namun ada masalahnya: menghitung matrix inversion secara komputasional sangat mahal untuk dataset besar. Di sinilah **gradient descent** hadir menyelamatkan! Mari kita jelajahi bagaimana metode iteratif yang elegan ini mengoptimalkan model linear regression kita secara efisien.
+
+## Masalah dengan Normal Equation
+
+<CalloutBox icon="📊">
+Ingat normal equation yang telah kita turunkan? Ini memberikan solusi eksak, tetapi dengan biaya komputasi yang tumbuh dengan cepat seiring ukuran dataset.
+</CalloutBox>
+
+<DefinitionBox title="Normal Equation (Solusi Eksak)">
+Vektor bobot optimal untuk linear regression adalah:
+
+$$
+W = (X^TX)^{-1}X^Ty
+$$
+
+Ini disebut **exact solution** atau **closed-form solution** karena langsung menghitung jawabannya.
+</DefinitionBox>
+
+<WarningBox title="⚠️ Hambatan Komputasi">
+Matrix inversion $(X^TX)^{-1}$ memiliki computational complexity sebesar $O(n^3)$ di mana $n$ adalah jumlah fitur. Untuk dataset besar:
+
+- **10.000 fitur**: $10.000^3 = 1$ triliun operasi
+- **100.000 fitur**: $100.000^3 = 1$ kuadriliun operasi
+
+Ini menjadi **tidak praktis dengan sangat cepat**!
+</WarningBox>
+
+<InsightBox title="💡 Alternatifnya: Iterative Methods">
+Daripada menghitung solusi eksak dalam satu langkah yang mahal, kita dapat menggunakan **iterative methods** yang:
+- Mengambil banyak langkah kecil yang murah menuju solusi
+- Tidak memerlukan matrix inversion
+- Lebih scalable untuk dataset besar
+- Membentuk fondasi machine learning modern
+
+Metode iteratif yang paling populer adalah **gradient descent**.
+</InsightBox>
+
+## Tiga Pertanyaan Fundamental
+
+Sebelum kita menyelami gradient descent, mari kita jawab tiga pertanyaan penting:
+
+<CalloutBox icon="❓">
+1. **Apa itu gradient?**
+2. Bagaimana kita **menghitung gradient?**
+3. **Mengapa menggunakan gradient** untuk optimasi iteratif?
+</CalloutBox>
+
+Mari kita jawab masing-masing secara sistematis.
+
+## Apa itu Gradient?
+
+<DefinitionBox title="Gradient">
+**Gradient** adalah **slope** dari **tangent line** terhadap fungsi pada titik tertentu.
+
+Untuk setiap titik $x$ pada fungsi $f(x)$:
+- Kita dapat menggambar tangent line pada titik tersebut
+- Slope dari tangent line ini adalah **derivative** $f'(x)$
+- Slope ini memberi tahu kita seberapa curam fungsi meningkat atau menurun pada titik tersebut
+</DefinitionBox>
+
+<ExampleBox title="Contoh Sederhana: Satu Variabel">
+Pertimbangkan fungsi $f(x) = x^2$ pada titik $x = 2$:
+
+1. Nilai fungsinya adalah: $f(2) = 4$
+2. Derivative-nya adalah: $f'(x) = 2x$
+3. Pada $x = 2$, gradient-nya adalah: $f'(2) = 4$
+
+Ini memberitahu kita bahwa pada $x = 2$, fungsi meningkat dengan slope 4. Jika kita bergerak sedikit ke kanan (meningkatkan $x$), nilai fungsi akan meningkat sekitar 4 kali lebih cepat dari ukuran langkah kita.
+</ExampleBox>
+
+<InsightBox title="💡 Tangent Line dan Slope">
+Menemukan slope garis yang diberikan dua titik itu mudah. Menemukan slope **tangent line** (yang hanya menyentuh kurva pada satu titik) memerlukan kalkulus—khususnya, **derivative**!
+
+Derivative $f'(x)$ memberi kita tepat slope yang kita butuhkan pada setiap titik $x$.
+</InsightBox>
+
+## Menghitung Gradient: Dari Derivative ke Partial Derivative
+
+### Kasus Satu Variabel
+
+Untuk fungsi satu variabel, menghitung gradient sangat mudah:
+
+<DefinitionBox title="Derivative (Satu Variabel)">
+Derivative $f'(x)$ merepresentasikan slope dari $f(x)$ pada titik $x$.
+
+Untuk linear regression dengan satu variabel, fungsi error kita adalah:
+
+$$
+f(w) = \sum_{i=1}^m (y_i - (w_0 + w_1x_i))^2
+$$
+
+Kita menghitung derivative terhadap setiap bobot: $\frac{\partial f}{\partial w_0}$ dan $\frac{\partial f}{\partial w_1}$
+</DefinitionBox>
+
+### Banyak Variabel: Partial Derivative
+
+Dalam linear regression, kita biasanya memiliki **banyak bobot** (satu untuk setiap fitur ditambah intercept). Bagaimana kita menghitung gradient ketika ada banyak variabel?
+
+<DefinitionBox title="Partial Derivative">
+**Partial derivative** $\frac{\partial}{\partial x_i}f(\mathbf{x})$ mengukur seberapa banyak $f$ berubah ketika kita hanya memvariasikan $x_i$ sambil menjaga semua variabel lain konstan.
+
+Untuk metrik linear regression kita:
+
+$$
+f(W) = \sum_{i=1}^m (y_i - (w_0 + w_1x_{i1} + w_2x_{i2} + \cdots + w_{n-1}x_{in-1}))^2 = \|y - XW\|_2^2
+$$
+
+Kita perlu menghitung partial derivative terhadap setiap bobot dalam $W$.
+</DefinitionBox>
+
+<ExampleBox title="Intuisi Partial Derivative">
+Bayangkan Anda berdiri di lereng bukit:
+- **Partial derivative terhadap x** memberi tahu Anda seberapa curam bukit jika Anda berjalan timur-barat
+- **Partial derivative terhadap y** memberi tahu Anda seberapa curam bukit jika Anda berjalan utara-selatan
+
+Bersama-sama, partial derivative ini memberi tahu Anda "lanskap kemiringan" penuh di posisi Anda!
+</ExampleBox>
+
+### Gradient Vector
+
+<DefinitionBox title="Gradient Vector">
+**Gradient** menggeneralisasi konsep derivative ke banyak dimensi. Ini adalah **vektor** yang berisi semua partial derivative:
+
+$$
+\nabla_\mathbf{x}f(\mathbf{x}) = \begin{bmatrix}
+\frac{\partial f}{\partial x_1} \\
+\frac{\partial f}{\partial x_2} \\
+\vdots \\
+\frac{\partial f}{\partial x_n}
+\end{bmatrix}
+$$
+
+Elemen ke-$i$ dari $\nabla_\mathbf{x}f(\mathbf{x})$ adalah partial derivative dari $f$ terhadap $x_i$.
+</DefinitionBox>
+
+<InsightBox title="💡 Properti Critical Point">
+Pada **minimum** (atau maksimum) dari suatu fungsi, semua partial derivative sama dengan nol:
+
+$$
+\nabla_\mathbf{x}f(\mathbf{x}) = \mathbf{0}
+$$
+
+Ini adalah bagaimana kita menemukan normal equation—kita menetapkan gradient ke nol dan menyelesaikannya!
+</InsightBox>
+
+## Mengapa Menggunakan Gradient untuk Optimasi?
+
+Sekarang pertanyaan kuncinya: **Mengapa mengikuti gradient membantu kita mengoptimalkan fungsi kita?**
+
+### Convex Function: Satu Global Minimum
+
+<DefinitionBox title="Convex Function">
+Metrik linear regression kita $f(W) = \|y - XW\|_2^2$ adalah **convex function**. Convex function memiliki properti khusus:
+
+**Hanya memiliki satu minimum—global minimum.**
+
+Ini berarti:
+- Tidak ada local minima untuk terjebak
+- Minimum apa pun yang kita temukan adalah solusi **terbaik**
+- Local minimum = Global minimum
+</DefinitionBox>
+
+<SplitView>
+  <SplitPanel side="left" title="Convex Function ✓">
+    **Error Linear Regression**
+
+    - Permukaan berbentuk mangkuk
+    - Titik minimum tunggal
+    - Gradient descent selalu menemukannya
+    - Konvergensi terjamin
+
+    Contoh: Sum of Squared Errors, mean squared error
+  </SplitPanel>
+
+  <SplitPanel side="right" title="Non-Convex Function ✗">
+    **Lanskap Error Kompleks**
+
+    - Banyak local minima
+    - Gradient descent mungkin terjebak
+    - Solusi tergantung pada titik awal
+    - Tidak ada jaminan konvergensi
+
+    Contoh: Neural networks, beberapa fungsi polinomial
+  </SplitPanel>
+</SplitView>
+
+<InsightBox title="💡 Mengapa Convexity Penting">
+Karena fungsi error linear regression kita adalah convex:
+1. Kita dapat mulai dari **titik acak mana pun**
+2. Ikuti **arah berlawanan dari gradient** (turun)
+3. Kita **dijamin** mencapai global minimum pada akhirnya!
+
+Inilah mengapa linear regression sangat andal dibandingkan dengan model yang lebih kompleks.
+</InsightBox>
+
+### Directional Derivative: Bergerak ke Arah yang Benar
+
+Mari kita buktikan secara matematis mengapa bergerak berlawanan dengan gradient meminimalkan fungsi kita.
+
+<DefinitionBox title="Directional Derivative">
+**Directional derivative** dalam arah $\mathbf{u}$ (vektor unit) adalah derivative dari $f(\mathbf{x} + \alpha\mathbf{u})$ terhadap $\alpha$, dievaluasi pada $\alpha = 0$.
+
+Ini memberi tahu kita: "Seberapa cepat $f$ berubah jika kita bergerak dalam arah $\mathbf{u}$?"
+</DefinitionBox>
+
+Menggunakan chain rule, kita dapat menurunkan:
+
+$$
+\begin{aligned}
+\frac{\partial}{\partial \alpha} f(\mathbf{x} + \alpha \mathbf{u})
+&= \sum_i \frac{\partial f(\mathbf{x} + \alpha \mathbf{u})}{\partial (x_i + \alpha u_i)} \frac{\partial (x_i + \alpha u_i)}{\partial \alpha} \\
+&= \left(\frac{\partial (\mathbf{x} + \alpha \mathbf{u})}{\partial \alpha}\right)^T \nabla_\mathbf{x}f(\mathbf{x}) \\
+&= \mathbf{u}^T \nabla_\mathbf{x}f(\mathbf{x})
+\end{aligned}
+$$
+
+<CalloutBox icon="🔍">
+Hasil yang indah ini mengatakan: Laju perubahan dalam arah $\mathbf{u}$ hanyalah **dot product** dari arah dan gradient!
+</CalloutBox>
+
+### Menemukan Arah Terbaik
+
+Sekarang, arah $\mathbf{u}$ mana yang **meminimalkan** fungsi kita dengan tercepat?
+
+$$
+\begin{aligned}
+\min_{\mathbf{u}, \|\mathbf{u}\|_2=1} \mathbf{u}^T \nabla_\mathbf{x}f(\mathbf{x})
+&= \min_{\mathbf{u}, \|\mathbf{u}\|_2=1} \|\mathbf{u}\|_2 \|\nabla_\mathbf{x}f(\mathbf{x})\|_2 \cos \theta
+\end{aligned}
+$$
+
+di mana $\theta$ adalah sudut antara $\mathbf{u}$ dan gradient.
+
+Karena $\mathbf{u}$ adalah vektor unit, $\|\mathbf{u}\|_2 = 1$, dan kita dapat menyederhanakan:
+
+$$
+\min_{\mathbf{u}} \|\nabla_\mathbf{x}f(\mathbf{x})\|_2 \cos \theta = \min_{\mathbf{u}} \cos \theta
+$$
+
+<InsightBox title="💡 Arah Optimal">
+Minimum dari $\cos \theta$ terjadi ketika $\theta = 180°$ (atau $\pi$ radian).
+
+Ini berarti: $\mathbf{u}$ harus menunjuk ke **arah berlawanan** dari gradient!
+
+$$
+\mathbf{u} = -\frac{\nabla_\mathbf{x}f(\mathbf{x})}{\|\nabla_\mathbf{x}f(\mathbf{x})\|_2}
+$$
+</InsightBox>
+
+<CalloutBox icon="🎯">
+**Insight Kunci**: Untuk meminimalkan fungsi, bergerak ke **arah berlawanan** dari gradient. Inilah mengapa metode ini disebut **gradient descent**—kita turun menuruni gradient!
+</CalloutBox>
+
+## Algoritma Gradient Descent
+
+Sekarang kita dapat merumuskan algoritma lengkapnya!
+
+<DefinitionBox title="Aturan Update Gradient Descent">
+Mulai dari titik sewenang-wenang $\mathbf{x}$, kita memperbarui posisi kita menggunakan:
+
+$$
+\mathbf{x}_{new} = \mathbf{x}_{old} - \varepsilon \nabla_\mathbf{x}f(\mathbf{x}_{old})
+$$
+
+di mana $\varepsilon$ disebut **learning rate**.
+
+Untuk bobot linear regression $W$:
+
+$$
+W_{new} = W_{old} - \varepsilon \nabla_W f(W_{old})
+$$
+</DefinitionBox>
+
+<ExampleBox title="Gradient Descent dalam Aksi">
+Mari kita lalui satu iterasi:
+
+1. **Mulai**: Kita berada di titik $W = [1.0, 2.0]$ dengan error $f(W) = 10.5$
+2. **Hitung gradient**: $\nabla_W f(W) = [2.5, -1.2]$
+3. **Pilih learning rate**: $\varepsilon = 0.1$
+4. **Update**: $W_{new} = [1.0, 2.0] - 0.1 \times [2.5, -1.2] = [0.75, 2.12]$
+5. **Error baru**: $f(W_{new}) = 9.3$ (menurun!)
+6. **Ulangi** sampai konvergen
+
+Setelah banyak iterasi, kita mencapai bobot optimal!
+</ExampleBox>
+
+## Learning Rate: Seberapa Besar Langkah Kita?
+
+Learning rate $\varepsilon$ mengontrol **seberapa jauh** kita bergerak di setiap iterasi. Memilihnya sangat penting!
+
+<DefinitionBox title="Learning Rate (ε)">
+**Learning rate** menentukan ukuran langkah dalam gradient descent:
+- Terlalu kecil → konvergensi sangat lambat
+- Terlalu besar → mungkin overshoot minimum atau diverge
+- Pas → konvergensi efisien ke minimum
+</DefinitionBox>
+
+<SplitView>
+  <SplitPanel side="left" title="Learning Rate Kecil">
+    **Kelebihan:**
+    - Stabil, kemajuan terjamin
+    - Tidak akan overshoot minimum
+    - Konvergensi lebih presisi
+
+    **Kekurangan:**
+    - Konvergensi sangat lambat
+    - Banyak iterasi diperlukan
+    - Mahal secara komputasi
+  </SplitPanel>
+
+  <SplitPanel side="right" title="Learning Rate Besar">
+    **Kelebihan:**
+    - Kemajuan awal cepat
+    - Lebih sedikit iterasi diperlukan
+    - Efisien secara komputasi
+
+    **Kekurangan:**
+    - Mungkin overshoot minimum
+    - Dapat diverge atau berosilasi
+    - Kurang stabil
+  </SplitPanel>
+</SplitView>
+
+### Tiga Strategi Umum untuk Memilih Learning Rate
+
+<ExampleBox title="Strategi 1: Nilai Kecil Tetap">
+**Pendekatan**: Pilih nilai konstan kecil seperti $\varepsilon = 0.001$ atau $\varepsilon = 0.01$
+
+**Kelebihan:**
+- Sederhana untuk diimplementasikan
+- Umumnya stabil
+- Bekerja baik untuk banyak masalah
+
+**Kekurangan:**
+- Mungkin tidak efisien (terlalu lambat)
+- Memerlukan tuning manual
+
+**Kapan digunakan**: Ketika Anda menginginkan kesederhanaan dan stabilitas, dan biaya komputasi tidak kritis.
+</ExampleBox>
+
+<ExampleBox title="Strategi 2: Exact Line Search">
+**Pendekatan**: Temukan $\varepsilon$ di mana $\nabla_\mathbf{x}f(\mathbf{x}) = \mathbf{0}$
+
+Dengan kata lain, selesaikan:
+$$
+\min_\varepsilon f(\mathbf{x} - \varepsilon \nabla_\mathbf{x}f(\mathbf{x}))
+$$
+
+**Kelebihan:**
+- Ukuran langkah optimal secara teoritis
+- Kemajuan maksimum per iterasi
+
+**Kekurangan:**
+- Mahal secara komputasi (menyelesaikan masalah optimasi di setiap langkah!)
+- Sering tidak praktis
+
+**Kapan digunakan**: Jarang dalam praktik, tetapi berguna untuk pemahaman teoritis.
+</ExampleBox>
+
+<ExampleBox title="Strategi 3: Backtracking Line Search (Paling Populer)">
+**Pendekatan**: Coba nilai $\varepsilon$ yang berbeda dan pilih yang memberikan minimum $f(\mathbf{x} - \varepsilon \nabla_\mathbf{x}f(\mathbf{x}))$
+
+Algoritma:
+1. Mulai dengan kandidat $\varepsilon$ (misalnya, 1.0)
+2. Evaluasi $f(\mathbf{x} - \varepsilon \nabla_\mathbf{x}f(\mathbf{x}))$
+3. Jika tidak cukup menurun, kurangi $\varepsilon$ (misalnya, $\varepsilon \leftarrow 0.5\varepsilon$)
+4. Ulangi sampai kita menemukan penurunan yang dapat diterima
+
+**Kelebihan:**
+- Keseimbangan baik antara kecepatan dan akurasi
+- Adaptif terhadap lanskap fungsi
+- Digunakan dalam sebagian besar implementasi modern
+
+**Kekurangan:**
+- Lebih kompleks dari fixed rate
+- Memerlukan beberapa evaluasi fungsi per iterasi
+
+**Kapan digunakan**: Ini adalah metode **paling populer** dalam praktik!
+</ExampleBox>
+
+<WarningBox title="⚠️ Jebakan Learning Rate">
+**Terlalu Kecil**: Algoritma Anda akan memakan waktu selamanya untuk konvergen. Anda mungkin kehabisan anggaran komputasi sebelum mencapai minimum.
+
+**Terlalu Besar**: Algoritma Anda mungkin:
+- Berosilasi di sekitar minimum tanpa mencapainya
+- Diverge sepenuhnya (error meningkat alih-alih menurun!)
+- Melompati solusi optimal berulang kali
+
+**Menemukan keseimbangan yang tepat sangat penting untuk machine learning praktis!**
+</WarningBox>
+
+<InsightBox title="💡 Metode Adaptive Modern">
+Machine learning modern menggunakan metode **adaptive learning rate** yang secara otomatis menyesuaikan $\varepsilon$ selama training:
+- **Adam**: Menyesuaikan learning rate per parameter berdasarkan riwayat gradient
+- **RMSprop**: Menggunakan moving average dari squared gradient
+- **AdaGrad**: Beradaptasi berdasarkan informasi gradient kumulatif
+
+Metode-metode ini menangani masalah learning rate secara otomatis, membuat deep learning jauh lebih praktis!
+</InsightBox>
+
+## Menyatukan Semuanya
+
+<CalloutBox icon="🎓">
+**Gambaran Lengkap Gradient Descent:**
+
+1. **Masalah**: Normal equation mahal secara komputasi ($O(n^3)$)
+2. **Solusi**: Gradient descent—optimasi iteratif
+3. **Cara kerjanya**:
+   - Mulai dengan bobot acak
+   - Hitung gradient (arah peningkatan tercuram)
+   - Bergerak berlawanan dengan gradient (turun)
+   - Ulangi sampai konvergen
+4. **Mengapa berhasil**:
+   - Error linear regression adalah convex
+   - Gradient menunjuk ke peningkatan maksimum
+   - Arah berlawanan menunjuk ke minimum
+   - Dijamin mencapai global minimum!
+5. **Parameter kunci**: Learning rate mengontrol ukuran langkah
+</CalloutBox>
+
+## Perbandingan: Normal Equation vs. Gradient Descent
+
+<SplitView>
+  <SplitPanel side="left" title="Normal Equation">
+    $$W = (X^TX)^{-1}X^Ty$$
+
+    **Keuntungan:**
+    - Solusi eksak dalam satu langkah
+    - Tidak ada parameter untuk di-tune
+    - Tidak perlu iterasi
+
+    **Kerugian:**
+    - Kompleksitas $O(n^3)$
+    - Memerlukan matrix inversion
+    - Tidak praktis untuk $n$ besar
+    - Intensif memori
+
+    **Gunakan ketika**: Dataset kecil hingga menengah (n < 10.000)
+  </SplitPanel>
+
+  <SplitPanel side="right" title="Gradient Descent">
+    $$W_{new} = W_{old} - \varepsilon \nabla_W f(W)$$
+
+    **Keuntungan:**
+    - Scalable ke dataset besar
+    - $O(n)$ per iterasi
+    - Efisien memori
+    - Fondasi untuk deep learning
+
+    **Kerugian:**
+    - Memerlukan banyak iterasi
+    - Harus tune learning rate
+    - Solusi aproksimasi
+    - Lebih lambat untuk konvergen
+
+    **Gunakan ketika**: Dataset besar (n > 10.000) atau real-time learning
+  </SplitPanel>
+</SplitView>
+
+## Poin-Poin Penting
+
+<CalloutBox icon="📝">
+**Yang Telah Kita Pelajari:**
+
+1. **Gradient** = slope dari tangent line pada suatu titik; arah peningkatan tercuram
+2. **Partial derivative** mengukur perubahan dalam satu variabel sementara yang lain tetap
+3. **Gradient vector** berisi semua partial derivative; menunjuk ke peningkatan maksimum
+4. **Convex function** memiliki satu global minimum—sempurna untuk gradient descent
+5. **Directional derivative** dalam arah berlawanan gradient memberikan descent tercuram
+6. **Learning rate** mengontrol ukuran langkah; penting untuk kecepatan konvergensi dan stabilitas
+7. **Gradient descent** menukar solusi eksak dengan efisiensi komputasi
+
+Pendekatan iteratif ini membentuk fondasi machine learning modern!
+</CalloutBox>
+
+## Soal Latihan
+
+<PracticeProblem level="Level 1">
+Untuk fungsi $f(x) = x^2 - 4x + 5$, hitung satu iterasi gradient descent mulai dari $x = 0$ dengan learning rate $\varepsilon = 0.1$.
+
+<details>
+<summary>Klik untuk petunjuk</summary>
+Pertama, hitung derivative $f'(x)$, lalu evaluasi pada $x = 0$, dan terakhir terapkan aturan update $x_{new} = x_{old} - \varepsilon f'(x_{old})$.
+</details>
+
+<details>
+<summary>Klik untuk solusi</summary>
+
+**Langkah 1**: Hitung derivative
+$$f'(x) = 2x - 4$$
+
+**Langkah 2**: Evaluasi pada $x = 0$
+$$f'(0) = 2(0) - 4 = -4$$
+
+**Langkah 3**: Terapkan aturan update
+$$x_{new} = 0 - 0.1 \times (-4) = 0.4$$
+
+**Langkah 4**: Verifikasi perbaikan
+- $f(0) = 0 - 0 + 5 = 5$
+- $f(0.4) = 0.16 - 1.6 + 5 = 3.56$ ✓ (menurun!)
+
+Nilai fungsi menurun dari 5 ke 3.56, mengkonfirmasi kita bergerak menuju minimum!
+</details>
+</PracticeProblem>
+
+<PracticeProblem level="Level 2">
+Mengapa linear regression sangat cocok untuk gradient descent dibandingkan dengan model machine learning lainnya? Properti apa yang membuatnya andal?
+
+<details>
+<summary>Klik untuk petunjuk</summary>
+Pikirkan tentang bentuk fungsi error dan jumlah minima yang dimilikinya.
+</details>
+
+<details>
+<summary>Klik untuk solusi</summary>
+
+**Linear regression ideal untuk gradient descent karena**:
+
+1. **Fungsi error convex**: Squared error $\|y - XW\|_2^2$ adalah convex, artinya memiliki bentuk mangkuk dengan satu minimum.
+
+2. **Tidak ada local minima**: Tidak seperti neural networks atau model polinomial, tidak ada risiko terjebak di local minima. Minimum apa pun yang kita temukan adalah global minimum.
+
+3. **Gradient yang smooth**: Fungsi error dapat didifferensiasi di mana-mana, menyediakan gradient yang smooth yang dengan andal menunjuk ke minimum.
+
+4. **Konvergensi terjamin**: Dengan learning rate yang tepat, gradient descent dijamin secara matematis untuk konvergen ke solusi optimal.
+
+5. **Lanskap yang well-behaved**: Tidak ada saddle point, plateau, atau fitur patologis lainnya yang mengganggu model yang lebih kompleks.
+
+**Kontras dengan neural networks**: Neural networks memiliki permukaan error yang sangat non-convex dengan banyak local minima, membuat optimasi jauh lebih menantang. Inilah mengapa deep learning memerlukan teknik canggih seperti batch normalization, inisialisasi yang hati-hati, dan adaptive learning rate!
+</details>
+</PracticeProblem>
+
+<PracticeProblem level="Level 3">
+Implementasikan trace konseptual dari gradient descent untuk linear regression dengan satu variabel. Diberikan data point $(1, 3)$, $(2, 5)$, $(3, 7)$, bobot awal $w_0 = 0, w_1 = 1$, dan learning rate $\varepsilon = 0.01$, hitung dua iterasi. Apa yang terjadi dengan error?
+
+<details>
+<summary>Klik untuk petunjuk</summary>
+Gradient dari $f(W) = \sum_i (y_i - (w_0 + w_1x_i))^2$ terhadap $w_0$ adalah $-2\sum_i (y_i - (w_0 + w_1x_i))$ dan terhadap $w_1$ adalah $-2\sum_i x_i(y_i - (w_0 + w_1x_i))$.
+</details>
+
+<details>
+<summary>Klik untuk solusi</summary>
+
+**Keadaan awal**: $w_0 = 0, w_1 = 1$
+
+**Iterasi 1**:
+
+Hitung prediksi:
+- $\hat{y}_1 = 0 + 1(1) = 1$, error: $e_1 = 3 - 1 = 2$
+- $\hat{y}_2 = 0 + 1(2) = 2$, error: $e_2 = 5 - 2 = 3$
+- $\hat{y}_3 = 0 + 1(3) = 3$, error: $e_3 = 7 - 3 = 4$
+
+SSE = $2^2 + 3^2 + 4^2 = 4 + 9 + 16 = 29$
+
+Hitung gradient:
+$$\frac{\partial f}{\partial w_0} = -2(2 + 3 + 4) = -18$$
+$$\frac{\partial f}{\partial w_1} = -2(1 \cdot 2 + 2 \cdot 3 + 3 \cdot 4) = -2(2 + 6 + 12) = -40$$
+
+Update bobot:
+$$w_0^{new} = 0 - 0.01(-18) = 0.18$$
+$$w_1^{new} = 1 - 0.01(-40) = 1.40$$
+
+**Iterasi 2**: $w_0 = 0.18, w_1 = 1.40$
+
+Hitung prediksi:
+- $\hat{y}_1 = 0.18 + 1.40(1) = 1.58$, error: $e_1 = 3 - 1.58 = 1.42$
+- $\hat{y}_2 = 0.18 + 1.40(2) = 2.98$, error: $e_2 = 5 - 2.98 = 2.02$
+- $\hat{y}_3 = 0.18 + 1.40(3) = 4.38$, error: $e_3 = 7 - 4.38 = 2.62$
+
+SSE = $1.42^2 + 2.02^2 + 2.62^2 = 2.02 + 4.08 + 6.86 = 12.96$
+
+**Hasil**: Error menurun dari 29 → 12.96! Gradient descent bekerja!
+
+Dengan lebih banyak iterasi, error akan terus menurun sampai mencapai solusi optimal: $w_0 = 1, w_1 = 2$ (hubungan sebenarnya adalah $y = 1 + 2x$).
+</details>
+</PracticeProblem>
+
+## Referensi
+
+1. Goodfellow, I., Bengio, Y., & Courville, A. - Deep Learning (Chapter 4: Numerical Computation)
+2. Boyd, S., & Vandenberghe, L. - Convex Optimization
+3. Nocedal, J., & Wright, S. - Numerical Optimization
+4. Veytsman, B. - Convex and Concave Functions Visualization
+
+## Selanjutnya Apa?
+
+Sekarang setelah Anda memahami gradient descent untuk linear regression, Anda siap untuk menjelajahi:
+- **Stochastic Gradient Descent (SGD)**: Menghitung gradient pada batch kecil daripada seluruh dataset
+- **Advanced Optimizer**: Adam, RMSprop, dan metode adaptive lainnya
+- **Regularization**: L1 dan L2 penalty untuk mencegah overfitting
+- **Non-linear Model**: Memperluas konsep ini ke neural networks!
+
+Gradient descent adalah kuda pekerja machine learning modern. Kuasai ini, dan Anda telah membuka fondasi deep learning!

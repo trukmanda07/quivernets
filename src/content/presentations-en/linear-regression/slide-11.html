@@ -1,0 +1,29 @@
+<!--
+  Slide 11: SSE: Our Optimization Metric
+  Time: 29:00-32:00
+-->
+<div class="space-y-1.5">
+  <h4 class="text-sm font-bold text-center">Sum of Squared Errors (SSE)</h4>
+  <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-3 rounded-lg border-4 border-green-500">
+    <h5 class="text-3xl font-bold mb-1">The Formula</h5>
+    <div class="bg-white p-2 rounded-lg shadow-lg text-center">
+      <p class="font-mono text-2xl mb-1.5">$\text{SSE} = \sum e_i^2 = \sum (y_i - (w_0 + w_1x_i))^2$</p>
+      <p class="text-2xl">Expand each term and square it!</p>
+    </div>
+  </div>
+  <div class="bg-blue-50 p-2.5 rounded-lg">
+    <h5 class="text-3xl font-bold mb-1">Why Squaring Works</h5>
+    <div class="grid grid-cols-2 gap-1.5">
+      <div class="bg-white p-2 rounded border-2 border-blue-300">
+        <p class="text-2xl font-bold">Small errors</p>
+        <p class="text-2xl">Get small penalties</p>
+        <p class="font-mono text-2xl text-gray-600">$1^2 = 1$</p>
+      </div>
+      <div class="bg-white p-2 rounded border-2 border-red-300">
+        <p class="text-2xl font-bold">Large errors</p>
+        <p class="text-2xl">Get huge penalties</p>
+        <p class="font-mono text-2xl text-red-600">$10^2 = 100$</p>
+      </div>
+    </div>
+  </div>
+</div>

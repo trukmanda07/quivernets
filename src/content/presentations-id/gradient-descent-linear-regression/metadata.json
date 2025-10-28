@@ -1,0 +1,19 @@
+{
+  "title": "Gradient Descent untuk Linear Regression: Solusi Iteratif",
+  "description": "Temukan bagaimana gradient descent menyelesaikan linear regression secara efisien melalui iterasi, memahami gradients, partial derivatives, dan learning rates untuk mengoptimalkan model machine learning.",
+  "pubDate": "2025-10-26T00:00:00.000Z",
+  "relatedBlogPost": "gradient-descent-linear-regression",
+  "category": "Machine Learning",
+  "tags": [
+    "machine-learning",
+    "gradient-descent",
+    "optimization",
+    "calculus",
+    "linear-regression"
+  ],
+  "difficulty": "intermediate",
+  "language": "id",
+  "estimatedTime": 70,
+  "totalSlides": 21,
+  "author": "QuiverLearn"
+}

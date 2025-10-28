@@ -1,0 +1,30 @@
+<!--
+  Slide 7: Understanding Error
+  Time: 16:00-19:00
+-->
+<div class="space-y-1.5">
+  <h4 class="text-sm font-bold">What is Error (Residual)?</h4>
+  <div class="bg-white p-2.5 rounded-lg shadow-lg border-4 border-blue-500">
+    <h5 class="text-3xl font-bold mb-1">Definition</h5>
+    <p class="text-2xl mb-1">For each data point $(x_i, y_i)$, the <strong>error</strong> is:</p>
+    <div class="bg-blue-50 p-2 rounded-lg text-center font-mono text-2xl mb-1.5">$e_i = y_i - (w_0 + w_1x_i)$</div>
+    <div class="grid grid-cols-2 gap-1.5">
+      <div class="bg-green-100 p-2 rounded-lg border-2 border-green-400">
+        <p class="text-2xl font-bold">$y_i$</p>
+        <p class="text-2xl">Actual value (true sales)</p>
+      </div>
+      <div class="bg-purple-100 p-2 rounded-lg border-2 border-purple-400">
+        <p class="text-2xl font-bold">$(w_0 + w_1x_i)$</p>
+        <p class="text-2xl">Predicted value</p>
+      </div>
+    </div>
+  </div>
+  <div class="bg-yellow-50 p-2.5 rounded-lg border-4 border-yellow-400">
+    <h5 class="text-3xl font-bold mb-1">Interpretation</h5>
+    <ul class="list-disc ml-6 space-y-0 text-2xl leading-snug">
+      <li><strong>Positive error</strong>: We underestimated (predicted too low)</li>
+      <li><strong>Negative error</strong>: We overestimated (predicted too high)</li>
+      <li><strong>Zero error</strong>: Perfect prediction! (rare)</li>
+    </ul>
+  </div>
+</div>

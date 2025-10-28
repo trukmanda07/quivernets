@@ -1,0 +1,33 @@
+<!--
+  Slide 22: Final: Perbandingan
+  Time: 64:00-68:00
+-->
+<div class="space-y-0.5">
+  <h4 class="text-sm font-bold text-center">Dua Cara Menyelesaikan Linear Regression</h4>
+  <div class="grid grid-cols-2 gap-0.5">
+    <div class="bg-blue-100 p-1 rounded-lg border-3 border-blue-500">
+      <h5 class="text-3xl font-bold mb-0">Normal Equation</h5>
+      <div class="bg-white p-1 rounded shadow">
+        <p class="font-mono text-2xl text-center mb-0">$W = (X^TX)^{-1}X^Ty$</p>
+        <p class="text-2xl mt-0.5 mb-0 leading-tight"><strong>Kelebihan:</strong><br>✓ Solusi langsung<br>✓ Tanpa
+          hyperparameter<br>✓ Jawaban eksak</p>
+        <p class="text-2xl mt-0.5 mb-0 leading-tight"><strong>Kekurangan:</strong><br>✗ Kompleksitas $O(n^3)$<br>✗ Tidak
+          berskala<br>✗ Intensif memori</p>
+        <p class="text-2xl mt-0.5 mb-0"><strong>Terbaik untuk:</strong></p>
+        <p class="text-2xl leading-tight bg-blue-50 p-0.5 rounded">Dataset kecil (< 10k obs)</p>
+      </div>
+    </div>
+    <div class="bg-green-100 p-1 rounded-lg border-3 border-green-500">
+      <h5 class="text-3xl font-bold mb-0">Gradient Descent ⭐</h5>
+      <div class="bg-white p-1 rounded shadow">
+        <p class="font-mono text-2xl text-center mb-0">Update iteratif</p>
+        <p class="text-2xl mt-0.5 mb-0 leading-tight"><strong>Kelebihan:</strong><br>✓ Berskala untuk data besar<br>✓
+          Memori rendah<br>✓ Generalisasi ke non-linear</p>
+        <p class="text-2xl mt-0.5 mb-0 leading-tight"><strong>Kekurangan:</strong><br>✗ Perlu tuning<br>✗ Solusi
+          perkiraan<br>✗ Memerlukan iterasi</p>
+        <p class="text-2xl mt-0.5 mb-0"><strong>Terbaik untuk:</strong></p>
+        <p class="text-2xl leading-tight bg-green-50 p-0.5 rounded">Dataset besar, deep learning</p>
+      </div>
+    </div>
+  </div>
+</div>

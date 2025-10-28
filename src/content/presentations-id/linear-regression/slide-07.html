@@ -1,0 +1,30 @@
+<!--
+  Slide 7: Memahami Error
+  Time: 16:00-19:00
+-->
+<div class="space-y-1.5">
+  <h4 class="text-sm font-bold">Apa Itu Error (Residual)?</h4>
+  <div class="bg-white p-2.5 rounded-lg shadow-lg border-4 border-blue-500">
+    <h5 class="text-3xl font-bold mb-1">Definisi</h5>
+    <p class="text-2xl mb-1">Untuk setiap titik data $(x_i, y_i)$, <strong>error</strong> adalah:</p>
+    <div class="bg-blue-50 p-2 rounded-lg text-center font-mono text-2xl mb-1.5">$e_i = y_i - (w_0 + w_1x_i)$</div>
+    <div class="grid grid-cols-2 gap-1.5">
+      <div class="bg-green-100 p-2 rounded-lg border-2 border-green-400">
+        <p class="text-2xl font-bold">$y_i$</p>
+        <p class="text-2xl">Nilai aktual (penjualan sebenarnya)</p>
+      </div>
+      <div class="bg-purple-100 p-2 rounded-lg border-2 border-purple-400">
+        <p class="text-2xl font-bold">$(w_0 + w_1x_i)$</p>
+        <p class="text-2xl">Nilai prediksi</p>
+      </div>
+    </div>
+  </div>
+  <div class="bg-yellow-50 p-2.5 rounded-lg border-4 border-yellow-400">
+    <h5 class="text-3xl font-bold mb-1">Interpretasi</h5>
+    <ul class="list-disc ml-6 space-y-0 text-2xl leading-snug">
+      <li><strong>Error positif</strong>: Kita meremehkan (prediksi terlalu rendah)</li>
+      <li><strong>Error negatif</strong>: Kita melebih-lebihkan (prediksi terlalu tinggi)</li>
+      <li><strong>Error nol</strong>: Prediksi sempurna! (jarang)</li>
+    </ul>
+  </div>
+</div>

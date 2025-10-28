@@ -1,0 +1,146 @@
+[
+  {
+    "slideNumber": 1,
+    "title": "Pembukaan: Tantangan Marketing",
+    "time": "0:00-2:30",
+    "fileName": "slide-01.html"
+  },
+  {
+    "slideNumber": 2,
+    "title": "Tema: Menemukan Pola dalam Data",
+    "time": "2:30-4:00",
+    "fileName": "slide-02.html"
+  },
+  {
+    "slideNumber": 3,
+    "title": "Pengaturan: Data Historis",
+    "time": "4:00-7:00",
+    "fileName": "slide-03.html"
+  },
+  {
+    "slideNumber": 4,
+    "title": "Pengaturan: Apa Itu Fungsi Linear?",
+    "time": "7:00-10:00",
+    "fileName": "slide-04.html"
+  },
+  {
+    "slideNumber": 5,
+    "title": "Katalis: Cek Realitas",
+    "time": "10:00-13:00",
+    "fileName": "slide-05.html"
+  },
+  {
+    "slideNumber": 6,
+    "title": "Menambahkan Keacakan: Error Term",
+    "time": "13:00-16:00",
+    "fileName": "slide-06.html"
+  },
+  {
+    "slideNumber": 7,
+    "title": "Memahami Error",
+    "time": "16:00-19:00",
+    "fileName": "slide-07.html"
+  },
+  {
+    "slideNumber": 8,
+    "title": "Break into Two: Masalah Optimisasi",
+    "time": "19:00-22:00",
+    "fileName": "slide-08.html"
+  },
+  {
+    "slideNumber": 9,
+    "title": "Percobaan Pertama: Jumlah Error (GAGAL!)",
+    "time": "22:00-25:00",
+    "fileName": "slide-09.html"
+  },
+  {
+    "slideNumber": 10,
+    "title": "Dua Metrik yang Lebih Baik",
+    "time": "25:00-29:00",
+    "fileName": "slide-10.html"
+  },
+  {
+    "slideNumber": 11,
+    "title": "SSE: Metrik Optimisasi Kita",
+    "time": "29:00-32:00",
+    "fileName": "slide-11.html"
+  },
+  {
+    "slideNumber": 12,
+    "title": "Memperluas ke Banyak Variabel",
+    "time": "32:00-36:00",
+    "fileName": "slide-12.html"
+  },
+  {
+    "slideNumber": 13,
+    "title": "Bentuk Umum: n Variabel",
+    "time": "36:00-39:00",
+    "fileName": "slide-13.html"
+  },
+  {
+    "slideNumber": 14,
+    "title": "Titik Tengah: Wawasan Matrix",
+    "time": "39:00-42:00",
+    "fileName": "slide-14.html"
+  },
+  {
+    "slideNumber": 15,
+    "title": "Formulasi Matrix",
+    "time": "42:00-46:00",
+    "fileName": "slide-15.html"
+  },
+  {
+    "slideNumber": 16,
+    "title": "Menyelesaikan: Pendekatan Kalkulus",
+    "time": "46:00-49:00",
+    "fileName": "slide-16.html"
+  },
+  {
+    "slideNumber": 17,
+    "title": "Langkah Derivasi 1: Kembangkan",
+    "time": "49:00-52:00",
+    "fileName": "slide-17.html"
+  },
+  {
+    "slideNumber": 18,
+    "title": "Langkah Derivasi 2: Gradient",
+    "time": "52:00-55:00",
+    "fileName": "slide-18.html"
+  },
+  {
+    "slideNumber": 19,
+    "title": "Langkah Derivasi 3: Selesaikan",
+    "time": "55:00-58:00",
+    "fileName": "slide-19.html"
+  },
+  {
+    "slideNumber": 20,
+    "title": "All Is Lost: Tantangan Komputasi",
+    "time": "58:00-61:00",
+    "fileName": "slide-20.html"
+  },
+  {
+    "slideNumber": 21,
+    "title": "Break into Three: Solusinya",
+    "time": "61:00-64:00",
+    "fileName": "slide-21.html"
+  },
+  {
+    "slideNumber": 22,
+    "title": "Final: Perbandingan",
+    "time": "64:00-68:00",
+    "fileName": "slide-22.html"
+  },
+  {
+    "slideNumber": 23,
+    "title": "Gambar Final: Poin-Poin Kunci",
+    "time": "68:00-73:00",
+    "fileName": "slide-23.html"
+  },
+  {
+    "slideNumber": 24,
+    "title": "Apa Selanjutnya?",
+    "time": "73:00-75:00",
+    "fileName": "slide-24.html"
+  }
+]

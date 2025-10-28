@@ -1,0 +1,27 @@
+<!--
+  Slide 20: All Is Lost: Tantangan Komputasi
+  Time: 58:00-61:00
+-->
+<div class="space-y-1.5">
+  <h4 class="text-sm font-bold text-center text-red-700">Tunggu... Ada Masalah!</h4>
+  <div class="bg-gradient-to-br from-red-50 to-pink-50 p-3 rounded-lg border-4 border-red-500">
+    <h5 class="text-3xl font-bold mb-1">Normal Equation</h5>
+    <div class="bg-white p-2 rounded text-center">
+      <p class="font-mono text-2xl mb-1">$W = (X^TX)^{-1}X^Ty$</p>
+      <p class="text-2xl text-red-600">Terlihat elegan, tapi...</p>
+    </div>
+  </div>
+  <div class="bg-white p-2.5 rounded-lg shadow-lg">
+    <h5 class="text-3xl font-bold mb-1">⚠️ Inversi Matrix itu MAHAL</h5>
+    <div class="space-y-1">
+      <div class="bg-yellow-100 p-2 rounded border-2 border-yellow-400">
+        <p class="text-2xl">1,000 observasi → Inversi matrix $1000 \times 1000$</p>
+        <p class="text-2xl text-gray-600">Kompleksitas waktu: $O(n^3)$ 🐌</p>
+      </div>
+      <div class="bg-orange-100 p-2 rounded border-2 border-orange-400">
+        <p class="text-2xl">100,000 observasi → Inversi matrix $100,000 \times 100,000$</p>
+        <p class="text-2xl text-red-600">Memakan waktu berjam-jam atau crash! 💥</p>
+      </div>
+    </div>
+  </div>
+</div>

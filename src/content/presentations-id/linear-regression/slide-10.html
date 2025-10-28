@@ -1,0 +1,31 @@
+<!--
+  Slide 10: Dua Metrik yang Lebih Baik
+  Time: 25:00-29:00
+-->
+<div class="space-y-1">
+  <h4 class="text-sm font-bold text-center">Metrik Error Non-Negatif</h4>
+  <div class="grid grid-cols-2 gap-1">
+    <div class="bg-purple-50 p-1.5 rounded-lg border-3 border-purple-500">
+      <h5 class="text-3xl font-bold mb-0.5">Jumlah Error Absolut</h5>
+      <div class="bg-white p-1 rounded shadow">
+        <p class="font-mono text-2xl text-center mb-0.5">$\sum |e_i|$</p>
+        <p class="text-2xl mb-0"><strong>Kelebihan:</strong></p>
+        <p class="text-2xl leading-tight">✓ Semua error positif<br>✓ Bobot sama untuk semua error<br>✓ Tangguh terhadap
+          outlier</p>
+        <p class="text-2xl mt-0.5 mb-0"><strong>Kekurangan:</strong></p>
+        <p class="text-2xl leading-tight">✗ Tidak dapat diturunkan di nol<br>✗ Lebih sulit dioptimalkan</p>
+      </div>
+    </div>
+    <div class="bg-green-50 p-1.5 rounded-lg border-3 border-green-500">
+      <h5 class="text-3xl font-bold mb-0.5">Jumlah Error Kuadrat ⭐</h5>
+      <div class="bg-white p-1 rounded shadow">
+        <p class="font-mono text-2xl text-center mb-0.5">$\sum e_i^2$</p>
+        <p class="text-2xl mb-0"><strong>Kelebihan:</strong></p>
+        <p class="text-2xl leading-tight">✓ Semua error positif<br>✓ Memberi penalti besar pada outlier<br>✓ Dapat
+          diturunkan di mana-mana<br>✓ Sifat statistik yang baik</p>
+        <p class="text-2xl mt-0.5 mb-0"><strong>Pemenang!</strong></p>
+        <p class="text-2xl leading-tight bg-green-100 p-0.5 rounded">Digunakan dalam linear regression</p>
+      </div>
+    </div>
+  </div>
+</div>

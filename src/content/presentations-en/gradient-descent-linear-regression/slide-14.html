@@ -1,0 +1,24 @@
+<!--
+  Slide 14: All Is Lost - Learning Rate Strategies
+  Time: 48:00-52:00
+-->
+<div class="space-y-0.5">
+  <h4 class="text-sm font-bold">Three Strategies for Choosing Learning Rate</h4>
+  <div class="bg-white p-0.5 rounded-lg shadow-lg border-3 border-gray-400">
+    <h5 class="text-3xl font-bold mb-0">1️⃣ Fixed Small Value</h5>
+    <p class="text-2xl leading-tight">Choose $\varepsilon = 0.001$ or $0.01$<br>✓ Simple, stable | ✗ May be inefficient
+    </p>
+  </div>
+  <div class="bg-white p-0.5 rounded-lg shadow-lg border-3 border-gray-400">
+    <h5 class="text-3xl font-bold mb-0">2️⃣ Exact Line Search</h5>
+    <p class="text-2xl leading-tight">Solve: $\min_\varepsilon f(\mathbf{x} - \varepsilon
+      \nabla_\mathbf{x}f(\mathbf{x}))$<br>✓ Optimal step size | ✗ Computationally expensive</p>
+  </div>
+  <div class="bg-green-100 p-0.5 rounded-lg shadow-lg border-3 border-green-500">
+    <h5 class="text-3xl font-bold mb-0">3️⃣ Backtracking Line Search ⭐</h5>
+    <p class="text-2xl leading-tight mb-0">Algorithm:<br>1. Start with candidate $\varepsilon$ (e.g., 1.0)<br>2.
+      Evaluate $f(\mathbf{x} - \varepsilon \nabla_\mathbf{x}f(\mathbf{x}))$<br>3. If not decreasing enough:
+      $\varepsilon \leftarrow 0.5\varepsilon$<br>4. Repeat until acceptable decrease</p>
+    <p class="text-2xl mt-0 font-bold text-green-700">Most popular in practice!</p>
+  </div>
+</div>

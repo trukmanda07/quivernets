@@ -1,0 +1,27 @@
+<!--
+  Slide 20: All Is Lost: Computational Challenge
+  Time: 58:00-61:00
+-->
+<div class="space-y-1.5">
+  <h4 class="text-sm font-bold text-center text-red-700">Wait... There's a Problem!</h4>
+  <div class="bg-gradient-to-br from-red-50 to-pink-50 p-3 rounded-lg border-4 border-red-500">
+    <h5 class="text-3xl font-bold mb-1">The Normal Equation</h5>
+    <div class="bg-white p-2 rounded text-center">
+      <p class="font-mono text-2xl mb-1">$W = (X^TX)^{-1}X^Ty$</p>
+      <p class="text-2xl text-red-600">Looks elegant, but...</p>
+    </div>
+  </div>
+  <div class="bg-white p-2.5 rounded-lg shadow-lg">
+    <h5 class="text-3xl font-bold mb-1">⚠️ Matrix Inversion is EXPENSIVE</h5>
+    <div class="space-y-1">
+      <div class="bg-yellow-100 p-2 rounded border-2 border-yellow-400">
+        <p class="text-2xl">1,000 observations → Invert $1000 \times 1000$ matrix</p>
+        <p class="text-2xl text-gray-600">Time complexity: $O(n^3)$ 🐌</p>
+      </div>
+      <div class="bg-orange-100 p-2 rounded border-2 border-orange-400">
+        <p class="text-2xl">100,000 observations → Invert $100,000 \times 100,000$ matrix</p>
+        <p class="text-2xl text-red-600">Takes hours or crashes! 💥</p>
+      </div>
+    </div>
+  </div>
+</div>

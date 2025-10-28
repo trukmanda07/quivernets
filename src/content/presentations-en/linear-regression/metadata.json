@@ -1,0 +1,19 @@
+{
+  "title": "Understanding Linear Regression: From Marketing to Mathematics",
+  "description": "Learn how linear regression helps predict outcomes by finding the best-fitting line through your data, from simple examples to advanced matrix formulations.",
+  "pubDate": "2025-10-26T00:00:00.000Z",
+  "relatedBlogPost": "linear-regression",
+  "category": "Machine Learning",
+  "tags": [
+    "machine-learning",
+    "regression",
+    "statistics",
+    "optimization",
+    "mathematics"
+  ],
+  "difficulty": "intermediate",
+  "language": "en",
+  "estimatedTime": 60,
+  "totalSlides": 22,
+  "author": "QuiverLearn"
+}
