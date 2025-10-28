@@ -1,48 +1,97 @@
-# Astro Starter Kit: Blog
+# QuiverLearn - Interactive Learning Platform
 
-```sh
-npm create astro@latest -- --template blog
-```
+An educational platform featuring blog posts and interactive presentations for computer science and mathematics topics, built with Astro.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## ✨ Features
 
-Features:
-
-- ✅ Minimal styling (make it your own!)
-- ✅ 100/100 Lighthouse performance
-- ✅ SEO-friendly with canonical URLs and OpenGraph data
-- ✅ Sitemap support
-- ✅ RSS Feed support
-- ✅ Markdown & MDX support
+- 📝 **Bilingual Content** - English and Indonesian support
+- 📊 **Interactive Presentations** - Reveal.js-powered mobile-optimized presentations
+- 🔄 **Automatic Discovery** - File-based system with zero configuration
+- 🎨 **Modern UI** - Responsive design with Tailwind CSS
+- 📱 **Mobile-First** - Optimized for both landscape and portrait orientations
+- 🚀 **Performance** - SEO-friendly with canonical URLs and OpenGraph data
+- 📰 **RSS Feed** - Automatic feed generation for blog posts
+- 🗺️ **Sitemap** - Automatic sitemap generation
 
 ## 🚀 Project Structure
 
-Inside of your Astro project, you'll see the following folders and files:
-
 ```text
-├── public/
+quiverlearn/
+├── public/                          # Static assets
 ├── src/
-│   ├── components/
-│   ├── content/
-│   ├── layouts/
-│   └── pages/
-├── astro.config.mjs
-├── README.md
-├── package.json
-└── tsconfig.json
+│   ├── components/                  # Reusable components
+│   │   ├── boxes/                  # Content boxes (Definition, Example, etc.)
+│   │   ├── PresentationHeader.astro
+│   │   └── RevealPresentation.astro
+│   ├── content/                     # Content collections
+│   │   ├── blog-en/                # English blog posts (MDX)
+│   │   ├── blog-id/                # Indonesian blog posts (MDX)
+│   │   ├── presentations-en/       # English presentations
+│   │   │   └── {slug}/
+│   │   │       ├── metadata.json   # Presentation metadata
+│   │   │       ├── slide-metadata.json  # Slide index
+│   │   │       └── slide-*.html    # Individual slide files
+│   │   └── presentations-id/       # Indonesian presentations
+│   ├── layouts/                     # Layout components
+│   │   ├── BlogPost.astro
+│   │   └── RevealLayout.astro
+│   ├── pages/                       # Route pages
+│   │   └── [lang]/
+│   │       ├── blog/
+│   │       └── presentations/
+│   │           ├── [...slug].astro # Dynamic presentation route
+│   │           └── index.astro     # Presentations listing
+│   ├── scripts/                     # Client-side scripts
+│   │   └── reveal-init.ts          # Reveal.js initialization
+│   ├── styles/                      # Global styles
+│   │   └── reveal-custom-theme.css
+│   └── utils/                       # Utility functions
+│       └── loadPresentation.ts     # Presentation loader
+├── scripts/
+│   └── migrate-presentations.js    # Migration utility
+├── PRESENTATION-STRUCTURE.md       # Presentation system docs
+├── PRESENTATION-TEXT-GUIDELINES.md # Styling guidelines
+└── .claude/
+    └── agents/                      # Claude Code agents
+        ├── blog-to-presentation-converter.md
+        ├── en-to-id-translator.md
+        └── html-snippet-converter.md
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## 🎯 Presentation System
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+### File-Based Structure
+Presentations use a file-based structure where each slide is a separate HTML file:
 
-The `src/content/` directory contains "collections" of related Markdown and MDX documents. Use `getCollection()` to retrieve posts from `src/content/blog/`, and type-check your frontmatter using an optional schema. See [Astro's Content Collections docs](https://docs.astro.build/en/guides/content-collections/) to learn more.
+```text
+src/content/presentations-en/{slug}/
+├── metadata.json           # Title, description, tags, etc.
+├── slide-metadata.json     # Index of all slides
+├── slide-01.html          # Individual slide content
+├── slide-02.html
+└── ...
+```
 
-Any static assets, like images, can be placed in the `public/` directory.
+### Key Features
+- ✅ **Automatic Discovery** - No manual registry needed
+- ✅ **Single Source of Truth** - Content files are the only source
+- ✅ **Easy Editing** - Each slide is readable and editable separately
+- ✅ **Better Version Control** - Granular diffs per slide
+- ✅ **Zero Configuration** - Just create files and they appear
+
+### Adding a New Presentation
+
+1. Create directory: `src/content/presentations-en/{slug}/`
+2. Add `metadata.json` with presentation info
+3. Add `slide-metadata.json` with slide index
+4. Add `slide-01.html`, `slide-02.html`, etc.
+5. Build → Automatically discovered! 🎉
+
+See [PRESENTATION-STRUCTURE.md](./PRESENTATION-STRUCTURE.md) for detailed documentation.
 
 ## 🧞 Commands
 
-All commands are run from the root of the project, from a terminal:
+All commands are run from the root of the project:
 
 | Command                   | Action                                           |
 | :------------------------ | :----------------------------------------------- |
@@ -53,10 +102,80 @@ All commands are run from the root of the project, from a terminal:
 | `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
 | `npm run astro -- --help` | Get help using the Astro CLI                     |
 
+### Utility Scripts
+
+```bash
+# Migrate old presentations to file-based structure
+node scripts/migrate-presentations.js
+```
+
+## 📚 Content Collections
+
+### Blog Posts
+- Location: `src/content/blog-{lang}/`
+- Format: MDX with frontmatter
+- Components: DefinitionBox, ExampleBox, InsightBox, WarningBox, etc.
+
+### Presentations
+- Location: `src/content/presentations-{lang}/{slug}/`
+- Format: HTML files + JSON metadata
+- Framework: Reveal.js
+- Optimization: Mobile-first, Instagram-ready (1080x1080)
+
+## 🤖 Claude Code Agents
+
+### blog-to-presentation-converter
+Converts blog posts to interactive presentations automatically:
+- Extracts key concepts and examples
+- Creates mobile-optimized slides
+- Follows styling guidelines
+- **No manual registry updates needed** - automatically discovered!
+
+### en-to-id-translator
+Translates English content to Indonesian:
+- Preserves technical terminology
+- Maintains file structure
+- Handles MDX components
+
+### html-snippet-converter
+Converts markdown notes to MDX blog format using project snippets.
+
+## 🌐 URLs
+
+Presentations are accessible at:
+- English: `/en/presentations/{slug}`
+- Indonesian: `/id/presentations/{slug}`
+
+Blog posts are accessible at:
+- English: `/en/blog/{slug}`
+- Indonesian: `/id/blog/{slug}`
+
+## 🛠️ Technologies
+
+- **Framework**: [Astro](https://astro.build)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com)
+- **Presentations**: [Reveal.js](https://revealjs.com)
+- **Math Rendering**: KaTeX
+- **Languages**: TypeScript, MDX
+
+## 📖 Documentation
+
+- [PRESENTATION-STRUCTURE.md](./PRESENTATION-STRUCTURE.md) - Presentation system architecture
+- [PRESENTATION-TEXT-GUIDELINES.md](./PRESENTATION-TEXT-GUIDELINES.md) - Text sizing and spacing standards
+
+## 🔄 Recent Changes
+
+### File-Based Presentation System (Latest)
+- Migrated from inline content to file-based structure
+- Implemented automatic discovery system
+- Removed manual `presentations.ts` registry
+- Each slide is now a separate, readable HTML file
+- Zero configuration - presentations automatically discovered
+
 ## 👀 Want to learn more?
 
-Check out [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+Check out [Astro documentation](https://docs.astro.build) or the [Reveal.js documentation](https://revealjs.com).
 
-## Credit
+## 📝 License
 
-This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).
+This project is built with Astro's blog template and enhanced with custom features for educational content delivery.
