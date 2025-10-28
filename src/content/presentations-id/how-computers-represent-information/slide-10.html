@@ -1,0 +1,42 @@
+<!--
+  Slide 10: Break into Three
+  Time: 31:00-35:00
+-->
+<div class="space-y-1">
+  <h4 class="text-sm font-bold text-center text-green-700">💡 Solusinya: Konteks!</h4>
+  <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-2 rounded-lg border-4 border-green-500">
+    <h5 class="text-3xl font-bold mb-0">Format File Memberikan Konteks</h5>
+    <div class="bg-white p-2 rounded-lg shadow-lg space-y-1">
+      <div class="bg-blue-100 p-1.5 rounded border-2 border-blue-400">
+        <p class="text-2xl font-bold mb-0">Keajaibannya: File Header</p>
+        <p class="text-2xl">Setiap file dimulai dengan byte khusus yang memberi tahu komputer jenis data apa yang
+          mengikuti:</p>
+      </div>
+      <div class="grid grid-cols-2 gap-1 mt-1">
+        <div class="bg-white border-2 border-gray-300 p-1.5 rounded">
+          <p class="font-mono text-2xl text-blue-600">FF D8 FF...</p>
+          <p class="font-semibold text-2xl">Gambar .JPEG</p>
+          <p class="text-2xl text-gray-600">→ Decode sebagai pixel</p>
+        </div>
+        <div class="bg-white border-2 border-gray-300 p-1.5 rounded">
+          <p class="font-mono text-2xl text-green-600">89 50 4E 47...</p>
+          <p class="font-semibold text-2xl">Gambar .PNG</p>
+          <p class="text-2xl text-gray-600">→ Decode sebagai pixel</p>
+        </div>
+        <div class="bg-white border-2 border-gray-300 p-1.5 rounded">
+          <p class="font-mono text-2xl text-purple-600">25 50 44 46...</p>
+          <p class="font-semibold text-2xl">Dokumen .PDF</p>
+          <p class="text-2xl text-gray-600">→ Decode sebagai teks/grafik</p>
+        </div>
+        <div class="bg-white border-2 border-gray-300 p-1.5 rounded">
+          <p class="font-mono text-2xl text-red-600">FF FB...</p>
+          <p class="font-semibold text-2xl">Audio .MP3</p>
+          <p class="text-2xl text-gray-600">→ Decode sebagai suara</p>
+        </div>
+      </div>
+      <div class="bg-green-100 p-1.5 rounded border-2 border-green-400 mt-1">
+        <p class="font-bold text-center text-2xl">Byte yang sama, makna yang berbeda—berkat konteks! ✓</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,18 @@
+{
+  "title": "Bagaimana Komputer Merepresentasikan Informasi",
+  "description": "Presentasi naratif interaktif yang mengeksplorasi bagaimana komputer mengubah segala sesuatu—emoji, gambar, musik, dan video—menjadi angka nol dan satu menggunakan representasi binary.",
+  "pubDate": "2025-10-23T00:00:00.000Z",
+  "relatedBlogPost": "how-computers-represent-information",
+  "category": "Computer Science",
+  "tags": [
+    "computer-science",
+    "binary",
+    "encoding",
+    "fundamentals"
+  ],
+  "difficulty": "beginner",
+  "language": "id",
+  "estimatedTime": 45,
+  "totalSlides": 11,
+  "author": "QuiverLearn"
+}

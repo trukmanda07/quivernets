@@ -1,0 +1,113 @@
+---
+/**
+ * RevealLayout.astro
+ * Main layout wrapper for reveal.js presentations
+ * Provides HTML structure and loads reveal.js dependencies
+ */
+
+import '../styles/global.css';
+import 'reveal.js/dist/reveal.css';
+import '../styles/reveal-custom-theme.css';
+
+interface Props {
+  title: string;
+  description: string;
+  language?: string;
+  theme?: 'white' | 'black' | 'league' | 'sky' | 'beige' | 'night' | 'serif' | 'simple' | 'solarized' | 'moon' | 'dracula' | 'custom';
+}
+
+const {
+  title,
+  description,
+  language = 'en',
+  theme = 'custom'
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang={language}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+
+    <!-- reveal.js CSS is imported in the frontmatter above -->
+
+    <!-- KaTeX for math rendering -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+      integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV"
+      crossorigin="anonymous"
+    />
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"
+      integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+      integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05"
+      crossorigin="anonymous"
+    ></script>
+
+
+    <!-- Open Graph / Social Media Meta Tags -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={Astro.url} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+
+    <!-- Twitter Card -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={Astro.url} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+
+    <!-- Mobile optimizations -->
+    <style is:global>
+      /* Ensure reveal.js works properly */
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      /* Fix for custom header positioning */
+      .presentation-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Adjust reveal.js container to account for header */
+      .reveal {
+        position: absolute;
+        top: 60px; /* Adjust based on header height */
+        bottom: 0;
+        left: 0;
+        right: 0;
+      }
+
+      @media (max-width: 768px) {
+        .reveal {
+          top: 50px; /* Smaller on mobile */
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

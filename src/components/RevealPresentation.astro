@@ -1,0 +1,134 @@
+---
+/**
+ * RevealPresentation.astro
+ * Main presentation component that wraps reveal.js
+ * Handles slide rendering and reveal.js initialization
+ */
+
+import PresentationHeader from './PresentationHeader.astro';
+import { getLangFromUrl } from '../utils/i18n';
+
+interface Slide {
+  title: string;
+  time: string;
+  content: string;
+  notes?: string;
+  fragments?: boolean;
+  transition?: string;
+  background?: string;
+}
+
+interface RevealConfig {
+  controls?: boolean;
+  progress?: boolean;
+  slideNumber?: boolean | string;
+  hash?: boolean;
+  transition?: 'none' | 'fade' | 'slide' | 'convex' | 'concave' | 'zoom';
+  transitionSpeed?: 'default' | 'fast' | 'slow';
+  width?: number;
+  height?: number;
+  margin?: number;
+  autoSlide?: number;
+}
+
+interface Props {
+  title: string;
+  slides: Slide[];
+  relatedBlogPost?: string;
+  language?: string;
+  displayMode?: 'fullscreen' | 'instagram';
+  slug?: string;
+  config?: RevealConfig;
+}
+
+const {
+  title,
+  slides,
+  relatedBlogPost,
+  language = 'en',
+  displayMode = 'instagram',
+  slug = '',
+  config = {}
+} = Astro.props;
+
+// Get current language from URL
+const pathname = Astro.url.pathname;
+const currentLang = getLangFromUrl(pathname) || language;
+
+// Default reveal.js configuration
+const defaultConfig: RevealConfig = {
+  controls: true,
+  progress: true,
+  slideNumber: 'c/t', // "current / total"
+  hash: true, // Enable URL hash navigation
+  transition: 'slide',
+  transitionSpeed: 'default',
+  width: displayMode === 'instagram' ? 1080 : 1920,
+  height: displayMode === 'instagram' ? 1080 : 1080,
+  margin: 0.04,
+};
+
+// Merge with custom config
+const revealConfig = { ...defaultConfig, ...config };
+---
+
+<!-- Custom Header (navigation, share, language) -->
+<PresentationHeader
+  title={title}
+  relatedBlogPost={relatedBlogPost}
+  language={currentLang}
+  slug={slug}
+/>
+
+<!-- reveal.js Container -->
+<div class="reveal" data-mode={displayMode}>
+  <div class="slides">
+    {slides.map((slide, index) => (
+      <section
+        data-timing={slide.time}
+        data-slide-index={index}
+        data-transition={slide.transition}
+        data-background={slide.background}
+      >
+        <h4>{slide.title}</h4>
+        <div class="slide-content" set:html={slide.content}></div>
+
+        {slide.notes && (
+          <aside class="notes" set:html={slide.notes}></aside>
+        )}
+      </section>
+    ))}
+  </div>
+</div>
+
+<script define:vars={{ slug, slides, revealConfig }}>
+  // Set global variables for reveal-init.ts to use
+  window.__REVEAL_SLUG__ = slug;
+  window.__REVEAL_SLIDES__ = slides;
+  window.__REVEAL_CONFIG__ = revealConfig;
+</script>
+
+<script>
+  // Import the bundled reveal initialization script
+  import '../scripts/reveal-init.ts';
+</script>
+
+<style>
+  /* Display mode styles */
+  .reveal[data-mode="instagram"] {
+    /* Square format for Instagram */
+    width: min(1080px, 100vw);
+    height: min(1080px, 100vh);
+  }
+
+  .reveal[data-mode="fullscreen"] {
+    /* Standard widescreen format */
+    width: 100vw;
+    height: 100vh;
+  }
+
+  /* Ensure slide content is properly styled */
+  .slide-content {
+    text-align: left;
+  }
+</style>

@@ -1,0 +1,41 @@
+<!--
+  Slide 10: Break into Three
+  Time: 31:00-35:00
+-->
+<div class="space-y-1">
+  <h4 class="text-sm font-bold text-center text-green-700">💡 The Solution: Context!</h4>
+  <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-2 rounded-lg border-4 border-green-500">
+    <h5 class="text-3xl font-bold mb-0">File Formats Provide Context</h5>
+    <div class="bg-white p-2 rounded-lg shadow-lg space-y-1">
+      <div class="bg-blue-100 p-1.5 rounded border-2 border-blue-400">
+        <p class="text-2xl font-bold mb-0">The Magic: File Headers</p>
+        <p class="text-2xl">Every file starts with special bytes that tell the computer what type of data follows:</p>
+      </div>
+      <div class="grid grid-cols-2 gap-1 mt-1">
+        <div class="bg-white border-2 border-gray-300 p-1.5 rounded">
+          <p class="font-mono text-2xl text-blue-600">FF D8 FF...</p>
+          <p class="font-semibold text-2xl">.JPEG image</p>
+          <p class="text-2xl text-gray-600">→ Decode as pixels</p>
+        </div>
+        <div class="bg-white border-2 border-gray-300 p-1.5 rounded">
+          <p class="font-mono text-2xl text-green-600">89 50 4E 47...</p>
+          <p class="font-semibold text-2xl">.PNG image</p>
+          <p class="text-2xl text-gray-600">→ Decode as pixels</p>
+        </div>
+        <div class="bg-white border-2 border-gray-300 p-1.5 rounded">
+          <p class="font-mono text-2xl text-purple-600">25 50 44 46...</p>
+          <p class="font-semibold text-2xl">.PDF document</p>
+          <p class="text-2xl text-gray-600">→ Decode as text/graphics</p>
+        </div>
+        <div class="bg-white border-2 border-gray-300 p-1.5 rounded">
+          <p class="font-mono text-2xl text-red-600">FF FB...</p>
+          <p class="font-semibold text-2xl">.MP3 audio</p>
+          <p class="text-2xl text-gray-600">→ Decode as sound</p>
+        </div>
+      </div>
+      <div class="bg-green-100 p-1.5 rounded border-2 border-green-400 mt-1">
+        <p class="font-bold text-center text-2xl">Same bytes, different meaning—thanks to context! ✓</p>
+      </div>
+    </div>
+  </div>
+</div>

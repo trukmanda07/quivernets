@@ -2,6 +2,7 @@
 import Header from '../../../components/Header.astro';
 import Footer from '../../../components/Footer.astro';
 import '../../../styles/global.css';
+import { getPresentationsForLang } from '../../../utils/loadPresentation';
 
 export async function getStaticPaths() {
   return [
@@ -12,24 +13,16 @@ export async function getStaticPaths() {
 
 const { lang } = Astro.params;
 
-// Load presentation JSON files directly
-const enPresentationsRaw = import.meta.glob('/src/content/presentations-en/*.json', { eager: true });
-const idPresentationsRaw = import.meta.glob('/src/content/presentations-id/*.json', { eager: true });
+// Get presentations for this language (automatically scans filesystem)
+const presentationsData = getPresentationsForLang(lang);
 
-const presentationsRaw = lang === 'en' ? enPresentationsRaw : idPresentationsRaw;
+// Transform to match old format (id and data structure)
+const presentations = presentationsData.map(p => ({
+  id: p.id,
+  data: p
+}));
 
-// Transform to array with id and data
-let presentations: any[] = [];
-for (const [path, module] of Object.entries(presentationsRaw)) {
-  const id = path.split('/').pop()?.replace('.json', '') || '';
-  presentations.push({
-    id,
-    data: module as any
-  });
-}
-
-// Sort by date, newest first
-presentations.sort((a, b) => new Date(b.data.pubDate).valueOf() - new Date(a.data.pubDate).valueOf());
+// Already sorted by date in getPresentationsForLang()
 
 const title = lang === 'en' ? 'Interactive Presentations' : 'Presentasi Interaktif';
 const description = lang === 'en'

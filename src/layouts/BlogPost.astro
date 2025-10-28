@@ -78,20 +78,20 @@ try {
 }
 
 // Check for related presentation
-// Load presentations directly from JSON files
-const enPresentationsRaw = import.meta.glob('/src/content/presentations-en/*.json', { eager: true });
-const idPresentationsRaw = import.meta.glob('/src/content/presentations-id/*.json', { eager: true });
-
-const presentationsRaw = currentLang === 'en' ? enPresentationsRaw : idPresentationsRaw;
+import { getAllPresentations } from '../utils/loadPresentation';
 
 let relatedPresentation: any = null;
-for (const [path, module] of Object.entries(presentationsRaw)) {
-	const data = module as any;
-	if (data.relatedBlogPost === currentSlug) {
-		const id = path.split('/').pop()?.replace('.json', '') || '';
-		relatedPresentation = { id, data };
-		break;
-	}
+// Find presentation that references this blog post (automatically scans filesystem)
+const presentations = getAllPresentations();
+const foundPresentation = presentations.find(p =>
+	p.relatedBlogPost === currentSlug && p.languages.includes(currentLang)
+);
+
+if (foundPresentation) {
+	relatedPresentation = {
+		id: foundPresentation.id,
+		data: foundPresentation
+	};
 }
 ---
 
