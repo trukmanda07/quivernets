@@ -1,0 +1,203 @@
+/**
+ * Presentation Header Styles
+ * Extracted from PresentationHeader.astro for maintainability
+ * Week 3 Refactoring
+ * Week 4: Added CSS custom properties to fix layout coupling
+ */
+
+/* ===== CSS CUSTOM PROPERTIES ===== */
+:root {
+  --presentation-header-height: 60px;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --presentation-header-height: 50px;
+  }
+}
+
+/* ===== HEADER LAYOUT ===== */
+.presentation-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--presentation-header-height);
+  z-index: 1000;
+}
+
+.header-container {
+  padding: 0.75rem 1rem;
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.header-title {
+  font-size: clamp(0.875rem, 3vw, 1rem);
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+  flex: 1;
+  text-align: center;
+  min-width: 0;
+}
+
+/* ===== MOBILE MENU BUTTON ===== */
+.mobile-menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  color: #374151;
+  cursor: pointer;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 0.375rem;
+  transition: background-color 0.2s;
+}
+
+.mobile-menu-btn:hover {
+  background: #f3f4f6;
+}
+
+/* ===== DESKTOP NAVIGATION ===== */
+.desktop-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.nav-link {
+  font-size: 0.875rem;
+  color: #374151;
+  text-decoration: none;
+  transition: color 0.2s;
+  padding: 0.5rem 0;
+}
+
+.nav-link:hover {
+  color: #2563eb;
+}
+
+/* ===== ACTION BUTTONS ===== */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: white;
+  text-decoration: none;
+  transition: all 0.2s;
+  min-height: 44px;
+  border: none;
+  cursor: pointer;
+}
+
+.action-btn-blog {
+  background: #16a34a;
+}
+
+.action-btn-blog:hover {
+  background: #15803d;
+}
+
+.action-btn-share {
+  background: #9333ea;
+}
+
+.action-btn-share:hover {
+  background: #7e22ce;
+}
+
+/* ===== SHARE MENU ===== */
+.share-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.5rem);
+  min-width: 14rem;
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e5e7eb;
+  z-index: 50;
+}
+
+.share-menu-content {
+  padding: 0.5rem;
+}
+
+.share-menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s;
+  text-align: left;
+  min-height: 44px;
+}
+
+.share-menu-item:hover {
+  background: #f3f4f6;
+}
+
+/* ===== MOBILE NAVIGATION ===== */
+.mobile-nav {
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+  padding: 0.5rem;
+}
+
+.mobile-nav-link {
+  display: block;
+  padding: 0.75rem 1rem;
+  color: #374151;
+  text-decoration: none;
+  border-radius: 0.375rem;
+  transition: background-color 0.15s;
+  font-size: 0.9375rem;
+  min-height: 44px;
+}
+
+.mobile-nav-link:hover {
+  background: #e5e7eb;
+}
+
+/* ===== MOBILE RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .header-title {
+    font-size: clamp(0.75rem, 2.5vw, 0.875rem);
+    max-width: 50%;
+  }
+
+  .action-btn {
+    padding: 0.5rem;
+    font-size: 0;
+  }
+
+  .action-btn svg {
+    margin: 0;
+    width: 18px;
+    height: 18px;
+  }
+}

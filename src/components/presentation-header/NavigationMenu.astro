@@ -1,0 +1,22 @@
+---
+/**
+ * NavigationMenu.astro
+ * Desktop navigation menu for presentations
+ */
+
+import { addLanguagePrefix, useTranslations } from '../../utils/i18n';
+
+interface Props {
+  currentLang: string;
+}
+
+const { currentLang } = Astro.props;
+const t = useTranslations(currentLang);
+---
+
+<nav class="desktop-nav hidden md:flex">
+  <a href={addLanguagePrefix('/', currentLang)} class="nav-link">{t.nav.home}</a>
+  <a href={addLanguagePrefix('/blog', currentLang)} class="nav-link">{t.nav.blog}</a>
+  <a href={addLanguagePrefix('/presentations', currentLang)} class="nav-link">{t.nav.presentations}</a>
+  <a href={addLanguagePrefix('/about', currentLang)} class="nav-link">{t.nav.about}</a>
+</nav>
