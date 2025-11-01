@@ -13,6 +13,63 @@ An educational platform featuring blog posts and interactive presentations for c
 - 📰 **RSS Feed** - Automatic feed generation for blog posts
 - 🗺️ **Sitemap** - Automatic sitemap generation
 
+## 🏗️ Architecture
+
+### Presentation System Architecture
+
+QuiverLearn uses a modular, well-tested presentation system powered by Reveal.js. The architecture prioritizes maintainability, testability, and clean separation of concerns.
+
+#### Component Hierarchy
+
+```
+PresentationPage
+├── RevealLayout (HTML structure, dependencies)
+│   ├── PresentationHeader (navigation, sharing)
+│   │   ├── NavigationMenu (desktop nav)
+│   │   ├── MobileNav (mobile menu)
+│   │   └── PresentationActions (action buttons)
+│   │       ├── BlogLinkButton
+│   │       ├── ShareButton
+│   │       └── LanguageSwitcher
+│   └── RevealPresentation (slide rendering)
+│       └── reveal-init.ts (client-side)
+└── Reveal.js Library
+```
+
+#### Design Decisions
+
+**Why Reveal.js?**
+- Battle-tested presentation library (67k+ GitHub stars)
+- Rich feature set (keyboard nav, touch gestures, deep linking)
+- Mobile-optimized out of the box
+- Active community and extensive documentation
+
+**Component Architecture** (Week 3-4 Refactoring)
+- Each component has a single, clear responsibility
+- Utilities extracted to TypeScript modules for testability
+- Comprehensive E2E test coverage (44 tests)
+- Zero coupling between components
+- Main header component reduced from 469 lines to 52 lines
+
+**Key Benefits**
+- ✅ **Maintainable** - Small, focused files (<150 lines each)
+- ✅ **Testable** - Pure functions in TypeScript modules
+- ✅ **Reusable** - Components can be used independently
+- ✅ **Type-Safe** - Full TypeScript support with JSDoc
+
+For detailed architecture documentation, see:
+- [Reveal.js Integration](docs/architecture/reveal-js-integration.md)
+- [Week 3 Refactoring Summary](research/architecture-challenges/week-3-completion-summary.md)
+- [Week 4 Documentation & Polish](research/architecture-challenges/week-4-documentation-polish-plan.md)
+
+### Code Quality
+
+- **Test Coverage**: 44 E2E tests for presentation header functionality
+- **Documentation**: Comprehensive JSDoc comments on all public interfaces
+- **Build Time**: ~9 seconds for 60 pages
+- **Bundle Size**: Optimized with code splitting
+- **Performance**: No degradation from modular architecture
+
 ## 🚀 Project Structure
 
 ```text
