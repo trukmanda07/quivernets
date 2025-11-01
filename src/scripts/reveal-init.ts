@@ -1,11 +1,15 @@
 /**
  * Reveal.js initialization script
  * Loaded as a bundled client-side script
+ *
+ * Refactored to use extracted utilities for better testability
  */
 
 import Reveal from 'reveal.js';
 import Highlight from 'reveal.js/plugin/highlight/highlight.esm.js';
 import Notes from 'reveal.js/plugin/notes/notes.esm.js';
+import { ProgressTracker } from '../utils/presentation/ProgressTracker';
+import { renderMath } from '../utils/presentation/mathRendering';
 
 // Get config from global variable (set by inline script)
 declare global {
@@ -16,56 +20,8 @@ declare global {
   }
 }
 
-// ===== PROGRESS TRACKING UTILITIES =====
-const STORAGE_KEY = 'presentationProgress';
-
-function loadProgress(presentationSlug: string) {
-  if (typeof localStorage === 'undefined' || !presentationSlug) return null;
-  try {
-    const data = localStorage.getItem(STORAGE_KEY);
-    const allProgress = data ? JSON.parse(data) : {};
-    return allProgress[presentationSlug] || null;
-  } catch (error) {
-    console.error('Error loading progress:', error);
-    return null;
-  }
-}
-
-function saveProgress(presentationSlug: string, slideIndex: number, totalSlides: number) {
-  if (typeof localStorage === 'undefined' || !presentationSlug) return;
-  try {
-    const data = localStorage.getItem(STORAGE_KEY);
-    const allProgress = data ? JSON.parse(data) : {};
-    const isLastSlide = slideIndex === totalSlides - 1;
-
-    allProgress[presentationSlug] = {
-      currentSlide: slideIndex,
-      totalSlides,
-      lastVisited: new Date().toISOString(),
-      completed: isLastSlide,
-    };
-
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(allProgress));
-  } catch (error) {
-    console.error('Error saving progress:', error);
-  }
-}
-
-// ===== KATEX RENDERING =====
-function renderKaTeX() {
-  if (typeof (window as any).renderMathInElement !== 'undefined') {
-    const currentSlide = deck.getCurrentSlide();
-    if (currentSlide) {
-      (window as any).renderMathInElement(currentSlide, {
-        delimiters: [
-          {left: '$$', right: '$$', display: true},
-          {left: '$', right: '$', display: false},
-        ],
-        throwOnError: false
-      });
-    }
-  }
-}
+// Initialize progress tracker
+const progressTracker = new ProgressTracker();
 
 // ===== REVEAL.JS INITIALIZATION =====
 const slug = window.__REVEAL_SLUG__;
@@ -92,7 +48,7 @@ deck.initialize().then(() => {
 
   // Load saved progress
   if (slug) {
-    const progress = loadProgress(slug);
+    const progress = progressTracker.load(slug);
     if (progress && progress.currentSlide > 0 && !progress.completed) {
       console.log(`📖 Resuming from slide ${progress.currentSlide + 1} of ${slides.length}`);
       deck.slide(progress.currentSlide);
@@ -100,7 +56,10 @@ deck.initialize().then(() => {
   }
 
   // Initial KaTeX render
-  renderKaTeX();
+  const currentSlide = deck.getCurrentSlide();
+  if (currentSlide) {
+    renderMath(currentSlide);
+  }
 }).catch((error) => {
   console.error('❌ reveal.js initialization failed:', error);
 });
@@ -113,7 +72,7 @@ deck.on('slidechanged', (event: any) => {
 
   // Save progress
   if (slug) {
-    saveProgress(slug, event.indexh, slides.length);
+    progressTracker.save(slug, event.indexh, slides.length);
 
     // Log completion
     if (event.indexh === slides.length - 1) {
@@ -122,7 +81,10 @@ deck.on('slidechanged', (event: any) => {
   }
 
   // Render KaTeX on new slide
-  renderKaTeX();
+  const currentSlide = deck.getCurrentSlide();
+  if (currentSlide) {
+    renderMath(currentSlide);
+  }
 });
 
 // Fragment events (for debugging)

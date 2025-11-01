@@ -1,0 +1,28 @@
+---
+/**
+ * PresentationActions.astro
+ * Container for header action buttons: Blog link, Share, Language switcher
+ */
+
+import BlogLinkButton from './BlogLinkButton.astro';
+import ShareButton from './ShareButton.astro';
+import LanguageSwitcher from '../LanguageSwitcher.astro';
+
+interface Props {
+  relatedBlogPost?: string;
+  currentLang: string;
+  slug?: string;
+}
+
+const { relatedBlogPost, currentLang, slug } = Astro.props;
+---
+
+<div class="header-actions">
+  {relatedBlogPost && (
+    <BlogLinkButton relatedBlogPost={relatedBlogPost} currentLang={currentLang} />
+  )}
+
+  <ShareButton currentLang={currentLang} />
+
+  <LanguageSwitcher />
+</div>

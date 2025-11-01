@@ -1,0 +1,35 @@
+---
+/**
+ * MobileNav.astro
+ * Mobile navigation drawer with hamburger menu
+ */
+
+import { addLanguagePrefix, useTranslations } from '../../utils/i18n';
+
+interface Props {
+  currentLang: string;
+}
+
+const { currentLang } = Astro.props;
+const t = useTranslations(currentLang);
+---
+
+<!-- Hamburger Button -->
+<button id="mobile-menu-btn" class="mobile-menu-btn md:hidden" aria-label="Toggle mobile menu">
+  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+  </svg>
+</button>
+
+<!-- Mobile Menu Drawer -->
+<nav id="mobile-nav" class="mobile-nav hidden">
+  <a href={addLanguagePrefix('/', currentLang)} class="mobile-nav-link">{t.nav.home}</a>
+  <a href={addLanguagePrefix('/blog', currentLang)} class="mobile-nav-link">{t.nav.blog}</a>
+  <a href={addLanguagePrefix('/presentations', currentLang)} class="mobile-nav-link">{t.nav.presentations}</a>
+  <a href={addLanguagePrefix('/about', currentLang)} class="mobile-nav-link">{t.nav.about}</a>
+</nav>
+
+<script>
+  import { initializeMobileMenu } from './scripts/mobile-menu-handlers';
+  initializeMobileMenu();
+</script>
