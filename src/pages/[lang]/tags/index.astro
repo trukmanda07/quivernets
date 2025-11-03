@@ -6,14 +6,14 @@
  */
 
 import '../../../styles/global.css';
-import { getCollection } from 'astro:content';
 import BaseHead from '../../../components/BaseHead.astro';
 import Footer from '../../../components/Footer.astro';
 import Header from '../../../components/Header.astro';
 import Tag from '../../../components/Tag.astro';
 import { SITE_TITLE } from '../../../consts';
-import { supportedLanguages, getCollectionName, useTranslations } from '../../../utils/i18n';
+import { supportedLanguages, useTranslations } from '../../../utils/i18n';
 import { TagService } from '../../../services/tagService';
+import { getCachedBlogPosts } from '../../../utils/buildCache';
 
 export async function getStaticPaths() {
 	return supportedLanguages.map((lang) => ({
@@ -25,14 +25,13 @@ const { lang } = Astro.params;
 const currentLang = lang || 'en';
 const t = useTranslations(currentLang);
 
-// Get all posts for the current language
-const collectionName = getCollectionName(currentLang);
+// Get all posts for the current language (cached)
 let posts = [];
 
 try {
-	posts = await getCollection(collectionName);
+	posts = await getCachedBlogPosts(currentLang as 'en' | 'id');
 } catch (error) {
-	console.log(`Collection ${collectionName} not found or empty`);
+	console.log(`Collection for ${currentLang} not found or empty`);
 }
 
 // Count posts per tag using TagService
