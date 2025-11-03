@@ -1,6 +1,5 @@
 ---
 import '../../../styles/global.css';
-import { getCollection } from 'astro:content';
 import BaseHead from '../../../components/BaseHead.astro';
 import Footer from '../../../components/Footer.astro';
 import Header from '../../../components/Header.astro';
@@ -10,9 +9,11 @@ import InlineSearch from '../../../components/InlineSearch.astro';
 import PostCard from '../../../components/PostCard.astro';
 import ActiveFilters from '../../../components/ActiveFilters.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../../../consts';
-import { supportedLanguages, getCollectionName, useTranslations } from '../../../utils/i18n';
+import { supportedLanguages, useTranslations } from '../../../utils/i18n';
 import { buildExplorerTree } from '../../../utils/explorerTree';
 import { parseTagsFromUrl } from '../../../utils/tagHelpers';
+import { getCachedBlogPosts } from '../../../utils/buildCache';
+import { TagService } from '../../../services/tagService';
 
 export async function getStaticPaths() {
 	return supportedLanguages.map((lang) => ({
@@ -24,17 +25,16 @@ const { lang } = Astro.params;
 const currentLang = lang || 'en';
 const t = useTranslations(currentLang);
 
-// Get posts for the current language
-const collectionName = getCollectionName(currentLang);
+// Get posts for the current language (cached)
 let allPosts = [];
 try {
-	allPosts = (await getCollection(collectionName)).sort(
+	allPosts = (await getCachedBlogPosts(currentLang as 'en' | 'id')).sort(
 		(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 	);
-	console.log(`Loaded ${allPosts.length} posts from ${collectionName}`);
+	console.log(`Loaded ${allPosts.length} posts from blog-${currentLang}`);
 } catch (error) {
 	// Collection might be empty initially
-	console.error(`Error loading collection ${collectionName}:`, error);
+	console.error(`Error loading collection blog-${currentLang}:`, error);
 }
 
 // Extract unique categories and difficulties for filter UI
@@ -82,26 +82,9 @@ if (sortOrder === 'oldest') {
 const explorerTree = buildExplorerTree(allPosts, currentLang);
 
 // Extract all tags with counts for TagBrowseSidebar
-type TagInfo = {
-	name: string;
-	slug: string;
-	count: number;
-};
-
-const tagCounts = new Map<string, number>();
-allPosts.forEach((post) => {
-	post.data.tags?.forEach((tag) => {
-		tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
-	});
+const allTags = TagService.calculateTagCounts(allPosts, {
+	sortBy: 'count-desc',
 });
-
-const allTags: TagInfo[] = Array.from(tagCounts.entries())
-	.map(([name, count]) => ({
-		name,
-		slug: name.toLowerCase().replace(/\s+/g, '-'),
-		count,
-	}))
-	.sort((a, b) => b.count - a.count);
 ---
 
 <!doctype html>

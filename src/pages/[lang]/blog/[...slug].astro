@@ -1,16 +1,16 @@
 ---
-import { type CollectionEntry, getCollection, render } from 'astro:content';
+import { type CollectionEntry, render } from 'astro:content';
 import BlogPost from '../../../layouts/BlogPost.astro';
-import { supportedLanguages, getCollectionName } from '../../../utils/i18n';
+import { supportedLanguages } from '../../../utils/i18n';
 import { buildExplorerTree } from '../../../utils/explorerTree';
+import { getCachedBlogPosts } from '../../../utils/buildCache';
 
 export async function getStaticPaths() {
 	const paths = [];
 
 	for (const lang of supportedLanguages) {
-		const collectionName = getCollectionName(lang);
 		try {
-			const posts = await getCollection(collectionName);
+			const posts = await getCachedBlogPosts(lang as 'en' | 'id');
 			for (const post of posts) {
 				paths.push({
 					params: { lang, slug: post.id },
@@ -19,7 +19,7 @@ export async function getStaticPaths() {
 			}
 		} catch (error) {
 			// Collection might be empty initially
-			console.warn(`Collection ${collectionName} is empty or doesn't exist yet`);
+			console.warn(`Collection blog-${lang} is empty or doesn't exist yet`);
 		}
 	}
 
@@ -34,13 +34,12 @@ type Props = {
 const { post, lang } = Astro.props;
 const { Content, headings } = await render(post);
 
-// Build explorer tree for sidebar
-const collectionName = getCollectionName(lang);
+// Build explorer tree for sidebar (cached)
 let allPosts = [];
 try {
-	allPosts = await getCollection(collectionName);
+	allPosts = await getCachedBlogPosts(lang as 'en' | 'id');
 } catch (error) {
-	console.warn(`Collection ${collectionName} is empty or doesn't exist yet`);
+	console.warn(`Collection blog-${lang} is empty or doesn't exist yet`);
 }
 const explorerTree = buildExplorerTree(allPosts, lang);
 

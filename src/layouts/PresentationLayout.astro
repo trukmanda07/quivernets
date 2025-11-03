@@ -39,13 +39,31 @@ const { title, description, language = 'en' } = Astro.props;
     <meta property="twitter:title" content={title} />
     <meta property="twitter:description" content={description} />
 
-    <!-- Prevent scrolling on the body when presentation is active -->
+    <!-- Presentation layout styles - Full screen slide mode -->
     <style is:global>
       html, body {
         margin: 0;
         padding: 0;
         height: 100%;
-        overflow: hidden;
+        overflow: hidden; /* No scrolling - slides fit to screen */
+      }
+
+      /* Allow overflow on mobile to prevent content cutoff */
+      @media (max-width: 768px) {
+        html, body {
+          height: auto;
+          overflow-y: auto;
+          overflow-x: hidden;
+        }
+      }
+
+      /* Critical for mobile landscape - enable overflow */
+      @media (max-height: 500px) and (orientation: landscape) {
+        html, body {
+          height: auto !important;
+          overflow-y: auto !important;
+          overflow-x: hidden;
+        }
       }
     </style>
   </head>
