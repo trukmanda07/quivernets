@@ -7,7 +7,6 @@
 
 import '../../../styles/global.css';
 import { Image } from 'astro:assets';
-import { getCollection } from 'astro:content';
 import BaseHead from '../../../components/BaseHead.astro';
 import Breadcrumb from '../../../components/Breadcrumb.astro';
 import Footer from '../../../components/Footer.astro';
@@ -15,20 +14,20 @@ import FormattedDate from '../../../components/FormattedDate.astro';
 import Header from '../../../components/Header.astro';
 import Tag from '../../../components/Tag.astro';
 import { SITE_TITLE } from '../../../consts';
-import { supportedLanguages, getCollectionName, useTranslations } from '../../../utils/i18n';
+import { supportedLanguages, useTranslations } from '../../../utils/i18n';
+import { getCachedBlogPosts } from '../../../utils/buildCache';
 
 export async function getStaticPaths() {
 	const paths = [];
 
 	// Generate paths for each language
 	for (const lang of supportedLanguages) {
-		const collectionName = getCollectionName(lang);
 		let posts = [];
 
 		try {
-			posts = await getCollection(collectionName);
+			posts = await getCachedBlogPosts(lang as 'en' | 'id');
 		} catch (error) {
-			console.log(`Collection ${collectionName} not found or empty, skipping...`);
+			console.log(`Collection blog-${lang} not found or empty, skipping...`);
 			continue;
 		}
 
@@ -56,12 +55,11 @@ const { originalTag } = Astro.props;
 const currentLang = lang || 'en';
 const t = useTranslations(currentLang);
 
-// Get all posts for the current language with this tag
-const collectionName = getCollectionName(currentLang);
+// Get all posts for the current language with this tag (cached)
 let posts = [];
 
 try {
-	const allPosts = await getCollection(collectionName);
+	const allPosts = await getCachedBlogPosts(currentLang as 'en' | 'id');
 
 	// Filter posts by tag (case-insensitive match)
 	posts = allPosts

@@ -1,7 +1,6 @@
 ---
 import '../styles/global.css';
 import { Image } from 'astro:assets';
-import { getCollection } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
@@ -15,7 +14,8 @@ import TagBrowseSidebar from '../components/TagBrowseSidebar.astro';
 import PresentationSlideLink from '../components/PresentationSlideLink.astro';
 import type { TreeNode } from '../utils/explorerTree';
 import type { Heading } from '../utils/headingExtractor';
-import { getCollectionName } from '../utils/i18n';
+import { TagService } from '../services/tagService';
+import { getCachedBlogPosts } from '../utils/buildCache';
 
 type Props = CollectionEntry<'blog'>['data'] & {
 	postId?: string;
@@ -43,38 +43,17 @@ const {
 	headings
 } = Astro.props;
 
-// Get all posts to build tag cloud for sidebar
+// Get all posts to build tag cloud for sidebar (cached)
 const currentLang = language || 'en';
-const collectionName = getCollectionName(currentLang);
 
-type TagInfo = {
-	name: string;
-	slug: string;
-	count: number;
-};
-
-let allTags: TagInfo[] = [];
+let allTags = [];
 try {
-	const allPosts = await getCollection(collectionName);
-
-	// Count tag occurrences
-	const tagCounts = new Map<string, number>();
-	allPosts.forEach((post) => {
-		post.data.tags?.forEach((tag) => {
-			tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
-		});
+	const allPosts = await getCachedBlogPosts(currentLang as 'en' | 'id');
+	allTags = TagService.calculateTagCounts(allPosts, {
+		sortBy: 'count-desc',
 	});
-
-	// Create sorted tag list
-	allTags = Array.from(tagCounts.entries())
-		.map(([name, count]) => ({
-			name,
-			slug: name.toLowerCase().replace(/\s+/g, '-'),
-			count,
-		}))
-		.sort((a, b) => b.count - a.count);
 } catch (error) {
-	console.error(`Error loading tags from ${collectionName}:`, error);
+	console.error(`Error loading tags for ${currentLang}:`, error);
 }
 
 // Check for related presentation

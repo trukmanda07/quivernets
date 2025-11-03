@@ -6,13 +6,14 @@
  */
 
 import '../../../styles/global.css';
-import { getCollection } from 'astro:content';
 import BaseHead from '../../../components/BaseHead.astro';
 import Footer from '../../../components/Footer.astro';
 import Header from '../../../components/Header.astro';
 import Tag from '../../../components/Tag.astro';
 import { SITE_TITLE } from '../../../consts';
-import { supportedLanguages, getCollectionName, useTranslations } from '../../../utils/i18n';
+import { supportedLanguages, useTranslations } from '../../../utils/i18n';
+import { TagService } from '../../../services/tagService';
+import { getCachedBlogPosts } from '../../../utils/buildCache';
 
 export async function getStaticPaths() {
 	return supportedLanguages.map((lang) => ({
@@ -24,44 +25,26 @@ const { lang } = Astro.params;
 const currentLang = lang || 'en';
 const t = useTranslations(currentLang);
 
-// Get all posts for the current language
-const collectionName = getCollectionName(currentLang);
+// Get all posts for the current language (cached)
 let posts = [];
 
 try {
-	posts = await getCollection(collectionName);
+	posts = await getCachedBlogPosts(currentLang as 'en' | 'id');
 } catch (error) {
-	console.log(`Collection ${collectionName} not found or empty`);
+	console.log(`Collection for ${currentLang} not found or empty`);
 }
 
-// Count posts per tag
-type TagInfo = {
-	tag: string;
-	count: number;
-	slug: string;
-};
-
-const tagCounts = new Map<string, number>();
-
-posts.forEach((post) => {
-	post.data.tags?.forEach((tag) => {
-		tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
-	});
+// Count posts per tag using TagService
+const tagResults = TagService.calculateTagCounts(posts, {
+	sortBy: 'count-desc',
 });
 
-// Convert to array and sort by count (descending) then alphabetically
-const tags: TagInfo[] = Array.from(tagCounts.entries())
-	.map(([tag, count]) => ({
-		tag,
-		count,
-		slug: tag.toLowerCase().replace(/\s+/g, '-'),
-	}))
-	.sort((a, b) => {
-		// First sort by count (descending)
-		if (b.count !== a.count) return b.count - a.count;
-		// Then alphabetically
-		return a.tag.localeCompare(b.tag);
-	});
+// Convert to the format expected by the template
+const tags = tagResults.map((t) => ({
+	tag: t.name,
+	count: t.count,
+	slug: t.slug,
+}));
 
 const pageTitle = t.tags.allTags;
 const pageDescription = `${currentLang === 'en' ? 'Browse all tags' : 'Jelajahi semua label'} - ${tags.length} ${currentLang === 'en' ? 'tags available' : 'label tersedia'}`;
