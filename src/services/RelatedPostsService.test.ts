@@ -6,10 +6,11 @@
 
 import { describe, it, expect } from 'vitest';
 import { RelatedPostsService } from './RelatedPostsService';
-import type { BlogPost } from './BlogPostService';
+import { BlogPost } from '../domain/blog/BlogPost';
+import type { CollectionEntry } from 'astro:content';
 
-// Helper to create mock blog posts
-function createMockPost(overrides: any = {}): BlogPost {
+// Helper to create mock blog post entries
+function createMockEntry(overrides: any = {}): CollectionEntry<'blog-en'> {
 	const baseData = {
 		title: 'Test Post',
 		description: 'Test description',
@@ -21,16 +22,36 @@ function createMockPost(overrides: any = {}): BlogPost {
 		draft: false,
 	};
 
+	// Use provided id for slug if slug not explicitly provided
+	const idValue = overrides.id || 'test-post.md';
+	const slugValue = overrides.slug || (typeof idValue === 'string' ? idValue.replace('.md', '') : 'test-post');
+
+	// Merge data carefully to ensure required fields are never undefined
+	const mergedData: any = { ...baseData };
+	if (overrides.data) {
+		Object.keys(overrides.data).forEach(key => {
+			if (overrides.data[key] !== undefined) {
+				mergedData[key] = overrides.data[key];
+			}
+		});
+	}
+
+	// Extract non-data overrides
+	const { data: _, id: __, slug: ___, ...otherOverrides } = overrides;
+
 	return {
-		id: overrides.id || 'test-post',
-		slug: overrides.slug || 'test-post',
+		id: idValue,
+		slug: slugValue,
+		body: 'Test body',
 		collection: 'blog-en',
-		data: {
-			...baseData,
-			...overrides.data,
-		},
-		...overrides,
-	} as BlogPost;
+		data: mergedData,
+		...otherOverrides,
+	} as CollectionEntry<'blog-en'>;
+}
+
+// Helper to create BlogPost domain models
+function createMockPost(overrides: any = {}): BlogPost {
+	return new BlogPost(createMockEntry(overrides));
 }
 
 describe('RelatedPostsService', () => {
@@ -59,28 +80,28 @@ describe('RelatedPostsService', () => {
 			const related = RelatedPostsService.findRelated(currentPost, allPosts);
 
 			expect(related).toHaveLength(1);
-			expect(related[0].id).toBe('post2');
+			expect(related[0].slug).toBe('post2');
 		});
 
 		it('should score based on shared tags', () => {
 			const currentPost = createMockPost({
 				id: 'post1',
-				data: { tags: ['python', 'ml'], title: 'Current' },
+				data: { tags: ['python', 'ml'], title: 'Current', difficulty: 'beginner', category: 'test' },
 			});
 
 			const posts = [
 				currentPost,
 				createMockPost({
 					id: 'post2',
-					data: { tags: ['python', 'ml'], title: 'Two shared tags' },
+					data: { tags: ['python', 'ml'], title: 'Two shared tags', difficulty: 'beginner', category: 'test' },
 				}),
 				createMockPost({
 					id: 'post3',
-					data: { tags: ['python'], title: 'One shared tag' },
+					data: { tags: ['python'], title: 'One shared tag', difficulty: 'beginner', category: 'test' },
 				}),
 				createMockPost({
 					id: 'post4',
-					data: { tags: ['javascript'], title: 'No shared tags' },
+					data: { tags: ['javascript'], title: 'No shared tags', difficulty: 'advanced', category: 'web' },
 				}),
 			];
 
@@ -90,26 +111,26 @@ describe('RelatedPostsService', () => {
 
 			// Should return posts with shared tags, sorted by number of tags
 			expect(related).toHaveLength(2);
-			expect(related[0].id).toBe('post2'); // 2 shared tags
-			expect(related[1].id).toBe('post3'); // 1 shared tag
-			// post4 has no shared tags, so not included (score 0)
+			expect(related[0].slug).toBe('post2'); // 2 shared tags
+			expect(related[1].slug).toBe('post3'); // 1 shared tag
+			// post4 has no shared tags and different difficulty, so not included (score 0)
 		});
 
 		it('should score based on same category', () => {
 			const currentPost = createMockPost({
 				id: 'post1',
-				data: { category: 'ml', tags: [] },
+				data: { category: 'ml', tags: [], difficulty: 'beginner' },
 			});
 
 			const posts = [
 				currentPost,
 				createMockPost({
 					id: 'post2',
-					data: { category: 'ml', tags: [] },
+					data: { category: 'ml', tags: [], difficulty: 'beginner' },
 				}),
 				createMockPost({
 					id: 'post3',
-					data: { category: 'web', tags: [] },
+					data: { category: 'web', tags: [], difficulty: 'advanced' },
 				}),
 			];
 
@@ -118,7 +139,7 @@ describe('RelatedPostsService', () => {
 			});
 
 			expect(related).toHaveLength(1);
-			expect(related[0].id).toBe('post2'); // Same category
+			expect(related[0].slug).toBe('post2'); // Same category
 		});
 
 		it('should score based on same difficulty', () => {
@@ -144,7 +165,7 @@ describe('RelatedPostsService', () => {
 			});
 
 			// Both posts have same category (+2), but post2 also has same difficulty (+1)
-			expect(related[0].id).toBe('post2'); // Higher score
+			expect(related[0].slug).toBe('post2'); // Higher score
 		});
 
 		it('should combine multiple scoring factors', () => {
@@ -183,7 +204,7 @@ describe('RelatedPostsService', () => {
 
 			// post2: 2 shared tags (6) + same category (2) + same difficulty (1) = 9
 			// post3: 1 shared tag (3) + same category (2) = 5
-			expect(related[0].id).toBe('post2'); // Higher total score
+			expect(related[0].slug).toBe('post2'); // Higher total score
 		});
 
 		it('should respect maxResults option', () => {
@@ -230,7 +251,7 @@ describe('RelatedPostsService', () => {
 			});
 
 			expect(related).toHaveLength(1);
-			expect(related[0].id).toBe('post2');
+			expect(related[0].slug).toBe('post2');
 		});
 
 		it('should allow custom weights', () => {
@@ -260,7 +281,7 @@ describe('RelatedPostsService', () => {
 				weights: { sharedTag: 1, sameCategory: 5 },
 			});
 
-			expect(related[0].id).toBe('post3'); // Category now more important
+			expect(related[0].slug).toBe('post3'); // Category now more important
 		});
 
 		it('should return posts sorted by score descending', () => {
@@ -289,9 +310,9 @@ describe('RelatedPostsService', () => {
 				maxResults: 10,
 			});
 
-			expect(related[0].id).toBe('post3'); // Highest score
-			expect(related[1].id).toBe('post4'); // Second highest
-			expect(related[2].id).toBe('post2'); // Lowest score
+			expect(related[0].slug).toBe('post3'); // Highest score
+			expect(related[1].slug).toBe('post4'); // Second highest
+			expect(related[2].slug).toBe('post2'); // Lowest score
 		});
 	});
 
@@ -342,11 +363,11 @@ describe('RelatedPostsService', () => {
 		it('should indicate when posts are not related', () => {
 			const post1 = createMockPost({
 				id: 'post1',
-				data: { tags: ['python'], category: 'ml' },
+				data: { tags: ['python'], category: 'ml', difficulty: 'beginner' },
 			});
 			const post2 = createMockPost({
 				id: 'post2',
-				data: { tags: ['javascript'], category: 'web' },
+				data: { tags: ['javascript'], category: 'web', difficulty: 'advanced' },
 			});
 
 			const explanation = RelatedPostsService.explainRelation(post1, post2);
@@ -387,7 +408,7 @@ describe('RelatedPostsService', () => {
 			const related = RelatedPostsService.findRelated(currentPost, posts);
 
 			expect(related).toHaveLength(1);
-			expect(related[0].id).toBe('post2');
+			expect(related[0].slug).toBe('post2');
 		});
 
 		it('should handle posts with no category', () => {

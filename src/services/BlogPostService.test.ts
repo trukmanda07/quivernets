@@ -7,7 +7,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { BlogPostService } from './BlogPostService';
-import type { BlogPost } from './BlogPostService';
+import type { CollectionEntry } from 'astro:content';
 
 // Mock getCachedBlogPosts at module level
 vi.mock('@/utils/buildCache', () => ({
@@ -16,8 +16,8 @@ vi.mock('@/utils/buildCache', () => ({
 
 import { getCachedBlogPosts } from '@/utils/buildCache';
 
-// Helper to create mock blog posts
-function createMockPost(overrides: any = {}): BlogPost {
+// Helper to create mock blog posts (Astro entries)
+function createMockPost(overrides: any = {}): CollectionEntry<'blog-en'> {
 	const baseData = {
 		title: 'Test Post',
 		description: 'Test description',
@@ -29,16 +29,31 @@ function createMockPost(overrides: any = {}): BlogPost {
 		draft: false,
 	};
 
+	// Use provided id for slug if slug not explicitly provided
+	const idValue = overrides.id || 'test-post.md';
+	const slugValue = overrides.slug || (typeof idValue === 'string' ? idValue.replace('.md', '') : 'test-post');
+
+	// Merge data carefully to ensure required fields are never undefined
+	const mergedData: any = { ...baseData };
+	if (overrides.data) {
+		Object.keys(overrides.data).forEach(key => {
+			if (overrides.data[key] !== undefined) {
+				mergedData[key] = overrides.data[key];
+			}
+		});
+	}
+
+	// Extract non-data overrides
+	const { data: _, id: __, slug: ___, ...otherOverrides } = overrides;
+
 	return {
-		id: overrides.id || 'test-post',
-		slug: overrides.slug || 'test-post',
+		id: idValue,
+		slug: slugValue,
+		body: 'Test body',
 		collection: 'blog-en',
-		data: {
-			...baseData,
-			...overrides.data,
-		},
-		...overrides,
-	} as BlogPost;
+		data: mergedData,
+		...otherOverrides,
+	} as CollectionEntry<'blog-en'>;
 }
 
 describe('BlogPostService', () => {
@@ -71,9 +86,10 @@ describe('BlogPostService', () => {
 			const result = await BlogPostService.getAll('en');
 
 			expect(result).toHaveLength(3);
-			expect(result[0].id).toBe('post3'); // Latest first
-			expect(result[1].id).toBe('post2');
-			expect(result[2].id).toBe('post1');
+			// Now returns BlogPost domain models, not raw entries
+			expect(result[0].slug).toBe('post3'); // Latest first
+			expect(result[1].slug).toBe('post2');
+			expect(result[2].slug).toBe('post1');
 		});
 
 		it('should return empty array when no posts', async () => {
@@ -134,8 +150,8 @@ describe('BlogPostService', () => {
 				const result = await BlogPostService.find('en', { category: 'ml' });
 
 				expect(result).toHaveLength(2);
-				expect(result[0].id).toBe('post3'); // Sorted by date, latest first
-				expect(result[1].id).toBe('post1');
+				expect(result[0].slug).toBe('post3'); // Sorted by date, latest first
+				expect(result[1].slug).toBe('post1');
 			});
 		});
 
@@ -161,8 +177,8 @@ describe('BlogPostService', () => {
 				const result = await BlogPostService.find('en', { difficulty: 'beginner' });
 
 				expect(result).toHaveLength(2);
-				expect(result[0].data.difficulty).toBe('beginner');
-				expect(result[1].data.difficulty).toBe('beginner');
+				expect(result[0].difficulty).toBe('beginner');
+				expect(result[1].difficulty).toBe('beginner');
 			});
 		});
 
@@ -188,8 +204,8 @@ describe('BlogPostService', () => {
 				const result = await BlogPostService.find('en', { tags: ['python', 'ml'] });
 
 				expect(result).toHaveLength(2);
-				expect(result[0].id).toBe('post1');
-				expect(result[1].id).toBe('post3');
+				expect(result[0].slug).toBe('post1');
+				expect(result[1].slug).toBe('post3');
 			});
 
 			it('should normalize tag comparison', async () => {
@@ -207,7 +223,7 @@ describe('BlogPostService', () => {
 				});
 
 				expect(result).toHaveLength(1);
-				expect(result[0].id).toBe('post1');
+				expect(result[0].slug).toBe('post1');
 			});
 
 			it('should return empty array when no posts have all required tags', async () => {
@@ -248,8 +264,8 @@ describe('BlogPostService', () => {
 				const result = await BlogPostService.find('en', { excludeDrafts: true });
 
 				expect(result).toHaveLength(2);
-				expect(result[0].id).toBe('post1');
-				expect(result[1].id).toBe('post3');
+				expect(result[0].slug).toBe('post1');
+				expect(result[1].slug).toBe('post3');
 			});
 		});
 
@@ -297,7 +313,7 @@ describe('BlogPostService', () => {
 				});
 
 				expect(result).toHaveLength(1);
-				expect(result[0].id).toBe('post1');
+				expect(result[0].slug).toBe('post1');
 			});
 		});
 
@@ -322,9 +338,9 @@ describe('BlogPostService', () => {
 
 				const result = await BlogPostService.find('en', {}, { sort: 'latest' });
 
-				expect(result[0].id).toBe('post2');
-				expect(result[1].id).toBe('post3');
-				expect(result[2].id).toBe('post1');
+				expect(result[0].slug).toBe('post2');
+				expect(result[1].slug).toBe('post3');
+				expect(result[2].slug).toBe('post1');
 			});
 
 			it('should sort by oldest', async () => {
@@ -347,9 +363,9 @@ describe('BlogPostService', () => {
 
 				const result = await BlogPostService.find('en', {}, { sort: 'oldest' });
 
-				expect(result[0].id).toBe('post1');
-				expect(result[1].id).toBe('post3');
-				expect(result[2].id).toBe('post2');
+				expect(result[0].slug).toBe('post1');
+				expect(result[1].slug).toBe('post3');
+				expect(result[2].slug).toBe('post2');
 			});
 
 			it('should sort by title ascending', async () => {
@@ -363,9 +379,9 @@ describe('BlogPostService', () => {
 
 				const result = await BlogPostService.find('en', {}, { sort: 'title-asc' });
 
-				expect(result[0].data.title).toBe('Apple Post');
-				expect(result[1].data.title).toBe('Banana Post');
-				expect(result[2].data.title).toBe('Zebra Post');
+				expect(result[0].title).toBe('Apple Post');
+				expect(result[1].title).toBe('Banana Post');
+				expect(result[2].title).toBe('Zebra Post');
 			});
 
 			it('should sort by title descending', async () => {
@@ -379,9 +395,9 @@ describe('BlogPostService', () => {
 
 				const result = await BlogPostService.find('en', {}, { sort: 'title-desc' });
 
-				expect(result[0].data.title).toBe('Zebra Post');
-				expect(result[1].data.title).toBe('Banana Post');
-				expect(result[2].data.title).toBe('Apple Post');
+				expect(result[0].title).toBe('Zebra Post');
+				expect(result[1].title).toBe('Banana Post');
+				expect(result[2].title).toBe('Apple Post');
 			});
 		});
 
@@ -441,8 +457,8 @@ describe('BlogPostService', () => {
 			const result = await BlogPostService.getRecent('en', 10);
 
 			expect(result).toHaveLength(2);
-			expect(result[0].id).toBe('post3'); // Latest non-draft
-			expect(result[1].id).toBe('post1');
+			expect(result[0].slug).toBe('post3'); // Latest non-draft
+			expect(result[1].slug).toBe('post1');
 		});
 
 		it('should limit to specified count', async () => {
@@ -466,8 +482,8 @@ describe('BlogPostService', () => {
 			const result = await BlogPostService.getRecent('en', 2);
 
 			expect(result).toHaveLength(2);
-			expect(result[0].id).toBe('post3');
-			expect(result[1].id).toBe('post2');
+			expect(result[0].slug).toBe('post3');
+			expect(result[1].slug).toBe('post2');
 		});
 	});
 
@@ -484,8 +500,8 @@ describe('BlogPostService', () => {
 			const result = await BlogPostService.search('machine learning', 'en');
 
 			expect(result).toHaveLength(2);
-			expect(result[0].id).toBe('post1');
-			expect(result[1].id).toBe('post3');
+			expect(result[0].slug).toBe('post1');
+			expect(result[1].slug).toBe('post3');
 		});
 
 		it('should search in description', async () => {
@@ -505,7 +521,7 @@ describe('BlogPostService', () => {
 			const result = await BlogPostService.search('python', 'en');
 
 			expect(result).toHaveLength(1);
-			expect(result[0].id).toBe('post1');
+			expect(result[0].slug).toBe('post1');
 		});
 
 		it('should search in tags', async () => {
@@ -525,7 +541,7 @@ describe('BlogPostService', () => {
 			const result = await BlogPostService.search('python', 'en');
 
 			expect(result).toHaveLength(1);
-			expect(result[0].id).toBe('post1');
+			expect(result[0].slug).toBe('post1');
 		});
 
 		it('should be case-insensitive', async () => {
@@ -569,7 +585,7 @@ describe('BlogPostService', () => {
 			const result = await BlogPostService.getByCategory('ml', 'en');
 
 			expect(result).toHaveLength(1);
-			expect(result[0].id).toBe('post1');
+			expect(result[0].slug).toBe('post1');
 		});
 
 		it('should exclude drafts', async () => {
@@ -589,7 +605,7 @@ describe('BlogPostService', () => {
 			const result = await BlogPostService.getByCategory('ml', 'en');
 
 			expect(result).toHaveLength(1);
-			expect(result[0].id).toBe('post1');
+			expect(result[0].slug).toBe('post1');
 		});
 	});
 
@@ -611,7 +627,7 @@ describe('BlogPostService', () => {
 			const result = await BlogPostService.getByDifficulty('beginner', 'en');
 
 			expect(result).toHaveLength(1);
-			expect(result[0].id).toBe('post1');
+			expect(result[0].slug).toBe('post1');
 		});
 	});
 
@@ -633,7 +649,7 @@ describe('BlogPostService', () => {
 			const result = await BlogPostService.getByTags(['python', 'ml'], 'en');
 
 			expect(result).toHaveLength(1);
-			expect(result[0].id).toBe('post1');
+			expect(result[0].slug).toBe('post1');
 		});
 
 		it('should exclude drafts', async () => {
@@ -653,7 +669,7 @@ describe('BlogPostService', () => {
 			const result = await BlogPostService.getByTags(['python'], 'en');
 
 			expect(result).toHaveLength(1);
-			expect(result[0].id).toBe('post1');
+			expect(result[0].slug).toBe('post1');
 		});
 	});
 });

@@ -38,7 +38,7 @@ const otherLang = language === 'en' ? 'id' : 'en';
 const allPosts = await BlogPostService.getAll(language);
 
 // Find current post to pass to service
-const currentPost = allPosts.find(p => p.id === currentPostId);
+const currentPost = allPosts.find(p => p.slug === currentPostId);
 
 // Use RelatedPostsService to find related posts
 const relatedPosts = currentPost
@@ -72,7 +72,7 @@ if (translatedVersions) {
 				<span>
 					{t.language.availableIn} <strong>{otherLang === 'en' ? 'English' : 'Bahasa Indonesia'}</strong>
 				</span>
-				<a href={`/${otherLang}/blog/${translationPost.id}`} class="translation-link">
+				<a href={`/${otherLang}/blog/${translationPost.slug}`} class="translation-link">
 					{otherLang === 'en' ? 'Read in English' : 'Baca dalam Bahasa Indonesia'} →
 				</a>
 			</div>
@@ -85,37 +85,37 @@ if (translatedVersions) {
 				<div class="related-grid">
 					{relatedPosts.map((post) => (
 						<article class="related-card">
-							<a href={`/${language}/blog/${post.id}`}>
-								{post.data.heroImage && (
+							<a href={`/${language}/blog/${post.slug}`}>
+								{post.heroImage && (
 									<div class="related-image">
 										<Image
-											src={post.data.heroImage}
-											alt={post.data.title}
+											src={post.heroImage}
+											alt={post.title}
 											width={400}
 											height={200}
 										/>
 									</div>
 								)}
 								<div class="related-content">
-									<h3 class="related-post-title">{post.data.title}</h3>
-									<p class="related-description">{post.data.description}</p>
+									<h3 class="related-post-title">{post.title}</h3>
+									<p class="related-description">{post.description}</p>
 
 									{/* Meta info */}
 									<div class="related-meta">
 										<span class="related-date">
-											<FormattedDate date={post.data.pubDate} />
+											<FormattedDate date={post.pubDate} />
 										</span>
-										{post.data.difficulty && (
-											<span class="related-difficulty difficulty-{post.data.difficulty}">
-												{t.difficulty[post.data.difficulty]}
+										{post.difficulty && (
+											<span class="related-difficulty difficulty-{post.difficulty}">
+												{t.difficulty[post.difficulty]}
 											</span>
 										)}
 									</div>
 
 									{/* Tags */}
-									{post.data.tags && post.data.tags.length > 0 && (
+									{post.tags && post.tags.length > 0 && (
 										<div class="related-tags">
-											{post.data.tags.slice(0, 3).map((tag) => (
+											{post.tags.slice(0, 3).map((tag) => (
 												<Tag tag={tag} lang={language} size="sm" />
 											))}
 										</div>

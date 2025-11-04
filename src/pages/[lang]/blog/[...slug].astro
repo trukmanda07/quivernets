@@ -18,8 +18,8 @@ export async function getStaticPaths() {
 
 		for (const post of posts) {
 			paths.push({
-				params: { lang, slug: post.id },
-				props: { post, lang },
+				params: { lang, slug: post.slug },
+				props: { post: post.getEntry(), lang },
 			});
 		}
 	}
@@ -37,7 +37,7 @@ const { Content, headings } = await render(post);
 
 // Build explorer tree for sidebar (using service)
 const allPosts = await BlogPostService.getAll(lang as 'en' | 'id');
-const explorerTree = buildExplorerTree(allPosts, lang);
+const explorerTree = buildExplorerTree(allPosts.map(p => p.getEntry()), lang);
 
 // Transform Astro headings to our Heading format for the Topics sidebar
 import { buildHeadingTree } from '../../../utils/headingExtractor';

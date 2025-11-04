@@ -15,27 +15,25 @@ import Header from '../../../components/Header.astro';
 import Tag from '../../../components/Tag.astro';
 import { SITE_TITLE } from '../../../consts';
 import { supportedLanguages, useTranslations } from '../../../utils/i18n';
-import { getCachedBlogPosts } from '../../../utils/buildCache';
+import { BlogPostService } from '../../../services/BlogPostService';
 
 export async function getStaticPaths() {
 	const paths = [];
 
 	// Generate paths for each language
 	for (const lang of supportedLanguages) {
-		let posts = [];
+		const posts = await BlogPostService.getAll(lang as 'en' | 'id');
 
-		try {
-			posts = await getCachedBlogPosts(lang as 'en' | 'id');
-		} catch (error) {
+		if (posts.length === 0) {
 			console.log(`Collection for ${lang} not found or empty, skipping...`);
 			continue;
 		}
 
-		// Collect all unique categories from posts
+		// Collect all unique categories from posts (using domain model properties)
 		const categories = new Set<string>();
 		posts.forEach((post) => {
-			if (post.data.category) {
-				categories.add(post.data.category);
+			if (post.category) {
+				categories.add(post.category);
 			}
 		});
 
@@ -57,32 +55,20 @@ const { originalCategory } = Astro.props;
 const currentLang = lang || 'en';
 const t = useTranslations(currentLang);
 
-// Get all posts for the current language with this category (cached)
-let allPosts = [];
+// Get all posts for the current language with this category (using service with domain models)
+const posts = await BlogPostService.getByCategory(originalCategory, currentLang as 'en' | 'id', {
+	sort: 'latest'
+});
 
-try {
-	allPosts = await getCachedBlogPosts(currentLang as 'en' | 'id');
-} catch (error) {
-	console.error(`Error loading posts for category ${categorySlug}:`, error);
-}
-
-// Filter posts by category (case-insensitive match)
-let posts = allPosts
-	.filter((post) => {
-		if (!post.data.category) return false;
-		return post.data.category.toLowerCase().replace(/\s+/g, '-') === categorySlug;
-	})
-	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
-
-// Get difficulty breakdown
+// Get difficulty breakdown (using domain model properties)
 const difficultyCount = {
-	beginner: posts.filter(p => p.data.difficulty === 'beginner').length,
-	intermediate: posts.filter(p => p.data.difficulty === 'intermediate').length,
-	advanced: posts.filter(p => p.data.difficulty === 'advanced').length,
+	beginner: posts.filter(p => p.difficulty === 'beginner').length,
+	intermediate: posts.filter(p => p.difficulty === 'intermediate').length,
+	advanced: posts.filter(p => p.difficulty === 'advanced').length,
 };
 
-// Get all tags in this category
-const allTags = [...new Set(posts.flatMap(p => p.data.tags || []))].sort();
+// Get all tags in this category (using domain model properties)
+const allTags = [...new Set(posts.flatMap(p => p.tags || []))].sort();
 
 const pageTitle = originalCategory;
 const pageDescription = `${posts.length} ${posts.length === 1 ? (currentLang === 'en' ? 'post' : 'artikel') : (currentLang === 'en' ? 'posts' : 'artikel')} ${currentLang === 'en' ? 'in' : 'dalam'} ${originalCategory}`;
@@ -313,23 +299,23 @@ const breadcrumbSegments = [
 					<ul>
 						{posts.map((post) => (
 							<li>
-								<a href={`/${currentLang}/blog/${post.id}/`}>
+								<a href={`/${currentLang}/blog/${post.slug}/`}>
 									<div class="post-card">
-										{post.data.heroImage && (
-											<Image width={720} height={360} src={post.data.heroImage} alt="" />
+										{post.heroImage && (
+											<Image width={720} height={360} src={post.heroImage} alt="" />
 										)}
 										<div class="post-info">
-											<h4 class="title">{post.data.title}</h4>
-											<p class="description">{post.data.description}</p>
+											<h4 class="title">{post.title}</h4>
+											<p class="description">{post.description}</p>
 											<p class="date">
-												<FormattedDate date={post.data.pubDate} />
+												<FormattedDate date={post.pubDate} />
 											</p>
 											<div class="post-difficulty">
-												{t.difficulty[post.data.difficulty]}
+												{post.difficulty && t.difficulty[post.difficulty]}
 											</div>
-											{post.data.tags && post.data.tags.length > 0 && (
+											{post.tags && post.tags.length > 0 && (
 												<div class="post-tags">
-													{post.data.tags.map((tag) => (
+													{post.tags.map((tag) => (
 														<Tag tag={tag} lang={currentLang} size="sm" variant="outlined" />
 													))}
 												</div>

@@ -253,8 +253,9 @@ class BuildCache {
       }
     }
 
-    // For other keys, use timestamp (always fresh)
-    return Date.now().toString();
+    // For other keys (tests, etc.), use a stable hash based on the key itself
+    // This allows the cache to work for non-collection keys
+    return `stable-${key}`;
   }
 
   /**

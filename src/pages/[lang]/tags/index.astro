@@ -28,8 +28,8 @@ const t = useTranslations(currentLang);
 // Get all posts for the current language using service
 const posts = await BlogPostService.getAll(currentLang);
 
-// Count posts per tag using TagService
-const tagResults = TagService.calculateTagCounts(posts, {
+// Count posts per tag using TagService (convert domain models to entries)
+const tagResults = TagService.calculateTagCounts(posts.map(p => p.getEntry()), {
 	sortBy: 'count-desc',
 });
 

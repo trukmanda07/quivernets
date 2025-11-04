@@ -5,21 +5,12 @@
  * Handles filtering, sorting, and querying logic that was previously
  * duplicated across multiple pages.
  *
- * Philosophy: Pragmatic service layer (Option F)
- * - Depends directly on getCachedBlogPosts (no repository abstraction)
- * - Focuses on business logic extraction, not data source abstraction
- * - Simple static class following TagService pattern
+ * Phase 4: Now uses rich domain models (BlogPost) instead of anemic data structures.
+ * The service delegates business logic to domain model methods where appropriate.
  */
 
-import type { CollectionEntry } from 'astro:content';
-import { getCachedBlogPosts } from '../utils/buildCache';
-
-/**
- * Lightweight domain type alias
- * (Not a true domain model, but good enough for static site)
- */
-export type BlogPost = CollectionEntry<'blog-en'> | CollectionEntry<'blog-id'>;
-export type Language = 'en' | 'id';
+import { BlogPost } from '../domain/blog/BlogPost';
+import { BlogPostRepository, type Language } from '../repositories/BlogPostRepository';
 
 /**
  * Filter options for blog posts
@@ -91,16 +82,12 @@ export class BlogPostService {
 	 * Posts are sorted by publication date (latest first).
 	 *
 	 * @param language - Language code ('en' or 'id')
-	 * @returns Array of blog posts
+	 * @returns Array of BlogPost domain models
 	 */
 	static async getAll(language: Language): Promise<BlogPost[]> {
-		const posts = await getCachedBlogPosts(language);
+		const posts = await BlogPostRepository.findAll(language);
 		// Sort by date (latest first) by default
-		return posts.sort((a, b) => {
-			const dateA = a.data.pubDate instanceof Date ? a.data.pubDate : new Date(a.data.pubDate);
-			const dateB = b.data.pubDate instanceof Date ? b.data.pubDate : new Date(b.data.pubDate);
-			return dateB.valueOf() - dateA.valueOf();
-		});
+		return posts.sort((a, b) => b.pubDate.valueOf() - a.pubDate.valueOf());
 	}
 
 	/**
@@ -108,11 +95,10 @@ export class BlogPostService {
 	 *
 	 * @param slug - Post slug
 	 * @param language - Language code
-	 * @returns Blog post or null if not found
+	 * @returns BlogPost domain model or null if not found
 	 */
 	static async getBySlug(slug: string, language: Language): Promise<BlogPost | null> {
-		const posts = await this.getAll(language);
-		return posts.find((p) => p.slug === slug) ?? null;
+		return BlogPostRepository.findBySlug(slug, language);
 	}
 
 	/**
@@ -177,18 +163,13 @@ export class BlogPostService {
 	 */
 	static async search(query: string, language: Language): Promise<BlogPost[]> {
 		const posts = await this.getAll(language);
-		const lowerQuery = query.toLowerCase().trim();
 
-		if (!lowerQuery) {
+		if (!query.trim()) {
 			return posts;
 		}
 
-		return posts.filter(
-			(post) =>
-				post.data.title.toLowerCase().includes(lowerQuery) ||
-				post.data.description.toLowerCase().includes(lowerQuery) ||
-				(post.data.tags ?? []).some((tag) => tag.toLowerCase().includes(lowerQuery)),
-		);
+		// Delegate to domain model method
+		return posts.filter((post) => post.matchesSearchQuery(query));
 	}
 
 	/**
@@ -241,6 +222,7 @@ export class BlogPostService {
 
 	/**
 	 * Apply filters to posts.
+	 * Now delegates to domain model methods where appropriate.
 	 *
 	 * @param posts - Array of posts to filter
 	 * @param filters - Filter criteria
@@ -249,29 +231,24 @@ export class BlogPostService {
 	private static applyFilters(posts: BlogPost[], filters: BlogPostFilters): BlogPost[] {
 		let filtered = posts;
 
-		// Category filter
+		// Category filter - delegate to domain model
 		if (filters.category) {
-			filtered = filtered.filter((p) => p.data.category === filters.category);
+			filtered = filtered.filter((p) => p.isInCategory(filters.category!));
 		}
 
-		// Difficulty filter
+		// Difficulty filter - delegate to domain model
 		if (filters.difficulty) {
-			filtered = filtered.filter((p) => p.data.difficulty === filters.difficulty);
+			filtered = filtered.filter((p) => p.hasDifficulty(filters.difficulty!));
 		}
 
-		// Tags filter (AND logic - must have all tags)
+		// Tags filter (AND logic - must have all tags) - delegate to domain model
 		if (filters.tags && filters.tags.length > 0) {
-			filtered = filtered.filter((p) => {
-				const postTags = (p.data.tags ?? []).map((t) =>
-					t.toLowerCase().replace(/\s+/g, '-'),
-				);
-				return filters.tags!.every((tag) => postTags.includes(tag.toLowerCase()));
-			});
+			filtered = filtered.filter((p) => p.hasAllTags(filters.tags!));
 		}
 
-		// Draft filter
+		// Draft filter - delegate to domain model
 		if (filters.excludeDrafts) {
-			filtered = filtered.filter((p) => !p.data.draft);
+			filtered = filtered.filter((p) => p.isPublished());
 		}
 
 		return filtered;
@@ -279,6 +256,7 @@ export class BlogPostService {
 
 	/**
 	 * Sort posts according to specified order.
+	 * Now uses domain model properties.
 	 *
 	 * @param posts - Array of posts to sort
 	 * @param sortOrder - Sort order
@@ -289,13 +267,13 @@ export class BlogPostService {
 
 		switch (sortOrder) {
 			case 'latest':
-				return sorted.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+				return sorted.sort((a, b) => b.pubDate.valueOf() - a.pubDate.valueOf());
 			case 'oldest':
-				return sorted.sort((a, b) => a.data.pubDate.valueOf() - b.data.pubDate.valueOf());
+				return sorted.sort((a, b) => a.pubDate.valueOf() - b.pubDate.valueOf());
 			case 'title-asc':
-				return sorted.sort((a, b) => a.data.title.localeCompare(b.data.title));
+				return sorted.sort((a, b) => a.title.localeCompare(b.title));
 			case 'title-desc':
-				return sorted.sort((a, b) => b.data.title.localeCompare(a.data.title));
+				return sorted.sort((a, b) => b.title.localeCompare(a.title));
 			default:
 				return sorted;
 		}

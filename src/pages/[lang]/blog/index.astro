@@ -60,13 +60,14 @@ const posts = await BlogPostService.find(currentLang, filters, {
 const allPosts = await BlogPostService.getAll(currentLang);
 
 // Extract unique categories for filter UI
-const categories = [...new Set(allPosts.map(p => p.data.category).filter(Boolean))].sort();
+const categories = [...new Set(allPosts.map(p => p.category).filter(Boolean))].sort();
 
-// Build explorer tree from all posts
-const explorerTree = buildExplorerTree(allPosts, currentLang);
+// Build explorer tree from all posts (convert domain models back to entries)
+const allPostEntries = allPosts.map(p => p.getEntry());
+const explorerTree = buildExplorerTree(allPostEntries, currentLang);
 
 // Extract all tags with counts for TagBrowseSidebar
-const allTags = TagService.calculateTagCounts(allPosts, {
+const allTags = TagService.calculateTagCounts(allPostEntries, {
 	sortBy: 'count-desc',
 });
 ---
@@ -254,7 +255,7 @@ const allTags = TagService.calculateTagCounts(allPosts, {
 					<div class="posts-grid">
 						{posts.map((post, index) => (
 							<PostCard
-								post={post}
+								post={post.getEntry()}
 								lang={currentLang}
 								featured={index === 0 && posts.length > 1}
 							/>

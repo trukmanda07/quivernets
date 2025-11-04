@@ -30,8 +30,8 @@ export async function getStaticPaths() {
 			continue;
 		}
 
-		// Collect all unique tags from posts
-		const uniqueTags = TagService.getUniqueTags(posts);
+		// Collect all unique tags from posts (convert domain models to entries)
+		const uniqueTags = TagService.getUniqueTags(posts.map(p => p.getEntry()));
 
 		// Create a path for each tag
 		uniqueTags.forEach((tag) => {
@@ -196,19 +196,19 @@ const breadcrumbSegments = [
 					<ul>
 						{posts.map((post) => (
 							<li>
-								<a href={`/${currentLang}/blog/${post.id}/`}>
+								<a href={`/${currentLang}/blog/${post.slug}/`}>
 									<div class="post-card">
-										{post.data.heroImage && (
-											<Image width={720} height={360} src={post.data.heroImage} alt="" />
+										{post.heroImage && (
+											<Image width={720} height={360} src={post.heroImage} alt="" />
 										)}
 										<div class="post-info">
-											<h4 class="title">{post.data.title}</h4>
-											<p class="description">{post.data.description}</p>
+											<h4 class="title">{post.title}</h4>
+											<p class="description">{post.description}</p>
 											<p class="date">
-												<FormattedDate date={post.data.pubDate} />
+												<FormattedDate date={post.pubDate} />
 											</p>
 											<div class="post-tags">
-												{post.data.tags?.map((tag) => (
+												{post.tags?.map((tag) => (
 													<Tag tag={tag} lang={currentLang} size="sm" variant="outlined" />
 												))}
 											</div>

@@ -4,10 +4,10 @@
  * Extracts the related posts scoring algorithm from the RelatedPosts component.
  * Provides testable, configurable recommendation logic.
  *
- * Phase 3: Service Layer
+ * Phase 4: Now uses rich domain models (BlogPost) and delegates to domain model methods.
  */
 
-import type { BlogPost } from './BlogPostService';
+import { BlogPost } from '../domain/blog/BlogPost';
 
 /**
  * Configurable weights for scoring related posts
@@ -107,7 +107,7 @@ export class RelatedPostsService {
 		};
 
 		// Filter out the current post
-		const otherPosts = allPosts.filter((post) => post.id !== currentPost.id);
+		const otherPosts = allPosts.filter((post) => post.slug !== currentPost.slug);
 
 		// Score each post
 		const scoredPosts = otherPosts.map((post) =>
@@ -147,7 +147,7 @@ export class RelatedPostsService {
 			...weights,
 		};
 
-		const otherPosts = allPosts.filter((post) => post.id !== currentPost.id);
+		const otherPosts = allPosts.filter((post) => post.slug !== currentPost.slug);
 
 		const scoredPosts = otherPosts.map((post) =>
 			this.scorePost(currentPost, post, finalWeights),
@@ -161,6 +161,7 @@ export class RelatedPostsService {
 
 	/**
 	 * Calculate relevance score between two posts.
+	 * Now delegates to domain model methods for tag and category comparisons.
 	 *
 	 * @param currentPost - The reference post
 	 * @param candidatePost - The post to score against the reference
@@ -175,10 +176,8 @@ export class RelatedPostsService {
 		let score = 0;
 		const reasons: string[] = [];
 
-		// Score based on shared tags (highest priority)
-		const currentTags = currentPost.data.tags || [];
-		const candidateTags = candidatePost.data.tags || [];
-		const sharedTags = currentTags.filter((tag) => candidateTags.includes(tag));
+		// Score based on shared tags (highest priority) - delegate to domain model
+		const sharedTags = currentPost.getSharedTags(candidatePost);
 
 		if (sharedTags.length > 0) {
 			const tagScore = sharedTags.length * weights.sharedTag;
@@ -186,25 +185,25 @@ export class RelatedPostsService {
 			reasons.push(`${sharedTags.length} shared tag(s): ${sharedTags.join(', ')} (+${tagScore})`);
 		}
 
-		// Score based on same category
+		// Score based on same category - delegate to domain model
 		if (
-			currentPost.data.category &&
-			candidatePost.data.category &&
-			currentPost.data.category === candidatePost.data.category
+			currentPost.category &&
+			candidatePost.category &&
+			currentPost.isInCategory(candidatePost.category)
 		) {
 			score += weights.sameCategory;
-			reasons.push(`Same category: ${currentPost.data.category} (+${weights.sameCategory})`);
+			reasons.push(`Same category: ${currentPost.category} (+${weights.sameCategory})`);
 		}
 
-		// Score based on same difficulty level
+		// Score based on same difficulty level - delegate to domain model
 		if (
-			currentPost.data.difficulty &&
-			candidatePost.data.difficulty &&
-			currentPost.data.difficulty === candidatePost.data.difficulty
+			currentPost.difficulty &&
+			candidatePost.difficulty &&
+			currentPost.hasDifficulty(candidatePost.difficulty)
 		) {
 			score += weights.sameDifficulty;
 			reasons.push(
-				`Same difficulty: ${currentPost.data.difficulty} (+${weights.sameDifficulty})`,
+				`Same difficulty: ${currentPost.difficulty} (+${weights.sameDifficulty})`,
 			);
 		}
 
