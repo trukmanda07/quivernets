@@ -13,7 +13,7 @@ import Tag from '../../../components/Tag.astro';
 import { SITE_TITLE } from '../../../consts';
 import { supportedLanguages, useTranslations } from '../../../utils/i18n';
 import { TagService } from '../../../services/tagService';
-import { getCachedBlogPosts } from '../../../utils/buildCache';
+import { BlogPostService } from '../../../services/BlogPostService';
 
 export async function getStaticPaths() {
 	return supportedLanguages.map((lang) => ({
@@ -22,17 +22,11 @@ export async function getStaticPaths() {
 }
 
 const { lang } = Astro.params;
-const currentLang = lang || 'en';
+const currentLang = (lang || 'en') as 'en' | 'id';
 const t = useTranslations(currentLang);
 
-// Get all posts for the current language (cached)
-let posts = [];
-
-try {
-	posts = await getCachedBlogPosts(currentLang as 'en' | 'id');
-} catch (error) {
-	console.log(`Collection for ${currentLang} not found or empty`);
-}
+// Get all posts for the current language using service
+const posts = await BlogPostService.getAll(currentLang);
 
 // Count posts per tag using TagService
 const tagResults = TagService.calculateTagCounts(posts, {

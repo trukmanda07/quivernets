@@ -3,23 +3,24 @@ import { type CollectionEntry, render } from 'astro:content';
 import BlogPost from '../../../layouts/BlogPost.astro';
 import { supportedLanguages } from '../../../utils/i18n';
 import { buildExplorerTree } from '../../../utils/explorerTree';
-import { getCachedBlogPosts } from '../../../utils/buildCache';
+import { BlogPostService } from '../../../services/BlogPostService';
 
 export async function getStaticPaths() {
 	const paths = [];
 
 	for (const lang of supportedLanguages) {
-		try {
-			const posts = await getCachedBlogPosts(lang as 'en' | 'id');
-			for (const post of posts) {
-				paths.push({
-					params: { lang, slug: post.id },
-					props: { post, lang },
-				});
-			}
-		} catch (error) {
-			// Collection might be empty initially
+		const posts = await BlogPostService.getAll(lang as 'en' | 'id');
+
+		if (posts.length === 0) {
 			console.warn(`Collection blog-${lang} is empty or doesn't exist yet`);
+			continue;
+		}
+
+		for (const post of posts) {
+			paths.push({
+				params: { lang, slug: post.id },
+				props: { post, lang },
+			});
 		}
 	}
 
@@ -34,13 +35,8 @@ type Props = {
 const { post, lang } = Astro.props;
 const { Content, headings } = await render(post);
 
-// Build explorer tree for sidebar (cached)
-let allPosts = [];
-try {
-	allPosts = await getCachedBlogPosts(lang as 'en' | 'id');
-} catch (error) {
-	console.warn(`Collection blog-${lang} is empty or doesn't exist yet`);
-}
+// Build explorer tree for sidebar (using service)
+const allPosts = await BlogPostService.getAll(lang as 'en' | 'id');
 const explorerTree = buildExplorerTree(allPosts, lang);
 
 // Transform Astro headings to our Heading format for the Topics sidebar

@@ -12,8 +12,9 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../../../consts';
 import { supportedLanguages, useTranslations } from '../../../utils/i18n';
 import { buildExplorerTree } from '../../../utils/explorerTree';
 import { parseTagsFromUrl } from '../../../utils/tagHelpers';
-import { getCachedBlogPosts } from '../../../utils/buildCache';
 import { TagService } from '../../../services/tagService';
+import { BlogPostService } from '../../../services/BlogPostService';
+import type { BlogPostFilters } from '../../../services/BlogPostService';
 
 export async function getStaticPaths() {
 	return supportedLanguages.map((lang) => ({
@@ -22,61 +23,44 @@ export async function getStaticPaths() {
 }
 
 const { lang } = Astro.params;
-const currentLang = lang || 'en';
+const currentLang = (lang || 'en') as 'en' | 'id';
 const t = useTranslations(currentLang);
 
-// Get posts for the current language (cached)
-let allPosts = [];
-try {
-	allPosts = (await getCachedBlogPosts(currentLang as 'en' | 'id')).sort(
-		(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-	);
-	console.log(`Loaded ${allPosts.length} posts from blog-${currentLang}`);
-} catch (error) {
-	// Collection might be empty initially
-	console.error(`Error loading collection blog-${currentLang}:`, error);
-}
-
-// Extract unique categories and difficulties for filter UI
-const categories = [...new Set(allPosts.map(p => p.data.category).filter(Boolean))].sort();
-const difficulties = ['beginner', 'intermediate', 'advanced'] as const;
-
-// Server-side filtering for initial load
+// Parse query parameters
 const url = new URL(Astro.request.url);
 const categoryFilter = url.searchParams.get('category');
 const difficultyFilter = url.searchParams.get('difficulty');
 const sortOrder = url.searchParams.get('sort') || 'latest';
 const tagsParam = url.searchParams.get('tags');
-
-// Parse tags from URL
 const selectedTags = parseTagsFromUrl(tagsParam);
 
-let posts = allPosts;
+// Build filters object
+const filters: BlogPostFilters = {
+	excludeDrafts: true,
+};
 
-// Apply category filter
 if (categoryFilter && categoryFilter !== 'all') {
-	posts = posts.filter(p => p.data.category === categoryFilter);
+	filters.category = categoryFilter;
 }
 
-// Apply difficulty filter
 if (difficultyFilter && difficultyFilter !== 'all') {
-	posts = posts.filter(p => p.data.difficulty === difficultyFilter);
+	filters.difficulty = difficultyFilter as 'beginner' | 'intermediate' | 'advanced';
 }
 
-// Apply tags filter (AND logic - post must have all selected tags)
 if (selectedTags.length > 0) {
-	posts = posts.filter(p => {
-		const postTags = (p.data.tags || []).map((t: string) => t.toLowerCase().replace(/\s+/g, '-'));
-		return selectedTags.every(selectedTag => postTags.includes(selectedTag));
-	});
+	filters.tags = selectedTags;
 }
 
-// Apply sort
-if (sortOrder === 'oldest') {
-	posts = posts.sort((a, b) => a.data.pubDate.valueOf() - b.data.pubDate.valueOf());
-} else {
-	posts = posts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
-}
+// Fetch filtered posts using service
+const posts = await BlogPostService.find(currentLang, filters, {
+	sort: sortOrder as 'latest' | 'oldest',
+});
+
+// Get all posts for metadata (explorer tree, tag counts, categories)
+const allPosts = await BlogPostService.getAll(currentLang);
+
+// Extract unique categories for filter UI
+const categories = [...new Set(allPosts.map(p => p.data.category).filter(Boolean))].sort();
 
 // Build explorer tree from all posts
 const explorerTree = buildExplorerTree(allPosts, currentLang);
