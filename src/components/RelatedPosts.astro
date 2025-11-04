@@ -1,14 +1,16 @@
 ---
-import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
 import FormattedDate from './FormattedDate.astro';
 import Tag from './Tag.astro';
 import { getCollectionName, useTranslations, type Language } from '../utils/i18n';
+import { BlogPostService } from '../services/BlogPostService';
+import { RelatedPostsService } from '../services/RelatedPostsService';
 
 interface Props {
 	currentPostId: string;
 	tags?: string[];
 	category?: string;
+	difficulty?: 'beginner' | 'intermediate' | 'advanced';
 	language: Language;
 	translationId?: string;
 	translatedVersions?: {
@@ -22,6 +24,7 @@ const {
 	currentPostId,
 	tags = [],
 	category,
+	difficulty,
 	language,
 	translationId,
 	translatedVersions,
@@ -31,58 +34,27 @@ const {
 const t = useTranslations(language);
 const otherLang = language === 'en' ? 'id' : 'en';
 
-// Get posts from current language
-const collectionName = getCollectionName(language);
-let allPosts = [];
-try {
-	allPosts = await getCollection(collectionName);
-} catch (error) {
-	console.error(`Error loading collection ${collectionName}:`, error);
-}
+// Get all posts for current language using service
+const allPosts = await BlogPostService.getAll(language);
 
-// Filter out current post
-const otherPosts = allPosts.filter(post => post.id !== currentPostId);
+// Find current post to pass to service
+const currentPost = allPosts.find(p => p.id === currentPostId);
 
-// Calculate relevance score for each post
-const scoredPosts = otherPosts.map(post => {
-	let score = 0;
-
-	// Score based on shared tags (highest priority)
-	const sharedTags = tags.filter(tag => post.data.tags?.includes(tag));
-	score += sharedTags.length * 3;
-
-	// Score based on same category
-	if (category && post.data.category === category) {
-		score += 2;
-	}
-
-	// Slight bonus for same difficulty level
-	if (post.data.difficulty === Astro.props.difficulty) {
-		score += 1;
-	}
-
-	return { post, score };
-});
-
-// Sort by score and take top N
-const relatedPosts = scoredPosts
-	.filter(item => item.score > 0)
-	.sort((a, b) => b.score - a.score)
-	.slice(0, maxRelated)
-	.map(item => item.post);
+// Use RelatedPostsService to find related posts
+const relatedPosts = currentPost
+	? RelatedPostsService.findRelated(currentPost, allPosts, {
+			maxResults: maxRelated,
+			// Can customize weights here if needed:
+			// weights: { sharedTag: 5, sameCategory: 3, sameDifficulty: 1 }
+	  })
+	: [];
 
 // Check if translation exists in other language
 let translationPost = null;
 if (translatedVersions) {
 	const translationSlug = translatedVersions[otherLang];
 	if (translationSlug) {
-		try {
-			const otherCollectionName = getCollectionName(otherLang);
-			const otherLangPosts = await getCollection(otherCollectionName);
-			translationPost = otherLangPosts.find(p => p.id === translationSlug);
-		} catch (error) {
-			console.error(`Error finding translation:`, error);
-		}
+		translationPost = await BlogPostService.getBySlug(translationSlug, otherLang);
 	}
 }
 ---
