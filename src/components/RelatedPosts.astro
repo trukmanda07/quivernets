@@ -1,14 +1,16 @@
 ---
-import { getCollection } from 'astro:content';
 import { Image } from 'astro:assets';
 import FormattedDate from './FormattedDate.astro';
 import Tag from './Tag.astro';
 import { getCollectionName, useTranslations, type Language } from '../utils/i18n';
+import { BlogPostService } from '../services/BlogPostService';
+import { RelatedPostsService } from '../services/RelatedPostsService';
 
 interface Props {
 	currentPostId: string;
 	tags?: string[];
 	category?: string;
+	difficulty?: 'beginner' | 'intermediate' | 'advanced';
 	language: Language;
 	translationId?: string;
 	translatedVersions?: {
@@ -22,6 +24,7 @@ const {
 	currentPostId,
 	tags = [],
 	category,
+	difficulty,
 	language,
 	translationId,
 	translatedVersions,
@@ -31,58 +34,27 @@ const {
 const t = useTranslations(language);
 const otherLang = language === 'en' ? 'id' : 'en';
 
-// Get posts from current language
-const collectionName = getCollectionName(language);
-let allPosts = [];
-try {
-	allPosts = await getCollection(collectionName);
-} catch (error) {
-	console.error(`Error loading collection ${collectionName}:`, error);
-}
+// Get all posts for current language using service
+const allPosts = await BlogPostService.getAll(language);
 
-// Filter out current post
-const otherPosts = allPosts.filter(post => post.id !== currentPostId);
+// Find current post to pass to service
+const currentPost = allPosts.find(p => p.slug === currentPostId);
 
-// Calculate relevance score for each post
-const scoredPosts = otherPosts.map(post => {
-	let score = 0;
-
-	// Score based on shared tags (highest priority)
-	const sharedTags = tags.filter(tag => post.data.tags?.includes(tag));
-	score += sharedTags.length * 3;
-
-	// Score based on same category
-	if (category && post.data.category === category) {
-		score += 2;
-	}
-
-	// Slight bonus for same difficulty level
-	if (post.data.difficulty === Astro.props.difficulty) {
-		score += 1;
-	}
-
-	return { post, score };
-});
-
-// Sort by score and take top N
-const relatedPosts = scoredPosts
-	.filter(item => item.score > 0)
-	.sort((a, b) => b.score - a.score)
-	.slice(0, maxRelated)
-	.map(item => item.post);
+// Use RelatedPostsService to find related posts
+const relatedPosts = currentPost
+	? RelatedPostsService.findRelated(currentPost, allPosts, {
+			maxResults: maxRelated,
+			// Can customize weights here if needed:
+			// weights: { sharedTag: 5, sameCategory: 3, sameDifficulty: 1 }
+	  })
+	: [];
 
 // Check if translation exists in other language
 let translationPost = null;
 if (translatedVersions) {
 	const translationSlug = translatedVersions[otherLang];
 	if (translationSlug) {
-		try {
-			const otherCollectionName = getCollectionName(otherLang);
-			const otherLangPosts = await getCollection(otherCollectionName);
-			translationPost = otherLangPosts.find(p => p.id === translationSlug);
-		} catch (error) {
-			console.error(`Error finding translation:`, error);
-		}
+		translationPost = await BlogPostService.getBySlug(translationSlug, otherLang);
 	}
 }
 ---
@@ -100,7 +72,7 @@ if (translatedVersions) {
 				<span>
 					{t.language.availableIn} <strong>{otherLang === 'en' ? 'English' : 'Bahasa Indonesia'}</strong>
 				</span>
-				<a href={`/${otherLang}/blog/${translationPost.id}`} class="translation-link">
+				<a href={`/${otherLang}/blog/${translationPost.slug}`} class="translation-link">
 					{otherLang === 'en' ? 'Read in English' : 'Baca dalam Bahasa Indonesia'} →
 				</a>
 			</div>
@@ -113,37 +85,37 @@ if (translatedVersions) {
 				<div class="related-grid">
 					{relatedPosts.map((post) => (
 						<article class="related-card">
-							<a href={`/${language}/blog/${post.id}`}>
-								{post.data.heroImage && (
+							<a href={`/${language}/blog/${post.slug}`}>
+								{post.heroImage && (
 									<div class="related-image">
 										<Image
-											src={post.data.heroImage}
-											alt={post.data.title}
+											src={post.heroImage}
+											alt={post.title}
 											width={400}
 											height={200}
 										/>
 									</div>
 								)}
 								<div class="related-content">
-									<h3 class="related-post-title">{post.data.title}</h3>
-									<p class="related-description">{post.data.description}</p>
+									<h3 class="related-post-title">{post.title}</h3>
+									<p class="related-description">{post.description}</p>
 
 									{/* Meta info */}
 									<div class="related-meta">
 										<span class="related-date">
-											<FormattedDate date={post.data.pubDate} />
+											<FormattedDate date={post.pubDate} />
 										</span>
-										{post.data.difficulty && (
-											<span class="related-difficulty difficulty-{post.data.difficulty}">
-												{t.difficulty[post.data.difficulty]}
+										{post.difficulty && (
+											<span class="related-difficulty difficulty-{post.difficulty}">
+												{t.difficulty[post.difficulty]}
 											</span>
 										)}
 									</div>
 
 									{/* Tags */}
-									{post.data.tags && post.data.tags.length > 0 && (
+									{post.tags && post.tags.length > 0 && (
 										<div class="related-tags">
-											{post.data.tags.slice(0, 3).map((tag) => (
+											{post.tags.slice(0, 3).map((tag) => (
 												<Tag tag={tag} lang={language} size="sm" />
 											))}
 										</div>

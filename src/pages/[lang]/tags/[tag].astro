@@ -15,31 +15,27 @@ import Header from '../../../components/Header.astro';
 import Tag from '../../../components/Tag.astro';
 import { SITE_TITLE } from '../../../consts';
 import { supportedLanguages, useTranslations } from '../../../utils/i18n';
-import { getCachedBlogPosts } from '../../../utils/buildCache';
+import { BlogPostService } from '../../../services/BlogPostService';
+import { TagService } from '../../../services/tagService';
 
 export async function getStaticPaths() {
 	const paths = [];
 
 	// Generate paths for each language
 	for (const lang of supportedLanguages) {
-		let posts = [];
+		const posts = await BlogPostService.getAll(lang as 'en' | 'id');
 
-		try {
-			posts = await getCachedBlogPosts(lang as 'en' | 'id');
-		} catch (error) {
+		if (posts.length === 0) {
 			console.log(`Collection blog-${lang} not found or empty, skipping...`);
 			continue;
 		}
 
-		// Collect all unique tags from posts
-		const tags = new Set<string>();
-		posts.forEach((post) => {
-			post.data.tags?.forEach((tag) => tags.add(tag));
-		});
+		// Collect all unique tags from posts (convert domain models to entries)
+		const uniqueTags = TagService.getUniqueTags(posts.map(p => p.getEntry()));
 
 		// Create a path for each tag
-		tags.forEach((tag) => {
-			const tagSlug = tag.toLowerCase().replace(/\s+/g, '-');
+		uniqueTags.forEach((tag) => {
+			const tagSlug = TagService.normalizeSlug(tag);
 			paths.push({
 				params: { lang, tag: tagSlug },
 				props: { originalTag: tag },
@@ -52,26 +48,13 @@ export async function getStaticPaths() {
 
 const { lang, tag: tagSlug } = Astro.params;
 const { originalTag } = Astro.props;
-const currentLang = lang || 'en';
+const currentLang = (lang || 'en') as 'en' | 'id';
 const t = useTranslations(currentLang);
 
-// Get all posts for the current language with this tag (cached)
-let posts = [];
-
-try {
-	const allPosts = await getCachedBlogPosts(currentLang as 'en' | 'id');
-
-	// Filter posts by tag (case-insensitive match)
-	posts = allPosts
-		.filter((post) =>
-			post.data.tags?.some(
-				(tag) => tag.toLowerCase().replace(/\s+/g, '-') === tagSlug
-			)
-		)
-		.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
-} catch (error) {
-	console.error(`Error loading posts for tag ${tagSlug}:`, error);
-}
+// Get all posts for the current language with this tag (using service)
+const posts = await BlogPostService.getByTags([tagSlug as string], currentLang, {
+	sort: 'latest'
+});
 
 const pageTitle = `${t.tags.postsWithTag} "${originalTag}"`;
 const pageDescription = `${t.tags.postsWithTag} "${originalTag}" - ${posts.length} ${posts.length === 1 ? 'post' : 'posts'}`;
@@ -213,19 +196,19 @@ const breadcrumbSegments = [
 					<ul>
 						{posts.map((post) => (
 							<li>
-								<a href={`/${currentLang}/blog/${post.id}/`}>
+								<a href={`/${currentLang}/blog/${post.slug}/`}>
 									<div class="post-card">
-										{post.data.heroImage && (
-											<Image width={720} height={360} src={post.data.heroImage} alt="" />
+										{post.heroImage && (
+											<Image width={720} height={360} src={post.heroImage} alt="" />
 										)}
 										<div class="post-info">
-											<h4 class="title">{post.data.title}</h4>
-											<p class="description">{post.data.description}</p>
+											<h4 class="title">{post.title}</h4>
+											<p class="description">{post.description}</p>
 											<p class="date">
-												<FormattedDate date={post.data.pubDate} />
+												<FormattedDate date={post.pubDate} />
 											</p>
 											<div class="post-tags">
-												{post.data.tags?.map((tag) => (
+												{post.tags?.map((tag) => (
 													<Tag tag={tag} lang={currentLang} size="sm" variant="outlined" />
 												))}
 											</div>
