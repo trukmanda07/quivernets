@@ -57,16 +57,18 @@ try {
 }
 
 // Check for related presentation
-import { getAllPresentations } from '../utils/loadPresentation';
+import { getDefaultPresentationService } from '../services/presentation/PresentationService';
 
 let relatedPresentation: any = null;
-// Find presentation that references this blog post (automatically scans filesystem)
-const presentations = getAllPresentations();
-const foundPresentation = presentations.find(p =>
-	p.relatedBlogPost === currentSlug && p.languages.includes(currentLang)
+// Find presentation that references this blog post using service
+const presentationService = getDefaultPresentationService();
+const relatedPresentations = await presentationService.getRelatedPresentations(
+	currentSlug || '',
+	currentLang as 'en' | 'id'
 );
 
-if (foundPresentation) {
+if (relatedPresentations.length > 0) {
+	const foundPresentation = relatedPresentations[0];
 	relatedPresentation = {
 		id: foundPresentation.id,
 		data: foundPresentation
