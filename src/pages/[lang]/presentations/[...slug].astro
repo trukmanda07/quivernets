@@ -10,24 +10,46 @@
 
 import RevealLayout from '../../../layouts/RevealLayout.astro';
 import RevealPresentation from '../../../components/RevealPresentation.astro';
-import { getAllPresentationSlugs, loadPresentation } from '../../../utils/loadPresentation';
+import { getDefaultPresentationService } from '../../../services/presentation/PresentationService';
+import { getDefaultPresentationRepository } from '../../../infrastructure/presentation/FileSystemPresentationRepository';
+import type { Language } from '../../../domain/blog/types';
 
 export async function getStaticPaths() {
   const paths = [];
-  const languages = ['en', 'id'];
+  const languages: Language[] = ['en', 'id'];
+  const repository = getDefaultPresentationRepository();
+  const service = getDefaultPresentationService();
 
   // Generate paths for all presentations in all languages
   for (const lang of languages) {
-    const slugs = getAllPresentationSlugs(lang);
+    const slugs = await repository.getSlugs(lang);
 
     for (const slug of slugs) {
-      // Load presentation data from file structure
-      const { metadata, slides } = loadPresentation(slug, lang);
+      // Load presentation view model from service
+      const presentation = await service.getPresentationBySlug(slug, lang);
 
-      paths.push({
-        params: { lang, slug },
-        props: { metadata, slides, lang, slug }
-      });
+      if (presentation) {
+        paths.push({
+          params: { lang, slug },
+          props: {
+            metadata: {
+              title: presentation.title,
+              description: presentation.description,
+              pubDate: presentation.pubDate,
+              relatedBlogPost: presentation.relatedBlogPost,
+              category: presentation.category,
+              tags: presentation.tags,
+              difficulty: presentation.difficulty,
+              estimatedTime: presentation.estimatedTime,
+              totalSlides: presentation.totalSlides,
+              author: presentation.author,
+            },
+            slides: presentation.slides,
+            lang,
+            slug
+          }
+        });
+      }
     }
   }
 
